@@ -1,20 +1,19 @@
 {
     "name": "wappsto-cli",
     "version": "1.0.0",
-    "description": "Command Line Interface Wappsto",
-    "main": "index.js",
+    "description": "Command Line Interface for Wappsto",
     "scripts": {
         "pretest": "eslint --ignore-path .gitignore .",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "bin": {
         "create-wapp": "./bin/create.js",
-        "upload-wapp": "./bin/upload.js",
+        "update-wapp": "./bin/update.js",
         "delete-wapp": "./bin/delete.js"
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/wappsto/wappapi.git"
+        "url": "git+https://github.com/wappsto/wappsto-cli.git"
     },
     "keywords": [
         "wappsto",
@@ -22,12 +21,21 @@
         "api",
         "iot"
     ],
-    "author": "Seluxit A/S",
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/wappsto/wappapi/issues"
+    "author": {
+        "name": "Seluxit A/S",
+        "email": "developer@wappsto.com",
+        "url": "https://wappsto.com"
     },
-    "homepage": "https://github.com/wappsto/wappapi#readme",
+    "files": [
+        "bin/*",
+        "lib/*",
+        "examples/*"
+    ],
+    "license": "Apache-2.0",
+    "bugs": {
+        "url": "https://github.com/wappsto/wappsto-cli/issues"
+    },
+    "homepage": "https://github.com/wappsto/wappsto-cli#readme",
     "dependencies": {
         "axios": "^0.18.0",
         "chalk": "^2.4.2",
@@ -42,6 +50,7 @@
     "devDependencies": {
         "eslint": "^5.14.1",
         "eslint-config-airbnb-base": "^13.1.0",
-        "eslint-plugin-import": "^2.16.0"
+        "eslint-plugin-import": "^2.16.0",
+        "inquirer-test": "^2.0.1"
     }
 }

@@ -1,15 +1,16 @@
 #!/usr/bin/env node
 
 const Wapp = require('../lib/wapp');
+const inquirer = require('../lib/inquirer');
 
 const run = async () => {
     try {
         const wapp = new Wapp();
         await wapp.init();
 
-        const files = await wapp.upload();
+        const files = await wapp.update();
         files.forEach((f) => {
-            console.log(f+' was uploaded to wappsto');
+            inquirer.showMessage(`${f.name} was ${f.status}`);
         });
     } catch (err) {
         console.error(err);
