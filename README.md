@@ -14,6 +14,10 @@ $ npm install wappsto-cli --save-dev
 
 Run the command `create-wapp` to create a Wapp.
 
+## Related
+
+- [wappapi](https://github.com/wappsto/wappapi)
+
 ## License
 
 Apache 2.0 © [Seluxit A/S](http://seluxit.com)

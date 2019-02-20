@@ -62,10 +62,8 @@ typings/
 
 .application
 manifest.json
-foreground
-!examples/foreground
-background
-!examples/background
+/foreground
+/background
 icon
 \#*\#
 .\#*
