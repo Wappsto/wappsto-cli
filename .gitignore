@@ -59,3 +59,9 @@ typings/
 
 # next.js build output
 .next
+
+.application
+manifest.json
+foreground
+background
+icon
