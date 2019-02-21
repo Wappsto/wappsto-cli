@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const Wapp = require('../lib/wapp');
-const inquirer = require('../lib/inquirer');
+const tui = require('../lib/tui');
 
 const run = async () => {
     try {
@@ -10,7 +10,7 @@ const run = async () => {
 
         const files = await wapp.update();
         files.forEach((f) => {
-            inquirer.showMessage(`${f.name} was ${f.status}`);
+            tui.showMessage(`${f.name} was ${f.status}`);
         });
     } catch (err) {
         console.error(err);

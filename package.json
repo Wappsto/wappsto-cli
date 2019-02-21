@@ -3,9 +3,9 @@
     "version": "1.0.0",
     "description": "Command Line Interface for Wappsto",
     "scripts": {
-        "pretest1": "eslint --ignore-pattern examples --ignore-path .gitignore  .",
-        "test": "nyc ava",
-	"coverage": "nyc report --reporter=text-lcov | coveralls"
+        "pretest": "eslint --ignore-pattern examples --ignore-path .gitignore  .",
+        "test": "nyc ava -s",
+        "coverage": "nyc report --reporter=text-lcov | coveralls"
     },
     "bin": {
         "create-wapp": "./bin/create.js",
@@ -50,12 +50,13 @@
     },
     "devDependencies": {
         "ava": "^1.2.1",
+        "axios-mock-adapter": "^1.16.0",
         "coveralls": "^3.0.2",
         "eslint": "^5.14.1",
         "eslint-config-airbnb-base": "^13.1.0",
         "eslint-plugin-ava": "^5.1.1",
         "eslint-plugin-import": "^2.16.0",
-        "inquirer-test": "^2.0.1",
+        "mock-inquirer": "^1.0.2",
         "nyc": "^13.3.0"
     }
 }

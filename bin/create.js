@@ -5,6 +5,8 @@ const clear = require('clear');
 const figlet = require('figlet');
 
 const Wapp = require('../lib/wapp');
+const tui = require('../lib/tui');
+
 
 clear();
 console.log(
@@ -20,8 +22,13 @@ const run = async () => {
         await wapp.clean();
         await wapp.create();
     } catch (err) {
-        console.log(err);
-        console.log('Run error');
+        if (err.message === 'LoginError') {
+            tui.showError('Failed to Login, please try again.');
+        } else {
+            console.log(err);
+            console.log('Run error');
+        }
+        process.exit(-1);
     }
 };
 run();

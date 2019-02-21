@@ -5,7 +5,7 @@ const clear = require('clear');
 const figlet = require('figlet');
 
 const Wapp = require('../lib/wapp');
-const inquirer = require('../lib/inquirer');
+const tui = require('../lib/tui');
 
 clear();
 console.log(
@@ -21,7 +21,7 @@ const run = async () => {
             await wapp.init();
             await wapp.delete();
         } else {
-            inquirer.showError('No Wapp found in current folder');
+            tui.showError('No Wapp found in current folder');
         }
     } catch (err) {
         console.log(err);
