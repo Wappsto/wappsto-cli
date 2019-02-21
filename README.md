@@ -1,6 +1,8 @@
 # wappsto-cli
 [![Build Status](https://travis-ci.com/Wappsto/wappsto-cli.svg?branch=master)](https://travis-ci.com/Wappsto/wappsto-cli)
 [![Depfu](https://badges.depfu.com/badges/c25acea9b059ab7760cb61d1de54f29d/overview.svg)](https://depfu.com/github/Wappsto/wappsto-cli?project_id=7056)
+[![Coverage Status](https://coveralls.io/repos/github/Wappsto/wappsto-cli/badge.svg?branch=master)](https://coveralls.io/github/Wappsto/wappsto-cli?branch=master)
+
 Command Line Interface for Wappsto, so that it is possible to create Wapps locally.
 
 
@@ -12,11 +14,24 @@ $ npm install wappsto-cli --save-dev
 
 ## Usage
 
-Run the command `create-wapp` to create a Wapp.
+To create a Wapp:
+```
+$ create-wapp
+```
+
+To update the Wapp:
+```
+$ update-wapp
+```
+
+To delete the Wapp:
+```
+$ delete-wapp
+```
 
 ## Related
 
-- [wappapi](https://github.com/wappsto/wappapi)
+- [wapp-api](https://github.com/wappsto/wapp-api)
 
 ## License
 
