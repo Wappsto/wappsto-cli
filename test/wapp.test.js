@@ -189,7 +189,7 @@ test('update empty files', async (t) => {
     });
 
     const updatedFiles = await wapp.update();
-
+    t.log(updatedFiles);
     t.deepEqual(updatedFiles, []);
 });
 
@@ -232,7 +232,7 @@ test('update test files', async (t) => {
     });
 
     const updatedFiles = await wapp.update();
-    t.log(updatedFiles);
+
     t.deepEqual(updatedFiles, [
         {
             name: 'foreground/index.html',

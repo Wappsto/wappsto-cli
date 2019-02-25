@@ -10,18 +10,40 @@ const app = express();
 const wapp = new Wapp();
 
 const port = 3000;
-const HOST = process.env.WAPPSTO_HOST || 'wappsto.com';
 let sessionID = '';
 
+if (!wapp.present()) {
+    tui.showError('No Wapp found in current folder');
+    process.exit(-1);
+}
+
+const run = async () => {
+    try {
+        await wapp.init();
+        sessionID = await wapp.getInstallationSession();
+    } catch (err) {
+        if (err.message === 'LoginError') {
+            tui.showError('Failed to Login, please try again.');
+        } else {
+            console.log(err);
+            console.log('Run error');
+        }
+        process.exit(-1);
+    }
+};
+run();
+
+const HOST = wapp.wappsto.HOST;
+
 app.use('/services', proxy({
-    target: `https://${HOST}`,
+    target: HOST,
     changeOrigin: true,
     ws: true,
     logLevel: 'debug',
 }));
 
 app.use('/wapp-api.js', proxy({
-    target: `https://light.${HOST}`,
+    target: `https://light.${HOST.split('//')[1]}`,
     changeOrigin: true,
     logLevel: 'debug',
     onProxyRes: (proxyRes, req, res) => {
@@ -48,19 +70,3 @@ app.use('/wapp-api.js', proxy({
 app.use(express.static('foreground'));
 
 app.listen(port, () => console.log(`Wapp is running on port ${port}!`));
-
-const run = async () => {
-    try {
-        await wapp.init();
-        sessionID = await wapp.getInstallationSession();
-    } catch (err) {
-        if (err.message === 'LoginError') {
-            tui.showError('Failed to Login, please try again.');
-        } else {
-            console.log(err);
-            console.log('Run error');
-        }
-        process.exit(-1);
-    }
-};
-run();
