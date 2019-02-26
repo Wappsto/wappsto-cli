@@ -49,7 +49,8 @@
         "form-data": "^2.3.3",
         "http-proxy-middleware": "^0.19.1",
         "inquirer": "^6.2.2",
-        "mkdirp": "^0.5.1"
+        "mkdirp": "^0.5.1",
+        "ws": "^6.1.4"
     },
     "devDependencies": {
         "ava": "^1.2.1",

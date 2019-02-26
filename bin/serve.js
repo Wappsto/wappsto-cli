@@ -21,6 +21,9 @@ const run = async () => {
     try {
         await wapp.init();
         sessionID = await wapp.getInstallationSession();
+        await wapp.openStream((msg) => {
+            tui.showMessage(msg);
+        });
     } catch (err) {
         if (err.message === 'LoginError') {
             tui.showError('Failed to Login, please try again.');
@@ -33,19 +36,17 @@ const run = async () => {
 };
 run();
 
-const HOST = wapp.wappsto.HOST;
+const { HOST } = wapp.wappsto;
 
 app.use('/services', proxy({
     target: HOST,
     changeOrigin: true,
     ws: true,
-    logLevel: 'debug',
 }));
 
 app.use('/wapp-api.js', proxy({
     target: `https://light.${HOST.split('//')[1]}`,
     changeOrigin: true,
-    logLevel: 'debug',
     onProxyRes: (proxyRes, req, res) => {
         let originalBody = Buffer.from([]);
         proxyRes.on('data', (data) => {
@@ -69,4 +70,4 @@ app.use('/wapp-api.js', proxy({
 
 app.use(express.static('foreground'));
 
-app.listen(port, () => console.log(`Wapp is running on port ${port}!`));
+app.listen(port, () => tui.showMessage(`Wapp is running on port ${port}!`));
