@@ -60,7 +60,6 @@ mock.onPatch('https://wappsto.com/services/version/version_id').reply(200, {
     .onGet('https://wappsto.com/files/file/file_id')
     .reply(200, 'file content');
 
-
 const conf = new Configstore(pkg.name);
 conf.delete('session');
 
@@ -137,19 +136,18 @@ test('clean no wapp', async (t) => {
 
 test('create new empty wapp', async (t) => {
     const wapp = new Wapp();
-    mock.onGet('https://wappsto.com/services/application?expand=2&verbose=true').replyOnce(200, [])
-        .onPost('https://wappsto.com/services/application').replyOnce(201, {
+    mock.onPost('https://wappsto.com/services/application').replyOnce(201, {
+        meta: {
+            id: 'application_id',
+        },
+        version: [{
             meta: {
-                id: 'application_id',
+                id: 'version_id',
             },
-            version: [{
-                meta: {
-                    id: 'version_id',
-                },
-                name: 'Wapp Test',
-                file: [],
-            }],
-        })
+            name: 'Wapp Test',
+            file: [],
+        }],
+    })
         .onGet('https://wappsto.com/files/file/file_id')
         .reply(200, 'file content');
 
@@ -183,9 +181,6 @@ test('update empty files', async (t) => {
             name: 'Wapp Test',
             file: [],
         }],
-    }).onAny().reply((opt) => {
-        t.log(opt);
-        return [500, {}];
     });
 
     const updatedFiles = await wapp.update();

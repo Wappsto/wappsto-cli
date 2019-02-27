@@ -21,9 +21,7 @@ const run = async () => {
     try {
         await wapp.init();
         sessionID = await wapp.getInstallationSession();
-        await wapp.openStream((msg) => {
-            tui.showMessage(msg);
-        });
+        await wapp.openStream();
     } catch (err) {
         if (err.message === 'LoginError') {
             tui.showError('Failed to Login, please try again.');
