@@ -40,11 +40,13 @@ app.use('/services', proxy({
     target: HOST,
     changeOrigin: true,
     ws: true,
+    logLevel: 'error',
 }));
 
 app.use('/wapp-api.js', proxy({
     target: `https://light.${HOST.split('//')[1]}`,
     changeOrigin: true,
+    logLevel: 'error',
     onProxyRes: (proxyRes, req, res) => {
         let originalBody = Buffer.from([]);
         proxyRes.on('data', (data) => {

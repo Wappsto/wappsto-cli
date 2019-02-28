@@ -5,8 +5,8 @@ const tui = require('../lib/tui');
 
 let reinstall = false;
 
-for (let j = 2; j < process.argv.length; j++) {
-    switch(process.argv[j]) {
+for (let j = 2; j < process.argv.length; j += 1) {
+    switch (process.argv[j]) {
     case '--reinstall':
         reinstall = true;
         break;
