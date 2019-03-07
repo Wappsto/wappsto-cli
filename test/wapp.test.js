@@ -9,56 +9,160 @@ const pkg = require('../package.json');
 const files = require('../lib/files');
 const Wapp = require('../lib/wapp');
 
-// This sets the mock adapter on the default instance
 const mock = new MockAdapter(axios);
+mock.onAny().reply((options) => {
+    const url = options.url.indexOf('services') !== -1 ? options.url.split('/services/')[1] : options.url.split('/files/')[1];
+    const { method } = options;
+    let data = {};
 
-mock.onPatch('https://wappsto.com/services/version/version_id').reply(200, {
-    file: [{
-        meta: {
-            id: 'file_id',
-        },
-    }],
-})
-    .onDelete('https://wappsto.com/services/application/application_id').reply(200, [])
-    .onDelete('https://wappsto.com/services/version/version_id')
-    .reply(200, [])
-    .onDelete('https://wappsto.com/services/installation?this_version_id=version_id')
-    .reply(200, [])
-    .onPut('https://wappsto.com/files/version/version_id')
-    .reply(201, {})
-    .onGet('https://wappsto.com/services/application/application_id?expand=2&verbose=true')
-    .reply(200, {
-        meta: {
-            id: 'application_id',
-        },
-        version: [{
+    try {
+        if (options.data && options.data[0] === '{') {
+            data = JSON.parse(options.data);
+        }
+    } catch (err) {
+        console.log(options.data);
+        console.log(err);
+    }
+
+    let status = 501;
+    let res = {};
+    switch (url) {
+    case 'session':
+        if (data.username === 'user@wappsto.com' && data.password === 'password') {
+            status = 200;
+            res = {
+                meta: {
+                    id: 'session',
+                },
+            };
+        } else {
+            status = 401;
+        }
+        break;
+    case 'application':
+        if (method) {
+            status = 201;
+            res = {
+                meta: {
+                    id: 'application_id',
+                },
+                version: [{
+                    meta: {
+                        id: 'version_id',
+                    },
+                    name: 'Wapp Test',
+                    file: [],
+                }],
+            };
+        } else {
+            status = 200;
+        }
+        break;
+    case 'application?expand=2&verbose=true':
+        status = 200;
+        res = [];
+        break;
+    case 'application?verbose=true':
+        status = 201;
+        res = {
+            meta: {
+                id: 'application_id',
+            },
+            version: [{
+                meta: {
+                    id: 'version_id',
+                },
+                name: 'Wapp Test',
+                file: [],
+            }],
+        };
+        break;
+    case 'application/application_id?expand=2&verbose=true':
+    case 'application/application_id':
+        if (method === 'get') {
+            status = 200;
+            res = {
+                meta: {
+                    id: 'application_id',
+                },
+                version: [{
+                    meta: {
+                        id: 'version_id',
+                    },
+                    name: 'Wapp Test',
+                    file: [],
+                }],
+            };
+        } else if (method === 'delete') {
+            status = 200;
+        }
+        break;
+    case 'installation':
+        status = 201;
+        res = {
+            meta: {
+                id: 'installation_id',
+            },
+        };
+        break;
+    case 'installation?this_version_id=version_id':
+        status = 200;
+        break;
+    case 'installation/installation_id':
+        if (method === 'patch') {
+            status = 200;
+        }
+        break;
+    case 'installation?expand=2&this_version_id=version_id':
+        status = 200;
+        res = {};
+        break;
+    case 'version/version_id?verbose=true':
+        status = 200;
+        res = {
             meta: {
                 id: 'version_id',
+                revision: 1,
             },
             file: [{
                 meta: {
                     id: 'file_id',
                 },
             }],
-        }],
-    })
-    .onGet('https://wappsto.com/services/application?expand=2&verbose=true')
-    .reply(200, [])
-    .onPost('https://wappsto.com/services/application')
-    .reply(201, {
-        meta: {
-            id: 'application_id',
-        },
-        version: [{
-            meta: {
-                id: 'version_id',
-            },
-            name: 'Wapp Test',
-            file: [],
-        }],
-    })
-    .onGet('https://wappsto.com/files/file/file_id')
-    .reply(200, 'file content');
+        };
+        break;
+    case 'version/version_id':
+        if (method === 'delete') {
+            status = 200;
+        } else if (method === 'patch') {
+            status = 200;
+            res = {
+                meta: {
+                    id: 'version_id',
+                },
+                file: [{
+                    meta: {
+                        id: 'file_id',
+                    },
+                }],
+            };
+        } else if (method === 'put') {
+            status = 200;
+        }
+        break;
+    case 'files/file/file_id':
+        status = 200;
+        res = 'file content';
+        break;
+    default:
+        break;
+    }
+    if (status === 501) {
+        console.debug('unhandled');
+        console.debug(options);
+    }
+    return [status, res];
+});
 
 const conf = new Configstore(pkg.name);
 conf.delete('session');
@@ -71,7 +175,7 @@ test('constructor', (t) => {
 
 test('Login Fail', async (t) => {
     const wapp = new Wapp();
-    mock.onPost('https://wappsto.com/services/session').replyOnce(401);
+
     mockInquirer([{
         username: '',
         password: '',
@@ -80,7 +184,7 @@ test('Login Fail', async (t) => {
         password: '',
     }, {
         username: 'user@wappsto.com',
-        password: 'password',
+        password: 'wrong',
     }]);
 
     try {
@@ -107,11 +211,7 @@ test('Login Fail', async (t) => {
 
 test('Login', async (t) => {
     const wapp = new Wapp();
-    mock.onPost('https://wappsto.com/services/session').replyOnce(200, {
-        meta: {
-            id: 'session',
-        },
-    });
+
     mockInquirer([{
         username: 'user@wappsto.com',
         password: 'password',
@@ -136,24 +236,14 @@ test('clean no wapp', async (t) => {
 
 test('create new empty wapp', async (t) => {
     const wapp = new Wapp();
-    mock.onPost('https://wappsto.com/services/application').replyOnce(201, {
-        meta: {
-            id: 'application_id',
-        },
-        version: [{
-            meta: {
-                id: 'version_id',
-            },
-            name: 'Wapp Test',
-            file: [],
-        }],
-    })
-        .onGet('https://wappsto.com/files/file/file_id')
-        .reply(200, 'file content');
 
     mockInquirer([{
         name: 'Test Wapp',
+        author: 'author',
+        version: '1.1.1',
         features: ['foreground'],
+        general: 'general',
+        foreground: 'foreground',
         examples: false,
     }]);
 
@@ -165,7 +255,6 @@ test('create new empty wapp', async (t) => {
     t.false(files.directoryExists('background'));
     t.false(files.fileExists('foreground/index.html'));
 });
-
 
 test('update empty files', async (t) => {
     const wapp = new Wapp();
@@ -193,7 +282,11 @@ test('create new example wapp', async (t) => {
 
     mockInquirer([{
         name: 'Test Wapp',
+        author: 'author',
+        version: '1.1.1',
         features: ['foreground', 'background'],
+        general: 'general',
+        foreground: 'foreground',
         examples: true,
     }]);
 
