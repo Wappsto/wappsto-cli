@@ -57,9 +57,10 @@ app.use('/wapp-api.js', proxy({
 
         proxyRes.on('end', () => {
             const bodyString = zlib.gunzipSync(originalBody).toString('utf8');
-            const newBody = `window.sessionID = '${sessionID}';\n${bodyString}`;
+            const newBody = `sessionStorage.setItem('sessionID', '${sessionID}');\n${bodyString}`;
 
             res.set({
+                'Set-Cookie': `x-session=${sessionID}`,
                 'content-type': 'text/html; charset=utf-8',
                 'content-encoding': 'gzip',
             });
