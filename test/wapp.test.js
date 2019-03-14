@@ -1,5 +1,6 @@
 import test from 'ava';
 
+const WebSocket = require('ws');
 const mockInquirer = require('mock-inquirer');
 const axios = require('axios');
 const MockAdapter = require('axios-mock-adapter');
@@ -10,6 +11,15 @@ const files = require('../lib/files');
 const Wapp = require('../lib/wapp');
 
 const mock = new MockAdapter(axios);
+
+WebSocket.constructor = (endpoint) => {
+    WebSocket.endpoint = endpoint;
+};
+WebSocket.on = (ev, func) => {
+    console.log(ev);
+    WebSocket[ev] = func;
+};
+
 mock.onAny().reply((options) => {
     const url = options.url.indexOf('services') !== -1 ? options.url.split('/services/')[1] : options.url.split('/files/')[1];
     const { method } = options;
@@ -154,6 +164,17 @@ mock.onAny().reply((options) => {
         status = 200;
         res = 'file content';
         break;
+    case 'stream':
+        status = 200;
+        res = {
+            meta: {
+                id: 'stream_id',
+            },
+        };
+        break;
+    case 'stream?expand=2':
+        status = 200;
+        break;
     default:
         break;
     }
@@ -256,21 +277,24 @@ test('create new empty wapp', async (t) => {
     t.false(files.fileExists('foreground/index.html'));
 });
 
-test('update empty files', async (t) => {
+test('do not override wapp', async (t) => {
     const wapp = new Wapp();
 
-    mock.onGet('https://wappsto.com/services/application/application_id').replyOnce(200, {
-        meta: {
-            id: 'application_id',
-        },
-        version: [{
-            meta: {
-                id: 'version_id',
-            },
-            name: 'Wapp Test',
-            file: [],
-        }],
-    });
+    mockInquirer([{
+        override: false,
+    }]);
+
+    await wapp.create();
+
+    t.true(files.fileExists('.application'));
+    t.true(files.fileExists('manifest.json'));
+    t.true(files.directoryExists('foreground'));
+    t.false(files.directoryExists('background'));
+    t.false(files.fileExists('foreground/index.html'));
+});
+
+test('update empty files', async (t) => {
+    const wapp = new Wapp();
 
     const updatedFiles = await wapp.update();
     t.log(updatedFiles);
@@ -281,6 +305,8 @@ test('create new example wapp', async (t) => {
     const wapp = new Wapp();
 
     mockInquirer([{
+        override: true,
+    }, {
         name: 'Test Wapp',
         author: 'author',
         version: '1.1.1',
@@ -303,22 +329,6 @@ test('create new example wapp', async (t) => {
 test('update test files', async (t) => {
     const wapp = new Wapp();
 
-    mock.onGet('https://wappsto.com/services/application/application_id').replyOnce(200, {
-        meta: {
-            id: 'application_id',
-        },
-        version: [{
-            meta: {
-                id: 'version_id',
-            },
-            name: 'Wapp Test',
-            file: [],
-        }],
-    }).onAny().reply((opt) => {
-        t.log(opt);
-        return [500, {}];
-    });
-
     const updatedFiles = await wapp.update();
 
     t.deepEqual(updatedFiles, [
@@ -339,6 +349,24 @@ test('update test files', async (t) => {
             status: 'created',
         },
     ]);
+});
+
+test('open stream', async (t) => {
+    const wapp = new Wapp();
+    console.log = t.log;
+    console.debug = t.log;
+
+    let cbSession = '';
+    await wapp.openStream((session) => {
+        cbSession = session;
+    });
+
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            t.is(cbSession, 'session');
+            resolve();
+        }, 1000);
+    });
 });
 
 test('delete wapp', async (t) => {
