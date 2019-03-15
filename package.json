@@ -8,9 +8,6 @@
         "coverage": "nyc report --reporter=text-lcov | coveralls",
         "release": "np"
     },
-    "wappsto-cli": {
-        "host": "https://qa.wappsto.com"
-    },
     "bin": {
         "create-wapp": "./bin/create.js",
         "update-wapp": "./bin/update.js",
@@ -47,7 +44,6 @@
         "axios": "^0.18.0",
         "chalk": "^2.4.2",
         "clui": "^0.3.6",
-        "configstore": "^4.0.0",
         "express": "^4.16.4",
         "figlet": "^1.2.1",
         "form-data": "^2.3.3",

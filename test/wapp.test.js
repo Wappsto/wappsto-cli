@@ -1,9 +1,7 @@
 import test from 'ava';
 
 const mockInquirer = require('mock-inquirer');
-const Configstore = require('configstore');
 const mocking = require('mock-require');
-const pkg = require('../package.json');
 
 require('./mock/backend');
 
@@ -13,9 +11,17 @@ mocking('clui', './mock/clui');
 const files = require('../lib/files');
 const Wapp = require('../lib/wapp');
 
+test.before((t) => {
+    files.deleteFile('.session');
+    files.deleteFile('.application');
+    files.deleteFile('.installation');
+    files.deleteFile('manifest.json');
+    files.deleteFolder('foreground');
+    files.deleteFolder('background');
+    files.deleteFolder('icon');
 
-const conf = new Configstore(pkg.name);
-conf.delete('session');
+    t.pass();
+});
 
 test('constructor', (t) => {
     const wapp = new Wapp();
@@ -69,7 +75,7 @@ test('Login', async (t) => {
 
     await wapp.init();
 
-    t.is(conf.get('session'), 'session');
+    t.is(files.loadFile('.session'), 'session');
 });
 
 test('clean no wapp', async (t) => {
@@ -216,4 +222,5 @@ test('delete wapp', async (t) => {
     t.false(files.fileExists('.application'));
     t.false(files.fileExists('.installation'));
     t.false(files.fileExists('manifest.json'));
+    t.true(files.fileExists('.session'));
 });

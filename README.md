@@ -19,7 +19,7 @@ $ npm install wappsto-cli --save-dev
 To create a Wapp:
 
 ```sh
-$ create-wapp
+npx create-wapp
 ```
 
 It will ask for your 'username' and 'password' to Wappsto, unless you already logged in.
@@ -30,7 +30,7 @@ Here you get the option to download any exsisting Wapps or create a new Wapp.
 To update the Wapp:
 
 ```sh
-$ update-wapp
+npx update-wapp
 ```
 
 This will upload all your files to Wappsto and download any new files created for your Wapp.
@@ -40,7 +40,7 @@ This will upload all your files to Wappsto and download any new files created fo
 To run the Wapp:
 
 ```sh
-$ serve-wapp
+npx serve-wapp
 ```
 
 This will run a local web server where you can test your wapp. It is default listen on port 3000.
@@ -51,7 +51,7 @@ Any notifications from your Wapp is presented in the terminal where you are runn
 To delete the Wapp:
 
 ```sh
-$ delete-wapp
+npx delete-wapp
 ```
 
 This will delete your Wapp locally and/or remotely.
@@ -64,7 +64,9 @@ You can configure wappsto-cli by creating a 'wappsto-cli' object in your 'packag
 {
   ...
   "wappsto-cli": {
-    ...
+    "foreground": "foreground",
+    "background": "background",
+    "port": "3000"
   }
   ...
 }
@@ -74,15 +76,15 @@ Valid options is:
 
 ### foreground
 
-The folder where the foreground files will be stored.
+The folder where the foreground files will be stored. Default 'foreground'.
 
 ### background
 
-The folder where the background files will be stored.
+The folder where the background files will be stored. Default 'background'.
 
 ### port
 
-The port the web server will serve the Wapp on.
+The port the web server will serve the Wapp on. Default '3000'.
 
 ## Related
 
