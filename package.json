@@ -4,7 +4,7 @@
     "description": "Command Line Interface for Wappsto",
     "scripts": {
         "pretest": "eslint --ignore-pattern examples --ignore-path .gitignore  .",
-        "test": "nyc ava -s",
+        "test": "nyc ava -s test/*.js",
         "coverage": "nyc report --reporter=text-lcov | coveralls"
     },
     "bin": {
@@ -41,7 +41,6 @@
     "dependencies": {
         "axios": "^0.18.0",
         "chalk": "^2.4.2",
-        "clear": "^0.1.0",
         "clui": "^0.3.6",
         "configstore": "^4.0.0",
         "express": "^4.16.4",
@@ -61,6 +60,7 @@
         "eslint-plugin-ava": "^5.1.1",
         "eslint-plugin-import": "^2.16.0",
         "mock-inquirer": "^1.0.2",
+        "mock-require": "^3.0.3",
         "nyc": "^13.3.0"
     }
 }
