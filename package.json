@@ -5,7 +5,8 @@
     "scripts": {
         "pretest": "eslint --ignore-pattern examples --ignore-path .gitignore  .",
         "test": "nyc ava -s test/*.js",
-        "coverage": "nyc report --reporter=text-lcov | coveralls"
+        "coverage": "nyc report --reporter=text-lcov | coveralls",
+        "release": "np"
     },
     "bin": {
         "create-wapp": "./bin/create.js",
@@ -21,7 +22,8 @@
         "wappsto",
         "wapp",
         "api",
-        "iot"
+        "iot",
+        "seluxit"
     ],
     "author": {
         "name": "Seluxit A/S",
@@ -61,6 +63,7 @@
         "eslint-plugin-import": "^2.16.0",
         "mock-inquirer": "^1.0.2",
         "mock-require": "^3.0.3",
+        "np": "^4.0.2",
         "nyc": "^13.3.0"
     }
 }
