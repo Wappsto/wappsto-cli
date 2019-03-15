@@ -5,11 +5,12 @@ const express = require('express');
 const proxy = require('http-proxy-middleware');
 const Wapp = require('../lib/wapp');
 const tui = require('../lib/tui');
+const Config = require('../lib/config');
 
 const app = express();
 const wapp = new Wapp();
 
-const port = 3000;
+const port = Config.port();
 let sessionID = '';
 
 if (!wapp.present()) {

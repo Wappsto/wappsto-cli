@@ -8,6 +8,9 @@
         "coverage": "nyc report --reporter=text-lcov | coveralls",
         "release": "np"
     },
+    "wappsto-cli": {
+        "host": "https://qa.wappsto.com"
+    },
     "bin": {
         "create-wapp": "./bin/create.js",
         "update-wapp": "./bin/update.js",
