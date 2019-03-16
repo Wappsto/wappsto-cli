@@ -2,6 +2,7 @@ const axios = require('axios');
 const MockAdapter = require('axios-mock-adapter');
 
 const mock = new MockAdapter(axios);
+const store = {};
 
 mock.onAny().reply((options) => {
     const url = options.url.indexOf('services') !== -1 ? options.url.split('/services/')[1] : options.url.split('/files/')[1];
@@ -21,7 +22,9 @@ mock.onAny().reply((options) => {
     let res = {};
     switch (url) {
     case 'session':
-        if (data.username === 'user@wappsto.com' && data.password === 'password') {
+        if (method === 'get') {
+            status = 200;
+        } else if (data.username === 'user@wappsto.com' && data.password === 'password') {
             status = 200;
             res = {
                 meta: {
@@ -32,21 +35,18 @@ mock.onAny().reply((options) => {
             status = 401;
         }
         break;
+    case 'application?verbose=true':
     case 'application':
-        if (method) {
+        if (method === 'post') {
             status = 201;
-            res = {
-                meta: {
-                    id: 'application_id',
-                },
-                version: [{
-                    meta: {
-                        id: 'version_id',
-                    },
-                    name: 'Wapp Test',
-                    file: [],
-                }],
+            data.meta = {
+                id: 'application_id',
             };
+            data.version[0].meta = {
+                id: 'version_id',
+            };
+            store.application_id = data;
+            res = data;
         } else {
             status = 200;
         }
@@ -55,51 +55,28 @@ mock.onAny().reply((options) => {
         status = 200;
         res = [];
         break;
-    case 'application?verbose=true':
-        status = 201;
-        res = {
-            meta: {
-                id: 'application_id',
-            },
-            version: [{
-                meta: {
-                    id: 'version_id',
-                },
-                name: 'Wapp Test',
-                file: [],
-            }],
-        };
-        break;
+
     case 'application/application_id?expand=2&verbose=true':
     case 'application/application_id':
         if (method === 'get') {
             status = 200;
-            res = {
-                meta: {
-                    id: 'application_id',
-                },
-                version: [{
-                    meta: {
-                        id: 'version_id',
-                    },
-                    name: 'Wapp Test',
-                    file: [],
-                }],
-            };
+            res = store.application_id;
         } else if (method === 'delete') {
             status = 200;
+            delete store.application_id;
         }
         break;
     case 'installation':
         status = 201;
-        res = {
-            meta: {
-                id: 'installation_id',
-            },
+        data.meta = {
+            id: 'installation_id',
         };
+        store.installation_id = data;
+        res = data;
         break;
     case 'installation?this_version_id=version_id':
         status = 200;
+        res = store.installation_id;
         break;
     case 'installation/installation_id':
         if (method === 'patch') {
@@ -108,7 +85,7 @@ mock.onAny().reply((options) => {
         break;
     case 'installation?expand=2&this_version_id=version_id':
         status = 200;
-        res = {};
+        res = store.installation_id;
         break;
     case 'installation?expand=2&this_name=Wapp%20Creator':
         status = 200;
@@ -116,6 +93,7 @@ mock.onAny().reply((options) => {
             session: 'sessionID',
         };
         break;
+
     case 'version/version_id?verbose=true':
         status = 200;
         res = {

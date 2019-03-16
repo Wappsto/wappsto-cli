@@ -56,6 +56,13 @@ npx delete-wapp
 
 This will delete your Wapp locally and/or remotely.
 
+### Reinstall
+
+To trigger a reinstall of the application run:
+```sh
+npx update-wapp --reinstall
+```
+
 ## Configuration
 
 You can configure wappsto-cli by creating a 'wappsto-cli' object in your 'package.json' file like this:

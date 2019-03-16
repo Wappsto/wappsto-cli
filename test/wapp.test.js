@@ -82,7 +82,7 @@ test('clean no wapp', async (t) => {
     const wapp = new Wapp();
 
     mockInquirer([{
-        override: true,
+        override: false,
     }]);
 
     await wapp.clean();
@@ -93,7 +93,7 @@ test('clean no wapp', async (t) => {
 test('create new empty wapp', async (t) => {
     const wapp = new Wapp();
 
-    mockInquirer([{
+    const answer = {
         name: 'Test Wapp',
         author: 'author',
         version: '1.1.1',
@@ -101,7 +101,9 @@ test('create new empty wapp', async (t) => {
         general: 'general',
         foreground: 'foreground',
         examples: false,
-    }]);
+    };
+
+    mockInquirer([answer]);
 
     await wapp.create();
 
@@ -111,6 +113,14 @@ test('create new empty wapp', async (t) => {
     t.true(files.directoryExists('foreground'));
     t.false(files.directoryExists('background'));
     t.false(files.fileExists('foreground/index.html'));
+
+    const manifest = files.loadJsonFile('manifest.json');
+    t.is(answer.name, manifest.name);
+    t.is(answer.author, manifest.author);
+    t.is(answer.version, manifest.version_app);
+    t.deepEqual(answer.features, manifest.supported_features);
+    t.is(answer.general, manifest.description.general);
+    t.is(answer.foreground, manifest.description.foreground);
 });
 
 test('do not override wapp', async (t) => {
@@ -134,14 +144,13 @@ test('update empty files', async (t) => {
     const wapp = new Wapp();
 
     const updatedFiles = await wapp.update();
-    t.log(updatedFiles);
     t.deepEqual(updatedFiles, []);
 });
 
 test('create new example wapp', async (t) => {
     const wapp = new Wapp();
 
-    mockInquirer([{
+    const answer = {
         name: 'Test Wapp',
         author: 'author',
         version: '1.1.1',
@@ -149,7 +158,11 @@ test('create new example wapp', async (t) => {
         general: 'general',
         foreground: 'foreground',
         examples: true,
-    }]);
+    };
+
+    mockInquirer([
+        answer,
+    ]);
 
     await wapp.create();
 
@@ -160,6 +173,15 @@ test('create new example wapp', async (t) => {
     t.true(files.directoryExists('background'));
     t.true(files.fileExists('foreground/index.html'));
     t.true(files.fileExists('background/package.json'));
+
+    const manifest = files.loadJsonFile('manifest.json');
+    t.is(answer.name, manifest.name);
+    t.is(answer.author, manifest.author);
+    t.is(answer.version, manifest.version_app);
+    t.deepEqual(answer.features, manifest.supported_features);
+    t.is(answer.general, manifest.description.general);
+    t.is(answer.foreground, manifest.description.foreground);
+    t.is(answer.background, manifest.description.background);
 });
 
 test('update test files', async (t) => {
