@@ -65,17 +65,13 @@ npx update-wapp --reinstall
 
 ## Configuration
 
-You can configure wappsto-cli by creating a 'wappsto-cli' object in your 'package.json' file like this:
+You can configure wappsto-cli by creating a 'wappsto.json' file and add this:
 
 ```json
 {
-  ...
-  "wappsto-cli": {
-    "foreground": "foreground",
-    "background": "background",
-    "port": "3000"
-  }
-  ...
+ "foreground": "foreground",
+ "background": "background",
+ "port": "3000"
 }
 ```
 
