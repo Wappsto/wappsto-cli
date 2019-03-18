@@ -25,17 +25,14 @@
         "iot",
         "seluxit"
     ],
-    "wappsto-cli": {
-        "host": "https://dev.wappsto.com"
-    },
     "author": {
         "name": "Seluxit A/S",
         "email": "developer@wappsto.com",
         "url": "https://wappsto.com"
     },
     "files": [
-        "bin/*",
-        "lib/*",
+        "bin/*.js",
+        "lib/*.js",
         "examples/*"
     ],
     "license": "Apache-2.0",
