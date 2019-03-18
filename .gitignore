@@ -61,8 +61,10 @@ typings/
 .next
 
 .application
+.installation
 .session
 manifest.json
+wappsto.json
 /foreground
 /background
 icon
