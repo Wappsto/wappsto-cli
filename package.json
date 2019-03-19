@@ -4,7 +4,7 @@
     "description": "Command Line Interface for Wappsto",
     "scripts": {
         "pretest": "eslint --ignore-pattern examples --ignore-path .gitignore  .",
-        "test": "nyc ava -s test/*.js",
+        "test": "nyc ava -sv test/*.js",
         "coverage": "nyc report --reporter=text-lcov | coveralls",
         "release": "np"
     },

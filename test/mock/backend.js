@@ -48,8 +48,6 @@ mock.onAny().reply((options) => {
             store.application_id = data;
             [store.version_id] = data.version;
             res = data;
-        } else {
-            status = 200;
         }
         break;
     case 'application?expand=2&verbose=true':
@@ -69,12 +67,52 @@ mock.onAny().reply((options) => {
             delete store.application_id;
         }
         break;
+
+    case 'version/version_id?expand=2&verbose=true':
+        if (method === 'get') {
+            status = 200;
+            res = store.version_id;
+        }
+        break;
+    case 'version/version_id':
+        if (method === 'delete') {
+            status = 200;
+        } else if (method === 'patch') {
+            status = 200;
+
+            if (data.file) {
+                if (!data.file[0].meta) {
+                    data.file[0].meta = {
+                        id: 'file_id',
+                    };
+                }
+                data.file[0].meta.updated = 'now';
+            }
+
+            Object.keys(data).forEach((key) => {
+                if (Array.isArray(store.version_id[key])) {
+                    store.version_id[key].push(data[key][0]);
+                } else {
+                    store.version_id[key] = data[key];
+                }
+            });
+
+            store.application_id.version[0] = store.version_id;
+            res = store.version_id;
+        } else if (method === 'put') {
+            status = 200;
+        }
+        break;
+
     case 'installation':
         if (method === 'post') {
             status = 201;
             data.meta = {
                 id: 'installation_id',
             };
+            if (!data.file) {
+                data.file = [];
+            }
             store.installation_id = data;
             res = data;
         }
@@ -108,44 +146,28 @@ mock.onAny().reply((options) => {
         }
         break;
 
-    case 'version/version_id?expand=2&verbose=true':
-        if (method === 'get') {
-            status = 200;
-            res = store.version_id;
-        }
-        break;
-    case 'version/version_id':
-        if (method === 'delete') {
-            status = 200;
-        } else if (method === 'patch') {
-            status = 200;
-            res = {
-                meta: {
-                    id: 'version_id',
-                },
-                file: [{
-                    meta: {
-                        id: 'file_id',
-                    },
-                }],
-            };
-        } else if (method === 'put') {
-            status = 200;
-        }
-        break;
     case 'file/file_id':
         if (method === 'get') {
             status = 200;
             res = 'file content';
+        } else if (method === 'delete') {
+            status = 200;
         }
         break;
     case 'stream':
-        status = 200;
-        res = {
-            meta: {
-                id: 'stream_id',
-            },
-        };
+        if (method === 'post') {
+            status = 201;
+            if (!data.meta) {
+                data.meta = {
+                    id: 'stream_id',
+                };
+            }
+            store.stream_id = data;
+            res = data;
+        } else if (method === 'get') {
+            status = 200;
+            res = store.stream_id;
+        }
         break;
     case 'stream?expand=2':
         status = 200;

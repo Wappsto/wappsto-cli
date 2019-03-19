@@ -29,8 +29,8 @@ test.before((t) => {
 
 test('constructor', (t) => {
     const wapp = new Wapp();
-    t.deepEqual(wapp.application, {});
-    t.deepEqual(wapp.manifest, {});
+    t.deepEqual({}, wapp.application);
+    t.deepEqual({}, wapp.manifest);
 });
 
 test('Login Fail', async (t) => {
@@ -119,12 +119,12 @@ test('create new empty wapp', async (t) => {
     t.false(files.fileExists('foreground/index.html'));
 
     const manifest = files.loadJsonFile('manifest.json');
-    t.is(answer.name, manifest.name);
-    t.is(answer.author, manifest.author);
-    t.is(answer.version, manifest.version_app);
-    t.deepEqual(answer.features, manifest.supported_features);
-    t.is(answer.general, manifest.description.general);
-    t.is(answer.foreground, manifest.description.foreground);
+    t.is(manifest.name, answer.name);
+    t.is(manifest.author, answer.author);
+    t.is(manifest.version_app, answer.version);
+    t.deepEqual(manifest.supported_features, answer.features);
+    t.is(manifest.description.general, answer.general);
+    t.is(manifest.description.foreground, answer.foreground);
 });
 
 test('do not override wapp', async (t) => {
@@ -148,7 +148,7 @@ test('update empty files', async (t) => {
     const wapp = new Wapp();
 
     const updatedFiles = await wapp.update();
-    t.deepEqual(updatedFiles, []);
+    t.deepEqual([], updatedFiles);
 });
 
 test('create new example wapp', async (t) => {
@@ -179,27 +179,34 @@ test('create new example wapp', async (t) => {
     t.true(files.fileExists('background/package.json'));
 
     const manifest = files.loadJsonFile('manifest.json');
-    t.is(answer.name, manifest.name);
-    t.is(answer.author, manifest.author);
-    t.is(answer.version, manifest.version_app);
-    t.deepEqual(answer.features, manifest.supported_features);
-    t.is(answer.general, manifest.description.general);
-    t.is(answer.foreground, manifest.description.foreground);
-    t.is(answer.background, manifest.description.background);
+    t.is(manifest.name, answer.name);
+    t.is(manifest.author, answer.author);
+    t.is(manifest.version_app, answer.version);
+    t.deepEqual(manifest.supported_features, answer.features);
+    t.is(manifest.description.general, answer.general);
+    t.is(manifest.description.foreground, answer.foreground);
+    t.is(manifest.description.background, answer.background);
 });
 
 test('update test files', async (t) => {
     const wapp = new Wapp();
 
+    files.createFolders('foreground/testdir/file.js');
+    files.saveFile('foreground/testdir/file.js', 'file 1');
+
     const updatedFiles = await wapp.update();
 
-    t.deepEqual(updatedFiles, [
+    t.deepEqual([
         {
             name: 'foreground/index.html',
             status: 'created',
         },
         {
             name: 'foreground/main.js',
+            status: 'created',
+        },
+        {
+            name: 'foreground/testdir/file.js',
             status: 'created',
         },
         {
@@ -210,7 +217,28 @@ test('update test files', async (t) => {
             name: 'background/package.json',
             status: 'created',
         },
-    ]);
+    ], updatedFiles);
+});
+
+test('update modified and deleted files', async (t) => {
+    const wapp = new Wapp();
+
+    files.saveFile('foreground/index.html', 'modified');
+    files.deleteFile('foreground/main.js');
+
+    await wapp.init();
+    const updatedFiles = await wapp.update();
+
+    t.deepEqual([
+        {
+            name: 'foreground/index.html',
+            status: 'updated',
+        },
+        {
+            name: 'foreground/main.js',
+            status: 'deleted',
+        },
+    ], updatedFiles);
 });
 
 test('open stream', async (t) => {
