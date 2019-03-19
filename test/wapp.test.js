@@ -1,5 +1,9 @@
 import test from 'ava';
 
+const avaSettings = require('ava/lib/concordance-options');
+
+avaSettings.diff.maxDepth = 2;
+
 const mockInquirer = require('mock-inquirer');
 const mocking = require('mock-require');
 
