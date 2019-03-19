@@ -46,14 +46,17 @@ mock.onAny().reply((options) => {
                 id: 'version_id',
             };
             store.application_id = data;
+            [store.version_id] = data.version;
             res = data;
         } else {
             status = 200;
         }
         break;
     case 'application?expand=2&verbose=true':
-        status = 200;
-        res = [];
+        if (method === 'get') {
+            status = 200;
+            res = [];
+        }
         break;
 
     case 'application/application_id?expand=2&verbose=true':
@@ -67,16 +70,23 @@ mock.onAny().reply((options) => {
         }
         break;
     case 'installation':
-        status = 201;
-        data.meta = {
-            id: 'installation_id',
-        };
-        store.installation_id = data;
-        res = data;
+        if (method === 'post') {
+            status = 201;
+            data.meta = {
+                id: 'installation_id',
+            };
+            store.installation_id = data;
+            res = data;
+        }
         break;
     case 'installation?this_version_id=version_id':
-        status = 200;
-        res = store.installation_id;
+        if (method === 'get') {
+            status = 200;
+            res = store.installation_id;
+        } else if (method === 'delete') {
+            status = 200;
+            delete store.installation_id;
+        }
         break;
     case 'installation/installation_id':
         if (method === 'patch') {
@@ -84,29 +94,25 @@ mock.onAny().reply((options) => {
         }
         break;
     case 'installation?expand=2&this_version_id=version_id':
-        status = 200;
-        res = store.installation_id;
+        if (method === 'get') {
+            status = 200;
+            res = store.installation_id;
+        }
         break;
     case 'installation?expand=2&this_name=Wapp%20Creator':
-        status = 200;
-        res = {
-            session: 'sessionID',
-        };
+        if (method === 'get') {
+            status = 200;
+            res = {
+                session: 'sessionID',
+            };
+        }
         break;
 
-    case 'version/version_id?verbose=true':
-        status = 200;
-        res = {
-            meta: {
-                id: 'version_id',
-                revision: 1,
-            },
-            file: [{
-                meta: {
-                    id: 'file_id',
-                },
-            }],
-        };
+    case 'version/version_id?expand=2&verbose=true':
+        if (method === 'get') {
+            status = 200;
+            res = store.version_id;
+        }
         break;
     case 'version/version_id':
         if (method === 'delete') {
@@ -127,9 +133,11 @@ mock.onAny().reply((options) => {
             status = 200;
         }
         break;
-    case 'files/file/file_id':
-        status = 200;
-        res = 'file content';
+    case 'file/file_id':
+        if (method === 'get') {
+            status = 200;
+            res = 'file content';
+        }
         break;
     case 'stream':
         status = 200;
@@ -146,7 +154,7 @@ mock.onAny().reply((options) => {
         break;
     }
     if (status === 501) {
-        console.debug('unhandled');
+        console.debug(`*** unhandled *** ${method} ${url}`);
         console.debug(options);
     }
     return [status, res];
