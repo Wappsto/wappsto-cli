@@ -151,6 +151,43 @@ test('update empty files', async (t) => {
     t.deepEqual([], updatedFiles);
 });
 
+test('create new foreground example wapp', async (t) => {
+    const wapp = new Wapp();
+
+    const answer = {
+        name: 'Test Wapp',
+        author: 'author',
+        version: '1.1.1',
+        features: ['foreground'],
+        general: 'general',
+        foreground: 'foreground',
+        examples: true,
+    };
+
+    mockInquirer([
+        answer,
+    ]);
+
+    await wapp.create();
+
+    t.true(files.fileExists('.application'));
+    t.true(files.fileExists('.installation'));
+    t.true(files.fileExists('manifest.json'));
+    t.true(files.directoryExists('foreground'));
+    t.false(files.directoryExists('background'));
+    t.true(files.fileExists('foreground/index.html'));
+    t.false(files.fileExists('background/package.json'));
+
+    const manifest = files.loadJsonFile('manifest.json');
+    t.is(manifest.name, answer.name);
+    t.is(manifest.author, answer.author);
+    t.is(manifest.version_app, answer.version);
+    t.deepEqual(manifest.supported_features, answer.features);
+    t.is(manifest.description.general, answer.general);
+    t.is(manifest.description.foreground, answer.foreground);
+    t.is(manifest.description.background, answer.background);
+});
+
 test('create new example wapp', async (t) => {
     const wapp = new Wapp();
 
