@@ -3,6 +3,7 @@
 const zlib = require('zlib');
 const express = require('express');
 const proxy = require('http-proxy-middleware');
+const cookieParser = require('cookie-parser')
 const Wapp = require('../lib/wapp');
 const tui = require('../lib/tui');
 const Config = require('../lib/config');
@@ -46,31 +47,14 @@ app.use('/services', proxy({
     logLevel: 'error',
 }));
 
-app.use('/wapp-api.js', proxy({
-    target: `https://light.${HOST.split('//')[1]}`,
-    changeOrigin: true,
-    logLevel: 'error',
-    onProxyRes: (proxyRes, req, res) => {
-        let originalBody = Buffer.from([]);
-        proxyRes.on('data', (data) => {
-            originalBody = Buffer.concat([originalBody, data]);
-        });
+// need cookieParser middleware before we can do anything with cookies
+app.use(cookieParser());
 
-        proxyRes.on('end', () => {
-            const bodyString = zlib.gunzipSync(originalBody).toString('utf8');
-            const newBody = `sessionStorage.setItem('sessionID', '${sessionID}');\n${bodyString}`;
-
-            res.set({
-                'Set-Cookie': `x-session=${sessionID}`,
-                'content-type': 'text/html; charset=utf-8',
-                'content-encoding': 'gzip',
-            });
-            res.write(zlib.gzipSync(newBody));
-            res.end();
-        });
-    },
-    selfHandleResponse: true,
-}));
+// set a cookie
+app.use(function (req, res, next) {
+    res.cookie('sessionID', sessionID, { maxAge: 900000 });
+    next();
+});
 
 app.use(express.static('foreground'));
 
