@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 
-const zlib = require('zlib');
 const express = require('express');
 const proxy = require('http-proxy-middleware');
-const cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser');
 const Wapp = require('../lib/wapp');
 const tui = require('../lib/tui');
 const Config = require('../lib/config');
@@ -51,11 +50,11 @@ app.use('/services', proxy({
 app.use(cookieParser());
 
 // set a cookie
-app.use(function (req, res, next) {
+app.use((req, res, next) => {
     res.cookie('sessionID', sessionID, { maxAge: 900000 });
     next();
 });
 
-app.use(express.static('foreground'));
+app.use(express.static(Config.foreground()));
 
-app.listen(port, () => tui.showMessage(`Wapp is running on port ${port}!`));
+app.listen(port, () => tui.showMessage(`Foreground Wapp is running on port ${port}!`));

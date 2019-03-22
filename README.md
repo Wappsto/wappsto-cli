@@ -25,6 +25,7 @@ npx create-wapp
 It will ask for your 'username' and 'password' to Wappsto, unless you already logged in.
 Here you get the option to download any exsisting Wapps or create a new Wapp.
 
+This will generate a file called manifest.json where you can modify the description of your wapp.
 ### Update
 
 To update the Wapp:
