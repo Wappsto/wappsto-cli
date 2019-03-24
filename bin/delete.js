@@ -1,13 +1,12 @@
 #!/usr/bin/env node
 
 const chalk = require('chalk');
-const clui = require('clui');
 const figlet = require('figlet');
 
 const Wapp = require('../lib/wapp');
 const tui = require('../lib/tui');
 
-clui.Clear();
+tui.clear();
 console.log(
     `${chalk.yellow(
         figlet.textSync('Delete Wapp', { horizontalLayout: 'full' }),
