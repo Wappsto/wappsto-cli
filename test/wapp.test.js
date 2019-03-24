@@ -10,7 +10,6 @@ const mocking = require('mock-require');
 require('./mock/backend');
 
 mocking('ws', './mock/ws');
-mocking('clui', './mock/clui');
 
 const files = require('../lib/files');
 const Wapp = require('../lib/wapp');
