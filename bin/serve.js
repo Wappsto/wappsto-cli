@@ -2,7 +2,6 @@
 
 const express = require('express');
 const proxy = require('http-proxy-middleware');
-const cookieParser = require('cookie-parser');
 const Wapp = require('../lib/wapp');
 const tui = require('../lib/tui');
 const Config = require('../lib/config');
@@ -45,9 +44,6 @@ app.use('/services', proxy({
     ws: true,
     logLevel: 'error',
 }));
-
-// need cookieParser middleware before we can do anything with cookies
-app.use(cookieParser());
 
 // set a cookie
 app.use((req, res, next) => {
