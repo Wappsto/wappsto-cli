@@ -1,11 +1,10 @@
 import test from 'ava';
 
 const avaSettings = require('ava/lib/concordance-options');
-
-avaSettings.diff.maxDepth = 2;
-
 const mockInquirer = require('mock-inquirer');
 const mocking = require('mock-require');
+const tui = require('../lib/tui');
+const Config = require('../lib/config');
 
 require('./mock/backend');
 
@@ -13,6 +12,9 @@ mocking('ws', './mock/ws');
 
 const files = require('../lib/files');
 const Wapp = require('../lib/wapp');
+
+avaSettings.diff.maxDepth = 2;
+tui.write = () => {};
 
 test.before((t) => {
     files.deleteFile('.session');
@@ -282,6 +284,7 @@ test('open stream', async (t) => {
     console.log = t.log;
     console.debug = t.log;
 
+    t.is(3000, Config.port());
     await wapp.openStream();
 
     t.pass();
