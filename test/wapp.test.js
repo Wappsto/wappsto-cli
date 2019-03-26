@@ -279,10 +279,31 @@ test('update modified and deleted files', async (t) => {
     ], updatedFiles);
 });
 
-test('open stream', async (t) => {
+test('download wapp', async (t) => {
     const wapp = new Wapp();
     console.log = t.log;
     console.debug = t.log;
+
+    const answer = {
+        load: true,
+        wapp: 'application_id',
+    };
+
+    mockInquirer([
+        answer,
+    ]);
+
+    await wapp.create();
+
+    t.true(files.fileExists('.application'));
+    t.true(files.fileExists('.installation'));
+    t.true(files.fileExists('manifest.json'));
+    t.true(files.directoryExists('foreground'));
+    t.true(files.directoryExists('background'));
+});
+
+test('open stream', async (t) => {
+    const wapp = new Wapp();
 
     t.is(3000, Config.port());
     await wapp.openStream();

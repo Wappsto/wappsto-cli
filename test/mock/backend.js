@@ -54,6 +54,9 @@ mock.onAny().reply((options) => {
         if (method === 'get') {
             status = 200;
             res = [];
+            if (store.application_id) {
+                res.push(store.application_id);
+            }
         }
         break;
 
@@ -69,13 +72,11 @@ mock.onAny().reply((options) => {
         break;
 
     case 'version/version_id?expand=2&verbose=true':
+    case 'version/version_id':
         if (method === 'get') {
             status = 200;
             res = store.version_id;
-        }
-        break;
-    case 'version/version_id':
-        if (method === 'delete') {
+        } else if (method === 'delete') {
             status = 200;
         } else if (method === 'patch') {
             status = 200;
