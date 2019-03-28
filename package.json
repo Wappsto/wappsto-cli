@@ -51,7 +51,7 @@
         "ws": "^6.2.0"
     },
     "devDependencies": {
-        "ava": "^1.4.0",
+        "ava": "^1.4.1",
         "axios-mock-adapter": "^1.16.0",
         "coveralls": "^3.0.3",
         "eslint": "^5.15.3",
