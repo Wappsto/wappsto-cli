@@ -5,18 +5,25 @@
 
 Command Line Interface for Wappsto, so that it is possible to create Wapps locally.
 
+# Table of Contents
+1. [Install](#install)
+2. [Usage](#usage)
+3. [Configuration](#configuration)
+4. [Frameworks](#frameworks)
 
 ## Install
 
+Just install the package using npm.
+
 ```
-$ npm install wappsto-cli --save-dev
+npm install wappsto-cli --save-dev
 ```
 
 ## Usage
 
 ### Create
 
-To create a Wapp:
+To create a Wapp run the `create-wapp` using `npx`:
 
 ```sh
 npx create-wapp
@@ -28,7 +35,7 @@ Here you get the option to download any exsisting Wapps or create a new Wapp.
 This will generate a file called manifest.json where you can modify the description of your wapp.
 ### Update
 
-To update the Wapp:
+To update the Wapp run the `update-wapp` using `npx`:
 
 ```sh
 npx update-wapp
@@ -38,18 +45,18 @@ This will upload all your files to Wappsto and download any new files created fo
 
 ### Run
 
-To run the Wapp:
+To start a web server that will serve the Wapp run the `serve-wapp` using `npx`:
 
 ```sh
 npx serve-wapp
 ```
 
 This will run a local web server where you can test your wapp. It is default listen on port 3000.
-Any notifications from your Wapp is presented in the terminal where you are running 'serve-wapp'.
+Any notifications from your Wapp is presented in the terminal where you are running `serve-wapp`.
 
 ### Delete
 
-To delete the Wapp:
+To delete the Wapp run the `delete-wapp` using `npx`:
 
 ```sh
 npx delete-wapp
@@ -78,17 +85,50 @@ You can configure wappsto-cli by creating a 'wappsto.json' file and add this:
 
 Valid options is:
 
-### foreground
+| Option     | Default      | Description                                           |
+|------------|--------------|-------------------------------------------------------|
+| foreground | `foreground` | The folder where the foreground files will be stored. |
+| background | `background` | The folder where the background files will be stored. |
+| port       | `3000`       | The port the web server will serve the Wapp on.       |
 
-The folder where the foreground files will be stored. Default 'foreground'.
+## Frameworks
 
-### background
+Here is some examples on how to configure frameworks to work with wappsto-cli.
 
-The folder where the background files will be stored. Default 'background'.
+### React
 
-### port
+If you are using React framework, you can configure the React development server, by creating a file `src/proxySetup.js` with this:
 
-The port the web server will serve the Wapp on. Default '3000'.
+```js
+const proxy = require('http-proxy-middleware');
+const Wapp = require('../node_modules/wappsto-cli/lib/wapp.js');
+
+const wapp = new Wapp();
+
+const { HOST } = wapp.wappsto;
+let sessionID = '';
+
+const run = async () => {
+    await wapp.init();
+    sessionID = await wapp.getInstallationSession();
+};
+run();
+
+module.exports = function(app) {
+    app.use('/services', proxy({
+            target: HOST,
+            changeOrigin: true,
+            ws: true,
+            logLevel: 'error',
+    }));
+
+    // set a cookie
+    app.use((req, res, next) => {
+        res.cookie('sessionID', sessionID, { maxAge: 900000 });
+        next();
+    });
+};
+```
 
 ## Related
 
