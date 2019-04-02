@@ -10,6 +10,8 @@ Command Line Interface for Wappsto, so that it is possible to create Wapps local
 2. [Usage](#usage)
 3. [Configuration](#configuration)
 4. [Frameworks](#frameworks)
+5. [Related](#related)
+6. [License](#license)
 
 ## Install
 
@@ -101,11 +103,11 @@ If you are using React framework, you can configure the React development server
 
 ```js
 const proxy = require('http-proxy-middleware');
-const Wapp = require('../node_modules/wappsto-cli/lib/wapp.js');
+const Wapp = require('wappsto-cli');
 
 const wapp = new Wapp();
 
-const { HOST } = wapp.wappsto;
+const HOST = wapp.host;
 let sessionID = '';
 
 const run = async () => {
@@ -129,6 +131,11 @@ module.exports = function(app) {
     });
 };
 ```
+
+And insert `"homepage": "./",` into your `package.json` file.
+
+To use the build version of React, change the `foreground` configuration to `build` and then run `npm run build` to build the react application.
+Then run `npx serve-wapp` to serve the build version of your react application.
 
 ## Related
 

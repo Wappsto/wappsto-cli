@@ -9,6 +9,7 @@ const Config = require('../lib/config');
 const app = express();
 const wapp = new Wapp();
 
+const HOST = wapp.host;
 const port = Config.port();
 let sessionID = '';
 
@@ -35,8 +36,6 @@ const run = async () => {
     }
 };
 run();
-
-const { HOST } = wapp.wappsto;
 
 app.use('/services', proxy({
     target: HOST,

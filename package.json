@@ -14,6 +14,7 @@
         "delete-wapp": "./bin/delete.js",
         "serve-wapp": "./bin/serve.js"
     },
+    "main": "lib/wapp.js",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/wappsto/wappsto-cli.git"
@@ -35,6 +36,12 @@
         "lib/*.js",
         "examples/*"
     ],
+    "directories": {
+        "bin":"./bin",
+        "lib":"./lib",
+        "example":"./examples",
+        "test": "test"
+    },
     "license": "Apache-2.0",
     "bugs": {
         "url": "https://github.com/wappsto/wappsto-cli/issues"
