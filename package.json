@@ -1,6 +1,6 @@
 {
     "name": "wappsto-cli",
-    "version": "1.1.6",
+    "version": "1.1.7",
     "description": "Command Line Interface for Wappsto",
     "scripts": {
         "pretest": "eslint --ignore-pattern examples --ignore-path .gitignore  .",
@@ -37,9 +37,9 @@
         "examples/*"
     ],
     "directories": {
-        "bin":"./bin",
-        "lib":"./lib",
-        "example":"./examples",
+        "bin": "./bin",
+        "lib": "./lib",
+        "example": "./examples",
         "test": "test"
     },
     "license": "Apache-2.0",
