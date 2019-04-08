@@ -1,17 +1,9 @@
 #!/usr/bin/env node
 
-const chalk = require('chalk');
-const figlet = require('figlet');
-
 const Wapp = require('../lib/wapp');
 const tui = require('../lib/tui');
 
-tui.clear();
-console.log(
-    `${chalk.yellow(
-        figlet.textSync('Delete Wapp', { horizontalLayout: 'full' }),
-    )}\n`,
-);
+tui.header('Delete Wapp');
 
 const run = async () => {
     try {
@@ -23,8 +15,8 @@ const run = async () => {
             tui.showError('No Wapp found in current folder');
         }
     } catch (err) {
-        console.log(err);
-        console.log('Run error');
+        console.error(err);
+        console.error('Run error');
     }
 };
 run();
