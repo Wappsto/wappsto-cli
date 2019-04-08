@@ -9,9 +9,7 @@ const run = async () => {
     try {
         const wapp = new Wapp();
         await wapp.init();
-        if (await wapp.clean()) {
-            await wapp.create();
-        }
+        await wapp.create();
     } catch (err) {
         if (err.message === 'LoginError') {
             tui.showError('Failed to Login, please try again.');

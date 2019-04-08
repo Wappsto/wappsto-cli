@@ -128,23 +128,6 @@ test('create new empty wapp', async (t) => {
     t.is(manifest.description.foreground, answer.foreground);
 });
 
-test('do not override wapp', async (t) => {
-    const wapp = new Wapp();
-
-    mockInquirer([{
-        override: false,
-    }]);
-
-    await wapp.clean();
-
-    t.true(files.fileExists('.application'));
-    t.true(files.fileExists('.installation'));
-    t.true(files.fileExists('manifest.json'));
-    t.true(files.directoryExists('foreground'));
-    t.false(files.directoryExists('background'));
-    t.false(files.fileExists('foreground/index.html'));
-});
-
 test('update empty files', async (t) => {
     const wapp = new Wapp();
 
@@ -285,7 +268,7 @@ test('download wapp', async (t) => {
     console.debug = t.log;
 
     const answer = {
-        load: true,
+        create: 'download',
         wapp: 'application_id',
     };
 
