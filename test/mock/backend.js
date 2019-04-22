@@ -18,12 +18,18 @@ mock.onAny().reply((options) => {
         console.log(err);
     }
 
+    const session = options.headers['x-session'];
+
     let status = 501;
     let res = {};
     switch (url) {
     case 'session':
         if (method === 'get') {
-            status = 200;
+            if (session === 'session') {
+                status = 200;
+            } else {
+                status = 401;
+            }
         } else if (data.username === 'user@wappsto.com' && data.password === 'password') {
             status = 200;
             res = {

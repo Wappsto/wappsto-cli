@@ -25,6 +25,7 @@ test.before((t) => {
     files.deleteFolder('background');
     files.deleteFolder('icon');
 
+    files.saveFile('.session', 'session');
     t.pass();
 });
 
@@ -32,55 +33,6 @@ test('constructor', (t) => {
     const wapp = new Wapp();
     t.deepEqual({}, wapp.application);
     t.deepEqual({}, wapp.manifest);
-});
-
-test('Login Fail', async (t) => {
-    const wapp = new Wapp();
-
-    mockInquirer([{
-        username: '',
-        password: '',
-    }, {
-        username: 'user',
-        password: '',
-    }, {
-        username: 'user@wappsto.com',
-        password: 'wrong',
-    }]);
-
-    try {
-        await wapp.init();
-        t.fail();
-    } catch (err) {
-        t.is(err.message, 'Validation failed for field username');
-    }
-
-    try {
-        await wapp.init();
-        t.fail();
-    } catch (err) {
-        t.is(err.message, 'Validation failed for field password');
-    }
-
-    try {
-        await wapp.init();
-        t.fail();
-    } catch (err) {
-        t.is(err.message, 'LoginError');
-    }
-});
-
-test('Login', async (t) => {
-    const wapp = new Wapp();
-
-    mockInquirer([{
-        username: 'user@wappsto.com',
-        password: 'password',
-    }], {});
-
-    await wapp.init();
-
-    t.is(files.loadFile('.session'), 'session');
 });
 
 test('clean no wapp', async (t) => {
