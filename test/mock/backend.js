@@ -133,6 +133,15 @@ mock.onAny().reply((options) => {
             delete store.installation_id;
         }
         break;
+    case 'version/wrong_version_id':
+        status = 200;
+        break;
+    case 'installation?this_version_id=wrong_version_id':
+        status = 401;
+        res = {
+            code: 300020,
+        };
+        break;
     case 'installation/installation_id':
         if (method === 'patch') {
             status = 200;

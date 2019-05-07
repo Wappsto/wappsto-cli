@@ -48,6 +48,7 @@ test('clean no wapp', async (t) => {
 });
 
 test('create new empty wapp', async (t) => {
+    console.log = t.log;
     const wapp = new Wapp();
 
     const answer = {
