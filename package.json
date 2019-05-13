@@ -69,7 +69,7 @@
         "mock-inquirer": "git+https://github.com/AndreasBomholtz/mock-inquirer.git",
         "mock-require": "^3.0.3",
         "np": "^4.0.2",
-        "nyc": "^14.1.0"
+        "nyc": "^14.1.1"
     },
     "husky": {
         "hooks": {
