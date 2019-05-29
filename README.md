@@ -117,7 +117,7 @@ const run = async () => {
 run();
 
 module.exports = function(app) {
-    app.use('/services', proxy({
+    app.use(proxy('/services', {
             target: HOST,
             changeOrigin: true,
             ws: true,
