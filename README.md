@@ -99,7 +99,13 @@ Here is some examples on how to configure frameworks to work with wappsto-cli.
 
 ### React
 
-If you are using React framework, you can configure the React development server, by creating a file `src/proxySetup.js` with this:
+If you are using React framework, you can [configure](https://facebook.github.io/create-react-app/docs/proxying-api-requests-in-development#configuring-the-proxy-manually) the React development server, by installing the following package:
+
+```
+npm install http-proxy-middleware --save
+```
+
+and creating a file `src/setupProxy.js` with this:
 
 ```js
 const proxy = require('http-proxy-middleware');
