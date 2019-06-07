@@ -60,6 +60,7 @@ typings/
 # next.js build output
 .next
 
+.wappsto-cli-cache
 .application
 .installation
 .session
