@@ -17,14 +17,13 @@ avaSettings.diff.maxDepth = 2;
 tui.write = () => {};
 
 test.before((t) => {
-    files.deleteFile(`${Config.cacheFolder()}/session`);
-    files.deleteFile(`${Config.cacheFolder}/application`);
-    files.deleteFile(`${Config.cacheFolder}/installation`);
+    files.deleteFolder(`${Config.cacheFolder()}`);
     files.deleteFile('manifest.json');
     files.deleteFolder('foreground');
     files.deleteFolder('background');
     files.deleteFolder('icon');
 
+    files.createFolders(`${Config.cacheFolder()}/.`);
     files.saveFile(`${Config.cacheFolder()}/session`, 'session');
     t.pass();
 });
