@@ -17,15 +17,15 @@ avaSettings.diff.maxDepth = 2;
 tui.write = () => {};
 
 test.before((t) => {
-    files.deleteFile('.session');
-    files.deleteFile('.application');
-    files.deleteFile('.installation');
+    files.deleteFile(`${Config.cacheFolder()}/session`);
+    files.deleteFile(`${Config.cacheFolder}/application`);
+    files.deleteFile(`${Config.cacheFolder}/installation`);
     files.deleteFile('manifest.json');
     files.deleteFolder('foreground');
     files.deleteFolder('background');
     files.deleteFolder('icon');
 
-    files.saveFile('.session', 'session');
+    files.saveFile(`${Config.cacheFolder()}/session`, 'session');
     t.pass();
 });
 
@@ -65,8 +65,8 @@ test('create new empty wapp', async (t) => {
 
     await wapp.create();
 
-    t.true(files.fileExists('.application'));
-    t.true(files.fileExists('.installation'));
+    t.true(files.fileExists(`${Config.cacheFolder()}/application`));
+    t.true(files.fileExists(`${Config.cacheFolder()}/installation`));
     t.true(files.fileExists('manifest.json'));
     t.true(files.directoryExists('foreground'));
     t.false(files.directoryExists('background'));
@@ -107,8 +107,8 @@ test('create new foreground example wapp', async (t) => {
 
     await wapp.create();
 
-    t.true(files.fileExists('.application'));
-    t.true(files.fileExists('.installation'));
+    t.true(files.fileExists(`${Config.cacheFolder()}/application`));
+    t.true(files.fileExists(`${Config.cacheFolder()}/installation`));
     t.true(files.fileExists('manifest.json'));
     t.true(files.directoryExists('foreground'));
     t.false(files.directoryExists('background'));
@@ -144,8 +144,8 @@ test('create new example wapp', async (t) => {
 
     await wapp.create();
 
-    t.true(files.fileExists('.application'));
-    t.true(files.fileExists('.installation'));
+    t.true(files.fileExists(`${Config.cacheFolder()}/application`));
+    t.true(files.fileExists(`${Config.cacheFolder()}/installation`));
     t.true(files.fileExists('manifest.json'));
     t.true(files.directoryExists('foreground'));
     t.true(files.directoryExists('background'));
@@ -231,8 +231,8 @@ test('download wapp', async (t) => {
 
     await wapp.create();
 
-    t.true(files.fileExists('.application'));
-    t.true(files.fileExists('.installation'));
+    t.true(files.fileExists(`${Config.cacheFolder()}/application`));
+    t.true(files.fileExists(`${Config.cacheFolder()}/installation`));
     t.true(files.fileExists('manifest.json'));
     t.true(files.directoryExists('foreground'));
     t.true(files.directoryExists('background'));
@@ -269,8 +269,8 @@ test('delete wapp', async (t) => {
     t.false(files.directoryExists('foreground'));
     t.false(files.directoryExists('background'));
     t.false(files.directoryExists('icon'));
-    t.false(files.fileExists('.application'));
-    t.false(files.fileExists('.installation'));
+    t.false(files.fileExists(`${Config.cacheFolder()}/application`));
+    t.false(files.fileExists(`${Config.cacheFolder()}/installation`));
     t.false(files.fileExists('manifest.json'));
-    t.true(files.fileExists('.session'));
+    t.true(files.fileExists(`${Config.cacheFolder()}/session`));
 });

@@ -8,14 +8,15 @@ require('./mock/backend');
 
 const files = require('../lib/files');
 const Wapp = require('../lib/wapp');
+const Config = require('../lib/config');
 
 avaSettings.diff.maxDepth = 2;
 tui.write = () => {};
 
 test.before((t) => {
-    files.deleteFile('.session');
-    files.deleteFile('.application');
-    files.deleteFile('.installation');
+    files.deleteFile(`${Config.cacheFolder()}/session`);
+    files.deleteFile(`${Config.cacheFolder}/application`);
+    files.deleteFile(`${Config.cacheFolder}/installation`);
     files.deleteFile('manifest.json');
     files.deleteFolder('foreground');
     files.deleteFolder('background');
@@ -70,7 +71,7 @@ test('Login', async (t) => {
 
     await wapp.init();
 
-    t.is(files.loadFile('.session'), 'session');
+    t.is(files.loadFile(`${Config.cacheFolder()}/session`), 'session');
 });
 
 test('Validate session', async (t) => {
@@ -78,7 +79,7 @@ test('Validate session', async (t) => {
 
     await wapp.init();
 
-    files.saveFile('.session', 'invalid');
+    files.saveFile(`${Config.cacheFolder()}/session`, 'invalid');
 
     mockInquirer([{
         username: 'user@wappsto.com',
@@ -87,5 +88,5 @@ test('Validate session', async (t) => {
 
     await wapp.init();
 
-    t.is(files.loadFile('.session'), 'session');
+    t.is(files.loadFile(`${Config.cacheFolder()}/session`), 'session');
 });
