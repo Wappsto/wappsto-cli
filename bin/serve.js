@@ -1,55 +1,95 @@
 #!/usr/bin/env node
 
-const express = require('express');
-const proxy = require('http-proxy-middleware');
-const Wapp = require('../lib/wapp');
-const tui = require('../lib/tui');
-const Config = require('../lib/config');
+const http = require('http'),
+      https = require('https'),
+      url = require('url'),
+      fs = require('fs'),
+      path = require('path'),
+      WebSocket = require('ws').Server,
+      httpProxy = require('http-proxy');
+      
+const Wapp = require('../lib/wapp'),
+      Config = require('../lib/config'),
+      tui = require('../lib/tui');
 
-const app = express();
+const ws = new WebSocket({ noServer: true });
 const wapp = new Wapp();
-
-const HOST = wapp.host;
-const port = Config.port();
-let sessionID = '';
+const proxy = httpProxy.createProxyServer({
+    target: wapp.host,
+    agent: https.globalAgent,
+    headers: { host: url.parse(wapp.host).host }
+});
 
 if (!wapp.present()) {
     tui.showError('No Wapp found in current folder');
     process.exit(-1);
 }
 
-const run = async () => {
-    try {
-        await wapp.init();
-        sessionID = await wapp.getInstallationSession();
-        await wapp.openStream((session) => {
-            sessionID = session;
-        });
-    } catch (err) {
-        if (err.message === 'LoginError') {
-            tui.showError('Failed to Login, please try again.');
-        } else {
-            console.log(err);
-            console.log('Run error');
-        }
-        process.exit(-1);
-    }
-};
-run();
+let sessionID, fileHtml;
 
-app.use('/services', proxy({
-    target: HOST,
-    changeOrigin: true,
-    ws: true,
-    logLevel: 'error',
-}));
+function getFileHtml() {
+  return fs.readFileSync(
+      path.join(Config.foreground(), 'index.html'),
+      'utf-8'
+  );
+}
 
-// set a cookie
-app.use((req, res, next) => {
-    res.cookie('sessionID', sessionID, { maxAge: 900000 });
-    next();
-});
+function startServer() {
+    let server = http.createServer((req, res) => {
+      switch (req.url.split('/')[1]) {
+          case 'services':
+              proxy.web(req, res);
+          break;
+          case '':
+              res.writeHead(200, {
+                'Content-Type': 'text/html',
+                'Set-Cookie': `sessionID=${sessionID}`
+              });
+              res.end(fileHtml, 'utf-8');
+          break;
+          default:
+              try {
+                  res.writeHead(200);
+                  let file = fs.readFileSync(path.join(Config.foreground(), req.url));
+                  res.end(file, 'utf-8');
+              } catch (err) {
+                  res.writeHead(404);
+                  res.end();
+              }
+          break;
+      }
+  })
 
-app.use(express.static(Config.foreground()));
+  server.on('upgrade', (req, socket, head) => {
+      if (req.url.split('/')[1] === 'autoReload') {
+          ws.handleUpgrade(req, socket, head, ws => {
+              ws.emit('connection', ws, request);
+          });
+      } else {
+          proxy.ws(req, socket, head);
+      }
+  });
 
-app.listen(port, () => tui.showMessage(`Foreground Wapp is running on port ${port}!`));
+  tui.showMessage(`Foreground Wapp is running on port ${Config.port()}!`)
+
+  server.listen(Config.port());
+}
+
+(async () => {
+  try {
+      fileHtml = getFileHtml();
+      await wapp.init();
+      sessionID = await wapp.getInstallationSession();
+      await wapp.openStream();
+      startServer();
+  } catch (err) {
+      if (err.message === 'LoginError') {
+          tui.showError('Failed to Login, please try again.');
+      } else {
+          console.log(err);
+          console.log('Run error');
+      }
+      process.exit(-1);
+  }
+})();
+
