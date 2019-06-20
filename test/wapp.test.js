@@ -3,6 +3,7 @@ import test from 'ava';
 const avaSettings = require('ava/lib/concordance-options');
 const mockInquirer = require('mock-inquirer');
 const mocking = require('mock-require');
+const fs = require('fs');
 const tui = require('../lib/tui');
 const Config = require('../lib/config');
 
@@ -235,6 +236,22 @@ test('download wapp', async (t) => {
     t.true(files.fileExists('manifest.json'));
     t.true(files.directoryExists('foreground'));
     t.true(files.directoryExists('background'));
+});
+
+test('move files to cache folder', (t) => {
+    const wapp = new Wapp();
+
+    ['application', 'installation', 'session'].forEach((e) => {
+        fs.renameSync(`${Config.cacheFolder()}/${e}`, `./.${e}`);
+    });
+
+    files.deleteFolder(`${Config.cacheFolder()}`);
+
+    wapp.initCacheFolder();
+
+    t.true(files.fileExists(`${Config.cacheFolder()}/application`));
+    t.true(files.fileExists(`${Config.cacheFolder()}/installation`));
+    t.true(files.fileExists(`${Config.cacheFolder()}/session`));
 });
 
 test('open stream', async (t) => {
