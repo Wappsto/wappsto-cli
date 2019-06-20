@@ -65,7 +65,7 @@
         "eslint-plugin-ava": "^5.1.1",
         "eslint-plugin-import": "^2.17.3",
         "husky": "^1.3.1",
-        "mock-inquirer": "git+https://github.com/AndreasBomholtz/mock-inquirer.git",
+        "mock-inquirer": "^1.0.3",
         "mock-require": "^3.0.3",
         "np": "^4.0.2",
         "nyc": "^14.1.1"
