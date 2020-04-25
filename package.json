@@ -59,7 +59,7 @@
     "devDependencies": {
         "ava": "^1.4.1",
         "axios-mock-adapter": "^1.17.0",
-        "coveralls": "^3.0.6",
+        "coveralls": "^3.1.0",
         "eslint": "^5.16.0",
         "eslint-config-airbnb-base": "^13.2.0",
         "eslint-plugin-ava": "^5.1.1",
