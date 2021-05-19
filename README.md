@@ -17,7 +17,7 @@ Command Line Interface for Wappsto, so that it is possible to create Wapps local
 
 Just install the package using npm.
 
-```
+```sh
 npm install wappsto-cli --save-dev
 ```
 
@@ -31,10 +31,11 @@ To create a Wapp run the `create-wapp` using `npx`:
 npx create-wapp
 ```
 
-It will ask for your 'username' and 'password' to Wappsto, unless you already logged in.
+It will ask for your 'username' and 'password' to Wappsto, unless you are already logged in.
 Here you get the option to download any exsisting Wapps or create a new Wapp.
 
 This will generate a file called manifest.json where you can modify the description of your wapp.
+
 ### Update
 
 To update the Wapp run the `update-wapp` using `npx`:
@@ -69,6 +70,7 @@ This will delete your Wapp locally and/or remotely.
 ### Reinstall
 
 To trigger a reinstall of the application run:
+
 ```sh
 npx update-wapp --reinstall
 ```
@@ -101,7 +103,7 @@ Here is some examples on how to configure frameworks to work with wappsto-cli.
 
 If you are using React framework, you can [configure](https://facebook.github.io/create-react-app/docs/proxying-api-requests-in-development#configuring-the-proxy-manually) the React development server, by installing the following package:
 
-```
+```sh
 npm install http-proxy-middleware --save
 ```
 
