@@ -1,6 +1,6 @@
 import test from 'ava';
 
-const avaSettings = require('ava/lib/concordance-options');
+const avaSettings = require('ava/lib/concordance-options').default;
 const mockInquirer = require('mock-inquirer');
 const tui = require('../lib/tui');
 
@@ -10,7 +10,7 @@ const files = require('../lib/files');
 const Wapp = require('../lib/wapp');
 const Config = require('../lib/config');
 
-avaSettings.diff.maxDepth = 2;
+avaSettings.theme.maxDepth = 2;
 tui.write = () => {};
 
 test.before((t) => {

@@ -1,6 +1,6 @@
 import test from 'ava';
 
-const avaSettings = require('ava/lib/concordance-options');
+const avaSettings = require('ava/lib/concordance-options').default;
 const mockInquirer = require('mock-inquirer');
 const mocking = require('mock-require');
 const fs = require('fs');
@@ -14,7 +14,7 @@ mocking('ws', './mock/ws');
 const files = require('../lib/files');
 const Wapp = require('../lib/wapp');
 
-avaSettings.diff.maxDepth = 2;
+avaSettings.theme.maxDepth = 2;
 tui.write = () => {};
 
 test.before((t) => {
@@ -29,7 +29,7 @@ test.before((t) => {
     t.pass();
 });
 
-test('constructor', (t) => {
+test('wapp constructor', (t) => {
     const wapp = new Wapp();
     t.deepEqual({}, wapp.application);
     t.deepEqual({}, wapp.manifest);
@@ -44,7 +44,12 @@ test('clean no wapp', async (t) => {
 
     await wapp.clean();
 
-    t.pass();
+    t.false(files.directoryExists('foreground'));
+    t.false(files.directoryExists('background'));
+    t.false(files.directoryExists('icon'));
+    t.false(files.fileExists(`${Config.cacheFolder()}/application`));
+    t.false(files.fileExists(`${Config.cacheFolder()}/installation`));
+    t.false(files.fileExists('manifest.json'));
 });
 
 test('create new empty wapp', async (t) => {
@@ -261,14 +266,13 @@ test('open stream', async (t) => {
     await wapp.openStream();
 
     t.pass();
-    /*
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            t.is(cbSession, 'session');
-            resolve();
-        }, 1000);
-    });
-*/
+
+    // return new Promise((resolve) => {
+    //   setTimeout(() => {
+    //        t.is(cbSession, 'session');
+    //        resolve();
+    //    }, 1000);
+    // });
 });
 
 test('delete wapp', async (t) => {

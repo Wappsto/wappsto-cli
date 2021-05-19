@@ -1,10 +1,10 @@
 import test from 'ava';
 
-const avaSettings = require('ava/lib/concordance-options');
+const avaSettings = require('ava/lib/concordance-options').default;
 const files = require('../lib/files');
 const Config = require('../lib/config');
 
-avaSettings.diff.maxDepth = 2;
+avaSettings.theme.maxDepth = 2;
 
 test.before((t) => {
     files.deleteFile('wappsto.json');
