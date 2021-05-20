@@ -31,8 +31,8 @@ let fileHtml;
 function getFileHtml() {
     const index = path.join(Config.foreground(), 'index.html');
     if (!fs.existsSync(index)) {
-        tui.showError(`File '${index}' not found.`);
-        process.exit(-1);
+        tui.showWarning(`File '${index}' not found.`);
+        return false;
     }
     return fs.readFileSync(index, 'utf-8');
 }
@@ -80,10 +80,14 @@ function startServer() {
 
 (async () => {
     try {
-        fileHtml = getFileHtml();
         await wapp.init();
         sessionID = await wapp.getInstallationSession();
         await wapp.openStream();
+
+        fileHtml = getFileHtml();
+        if (!fileHtml) {
+            fileHtml = 'NO FOREGROUND!';
+        }
         startServer();
     } catch (err) {
         if (err.message === 'LoginError') {
