@@ -3,9 +3,6 @@ import test from 'ava';
 const avaSettings = require('ava/lib/concordance-options').default;
 const mockInquirer = require('mock-inquirer');
 const tui = require('../lib/tui');
-
-require('./mock/backend');
-
 const files = require('../lib/files');
 const Wapp = require('../lib/wapp');
 const Config = require('../lib/config');

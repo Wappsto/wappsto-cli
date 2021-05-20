@@ -7,8 +7,6 @@ const fs = require('fs');
 const tui = require('../lib/tui');
 const Config = require('../lib/config');
 
-require('./mock/backend');
-
 mocking('ws', './mock/ws');
 
 const files = require('../lib/files');
@@ -31,8 +29,8 @@ test.before((t) => {
 
 test('wapp constructor', (t) => {
     const wapp = new Wapp();
-    t.deepEqual({}, wapp.application);
-    t.deepEqual({}, wapp.manifest);
+    t.deepEqual(wapp.application, {});
+    t.deepEqual(wapp.manifest, {});
 });
 
 test('clean no wapp', async (t) => {
@@ -90,7 +88,7 @@ test('update empty files', async (t) => {
     const wapp = new Wapp();
 
     const updatedFiles = await wapp.update();
-    t.deepEqual([], updatedFiles);
+    t.deepEqual(updatedFiles, []);
 });
 
 test('create new foreground example wapp', async (t) => {
@@ -175,7 +173,7 @@ test('update test files', async (t) => {
 
     const updatedFiles = await wapp.update();
 
-    t.deepEqual([
+    t.deepEqual(updatedFiles, [
         {
             name: 'foreground/index.html',
             status: 'created',
@@ -196,7 +194,7 @@ test('update test files', async (t) => {
             name: 'background/package.json',
             status: 'created',
         },
-    ], updatedFiles);
+    ]);
 });
 
 test('update modified and deleted files', async (t) => {
@@ -208,7 +206,7 @@ test('update modified and deleted files', async (t) => {
     await wapp.init();
     const updatedFiles = await wapp.update();
 
-    t.deepEqual([
+    t.deepEqual(updatedFiles, [
         {
             name: 'foreground/index.html',
             status: 'updated',
@@ -217,7 +215,7 @@ test('update modified and deleted files', async (t) => {
             name: 'foreground/main.js',
             status: 'deleted',
         },
-    ], updatedFiles);
+    ]);
 });
 
 test('download wapp', async (t) => {
@@ -262,7 +260,7 @@ test('move files to cache folder', (t) => {
 test('open stream', async (t) => {
     const wapp = new Wapp();
 
-    t.is(3000, Config.port());
+    t.is(Config.port(), 3000);
     await wapp.openStream();
 
     t.pass();

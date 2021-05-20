@@ -4,9 +4,6 @@ const avaSettings = require('ava/lib/concordance-options').default;
 const mockInquirer = require('mock-inquirer');
 const mocking = require('mock-require');
 const tui = require('../lib/tui');
-// const Config = require('../lib/config');
-
-require('./mock/backend');
 
 mocking('ws', './mock/ws');
 
@@ -15,7 +12,6 @@ const Wapp = require('../lib/wapp');
 
 avaSettings.theme.maxDepth = 2;
 tui.write = () => {};
-
 
 test('failed to delete', async (t) => {
     files.saveJsonFile('.application', {
