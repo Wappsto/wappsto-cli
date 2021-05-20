@@ -218,6 +218,20 @@ test('update modified and deleted files', async (t) => {
     ]);
 });
 
+test('reinstall test files', async (t) => {
+    const wapp = new Wapp();
+    await wapp.init();
+
+    const updatedFiles = await wapp.update(true);
+
+    t.deepEqual(updatedFiles, [
+        {
+            name: 'foreground/main.js',
+            status: 'deleted',
+        },
+    ]);
+});
+
 test('download wapp', async (t) => {
     const wapp = new Wapp();
     console.log = t.log;
