@@ -14,8 +14,7 @@ const run = async () => {
         if (err.message === 'LoginError') {
             tui.showError('Failed to Login, please try again.');
         } else {
-            console.error(err);
-            console.error('Run error');
+            tui.showError('Run error', err);
         }
         process.exit(-1);
     }

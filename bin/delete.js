@@ -15,8 +15,7 @@ const run = async () => {
             tui.showError('No Wapp found in current folder');
         }
     } catch (err) {
-        console.error(err);
-        console.error('Run error');
+        tui.showError('Run error', err);
     }
 };
 run();

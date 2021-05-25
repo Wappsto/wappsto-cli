@@ -26,8 +26,7 @@ const run = async () => {
             tui.showMessage(`${f.name} was ${f.status}`);
         });
     } catch (err) {
-        console.error(err);
-        console.error('Run error');
+        tui.showError('Run error', err);
     }
 };
 run();

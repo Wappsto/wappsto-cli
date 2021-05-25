@@ -93,8 +93,7 @@ function startServer() {
         if (err.message === 'LoginError') {
             tui.showError('Failed to Login, please try again.');
         } else {
-            console.log(err);
-            console.log('Run error');
+            tui.showError('Run error', err);
         }
         process.exit(-1);
     }
