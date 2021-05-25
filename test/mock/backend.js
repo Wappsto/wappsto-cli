@@ -14,8 +14,8 @@ mock.onAny().reply((options) => {
             data = JSON.parse(options.data);
         }
     } catch (err) {
-        console.log(options.data);
-        console.log(err);
+        process.stderr.write(options.data);
+        process.stderr.write(err);
     }
 
     const session = options.headers['x-session'];
@@ -83,6 +83,8 @@ mock.onAny().reply((options) => {
             status = 200;
             res = store.version_id;
         } else if (method === 'delete') {
+            delete store.application_id.version;
+            delete store.version_id;
             status = 200;
         } else if (method === 'patch') {
             status = 200;
@@ -192,8 +194,8 @@ mock.onAny().reply((options) => {
         break;
     }
     if (status === 501) {
-        console.debug(`*** unhandled *** ${method} ${url}`);
-        console.debug(options);
+        process.stderr.write(`*** unhandled *** ${method} ${url}`);
+        process.stderr.write(options);
     }
     return [status, res];
 });

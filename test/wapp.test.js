@@ -42,16 +42,16 @@ test('clean no wapp', async (t) => {
 
     await wapp.clean();
 
-    t.false(files.directoryExists('foreground'));
-    t.false(files.directoryExists('background'));
-    t.false(files.directoryExists('icon'));
-    t.false(files.fileExists(`${Config.cacheFolder()}/application`));
-    t.false(files.fileExists(`${Config.cacheFolder()}/installation`));
-    t.false(files.fileExists('manifest.json'));
+    t.deepEqual(files.directoryExists('foreground'), false);
+    t.deepEqual(files.directoryExists('background'), false);
+    t.deepEqual(files.directoryExists('icon'), false);
+    t.deepEqual(files.fileExists(`${Config.cacheFolder()}/application`), false);
+    t.deepEqual(files.fileExists(`${Config.cacheFolder()}/installation`), false);
+    t.deepEqual(files.fileExists('manifest.json'), false);
 });
 
 test('create new empty wapp', async (t) => {
-    console.log = t.log;
+    // console.log = t.log;
     const wapp = new Wapp();
 
     const answer = {
@@ -68,20 +68,20 @@ test('create new empty wapp', async (t) => {
 
     await wapp.create();
 
-    t.true(files.fileExists(`${Config.cacheFolder()}/application`));
-    t.true(files.fileExists(`${Config.cacheFolder()}/installation`));
-    t.true(files.fileExists('manifest.json'));
-    t.true(files.directoryExists('foreground'));
-    t.false(files.directoryExists('background'));
-    t.false(files.fileExists('foreground/index.html'));
+    t.deepEqual(files.fileExists(`${Config.cacheFolder()}/application`), true);
+    t.deepEqual(files.fileExists(`${Config.cacheFolder()}/installation`), true);
+    t.deepEqual(files.fileExists('manifest.json'), true);
+    t.deepEqual(files.directoryExists('foreground'), true);
+    t.deepEqual(files.directoryExists('background'), false);
+    t.deepEqual(files.fileExists('foreground/index.html'), false);
 
     const manifest = files.loadJsonFile('manifest.json');
-    t.is(manifest.name, answer.name);
-    t.is(manifest.author, answer.author);
-    t.is(manifest.version_app, answer.version);
+    t.deepEqual(manifest.name, answer.name);
+    t.deepEqual(manifest.author, answer.author);
+    t.deepEqual(manifest.version_app, answer.version);
     t.deepEqual(manifest.supported_features, answer.features);
-    t.is(manifest.description.general, answer.general);
-    t.is(manifest.description.foreground, answer.foreground);
+    t.deepEqual(manifest.description.general, answer.general);
+    t.deepEqual(manifest.description.foreground, answer.foreground);
 });
 
 test('update empty files', async (t) => {
@@ -110,22 +110,22 @@ test('create new foreground example wapp', async (t) => {
 
     await wapp.create();
 
-    t.true(files.fileExists(`${Config.cacheFolder()}/application`));
-    t.true(files.fileExists(`${Config.cacheFolder()}/installation`));
-    t.true(files.fileExists('manifest.json'));
-    t.true(files.directoryExists('foreground'));
-    t.false(files.directoryExists('background'));
-    t.true(files.fileExists('foreground/index.html'));
-    t.false(files.fileExists('background/package.json'));
+    t.deepEqual(files.fileExists(`${Config.cacheFolder()}/application`), true);
+    t.deepEqual(files.fileExists(`${Config.cacheFolder()}/installation`), true);
+    t.deepEqual(files.fileExists('manifest.json'), true);
+    t.deepEqual(files.directoryExists('foreground'), true);
+    t.deepEqual(files.directoryExists('background'), false);
+    t.deepEqual(files.fileExists('foreground/index.html'), true);
+    t.deepEqual(files.fileExists('background/package.json'), false);
 
     const manifest = files.loadJsonFile('manifest.json');
-    t.is(manifest.name, answer.name);
-    t.is(manifest.author, answer.author);
-    t.is(manifest.version_app, answer.version);
+    t.deepEqual(manifest.name, answer.name);
+    t.deepEqual(manifest.author, answer.author);
+    t.deepEqual(manifest.version_app, answer.version);
     t.deepEqual(manifest.supported_features, answer.features);
-    t.is(manifest.description.general, answer.general);
-    t.is(manifest.description.foreground, answer.foreground);
-    t.is(manifest.description.background, answer.background);
+    t.deepEqual(manifest.description.general, answer.general);
+    t.deepEqual(manifest.description.foreground, answer.foreground);
+    t.deepEqual(manifest.description.background, answer.background);
 });
 
 test('create new example wapp', async (t) => {
@@ -147,22 +147,22 @@ test('create new example wapp', async (t) => {
 
     await wapp.create();
 
-    t.true(files.fileExists(`${Config.cacheFolder()}/application`));
-    t.true(files.fileExists(`${Config.cacheFolder()}/installation`));
-    t.true(files.fileExists('manifest.json'));
-    t.true(files.directoryExists('foreground'));
-    t.true(files.directoryExists('background'));
-    t.true(files.fileExists('foreground/index.html'));
-    t.true(files.fileExists('background/package.json'));
+    t.deepEqual(files.fileExists(`${Config.cacheFolder()}/application`), true);
+    t.deepEqual(files.fileExists(`${Config.cacheFolder()}/installation`), true);
+    t.deepEqual(files.fileExists('manifest.json'), true);
+    t.deepEqual(files.directoryExists('foreground'), true);
+    t.deepEqual(files.directoryExists('background'), true);
+    t.deepEqual(files.fileExists('foreground/index.html'), true);
+    t.deepEqual(files.fileExists('background/package.json'), true);
 
     const manifest = files.loadJsonFile('manifest.json');
-    t.is(manifest.name, answer.name);
-    t.is(manifest.author, answer.author);
-    t.is(manifest.version_app, answer.version);
+    t.deepEqual(manifest.name, answer.name);
+    t.deepEqual(manifest.author, answer.author);
+    t.deepEqual(manifest.version_app, answer.version);
     t.deepEqual(manifest.supported_features, answer.features);
-    t.is(manifest.description.general, answer.general);
-    t.is(manifest.description.foreground, answer.foreground);
-    t.is(manifest.description.background, answer.background);
+    t.deepEqual(manifest.description.general, answer.general);
+    t.deepEqual(manifest.description.foreground, answer.foreground);
+    t.deepEqual(manifest.description.background, answer.background);
 });
 
 test('update test files', async (t) => {
@@ -234,8 +234,8 @@ test('reinstall test files', async (t) => {
 
 test('download wapp', async (t) => {
     const wapp = new Wapp();
-    console.log = t.log;
-    console.debug = t.log;
+    // console.log = t.log;
+    // console.debug = t.log;
 
     const answer = {
         create: 'download',
@@ -248,11 +248,11 @@ test('download wapp', async (t) => {
 
     await wapp.create();
 
-    t.true(files.fileExists(`${Config.cacheFolder()}/application`));
-    t.true(files.fileExists(`${Config.cacheFolder()}/installation`));
-    t.true(files.fileExists('manifest.json'));
-    t.true(files.directoryExists('foreground'));
-    t.true(files.directoryExists('background'));
+    t.deepEqual(files.fileExists(`${Config.cacheFolder()}/application`), true);
+    t.deepEqual(files.fileExists(`${Config.cacheFolder()}/installation`), true);
+    t.deepEqual(files.fileExists('manifest.json'), true);
+    t.deepEqual(files.directoryExists('foreground'), true);
+    t.deepEqual(files.directoryExists('background'), true);
 });
 
 test('move files to cache folder', (t) => {
@@ -266,22 +266,22 @@ test('move files to cache folder', (t) => {
 
     wapp.initCacheFolder();
 
-    t.true(files.fileExists(`${Config.cacheFolder()}/application`));
-    t.true(files.fileExists(`${Config.cacheFolder()}/installation`));
-    t.true(files.fileExists(`${Config.cacheFolder()}/session`));
+    t.deepEqual(files.fileExists(`${Config.cacheFolder()}/application`), true);
+    t.deepEqual(files.fileExists(`${Config.cacheFolder()}/installation`), true);
+    t.deepEqual(files.fileExists(`${Config.cacheFolder()}/session`), true);
 });
 
 test('open stream', async (t) => {
     const wapp = new Wapp();
 
-    t.is(Config.port(), 3000);
+    t.deepEqual(Config.port(), 3000);
     await wapp.openStream();
 
     t.pass();
 
     // return new Promise((resolve) => {
     //   setTimeout(() => {
-    //        t.is(cbSession, 'session');
+    //        t.deepEqual(cbSession, 'session');
     //        resolve();
     //    }, 1000);
     // });
@@ -298,11 +298,11 @@ test('delete wapp', async (t) => {
 
     await wapp.delete();
 
-    t.false(files.directoryExists('foreground'));
-    t.false(files.directoryExists('background'));
-    t.false(files.directoryExists('icon'));
-    t.false(files.fileExists(`${Config.cacheFolder()}/application`));
-    t.false(files.fileExists(`${Config.cacheFolder()}/installation`));
-    t.false(files.fileExists('manifest.json'));
-    t.true(files.fileExists(`${Config.cacheFolder()}/session`));
+    t.deepEqual(files.directoryExists('foreground'), false);
+    t.deepEqual(files.directoryExists('background'), false);
+    t.deepEqual(files.directoryExists('icon'), false);
+    t.deepEqual(files.fileExists(`${Config.cacheFolder()}/application`), false);
+    t.deepEqual(files.fileExists(`${Config.cacheFolder()}/installation`), false);
+    t.deepEqual(files.fileExists('manifest.json'), false);
+    t.deepEqual(files.fileExists(`${Config.cacheFolder()}/session`), true);
 });

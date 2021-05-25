@@ -40,21 +40,21 @@ test('Login Fail', async (t) => {
         await wapp.init();
         t.fail();
     } catch (err) {
-        t.is(err.message, 'Validation failed for field username');
+        t.deepEqual(err.message, 'Validation failed for field username');
     }
 
     try {
         await wapp.init();
         t.fail();
     } catch (err) {
-        t.is(err.message, 'Validation failed for field password');
+        t.deepEqual(err.message, 'Validation failed for field password');
     }
 
     try {
         await wapp.init();
         t.fail();
     } catch (err) {
-        t.is(err.message, 'LoginError');
+        t.deepEqual(err.message, 'LoginError');
     }
 });
 
@@ -68,7 +68,7 @@ test('Login', async (t) => {
 
     await wapp.init();
 
-    t.is(files.loadFile(`${Config.cacheFolder()}/session`), 'session');
+    t.deepEqual(files.loadFile(`${Config.cacheFolder()}/session`), 'session');
 });
 
 test('Validate session', async (t) => {
@@ -85,5 +85,5 @@ test('Validate session', async (t) => {
 
     await wapp.init();
 
-    t.is(files.loadFile(`${Config.cacheFolder()}/session`), 'session');
+    t.deepEqual(files.loadFile(`${Config.cacheFolder()}/session`), 'session');
 });

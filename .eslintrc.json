@@ -17,7 +17,7 @@
     ],
     "rules": {
         "indent": ["error", 4],
-        "no-console": "off",
+        "no-console": "error",
         "ava/assertion-arguments": "error",
         "ava/max-asserts": [
             "off",
@@ -39,7 +39,7 @@
         "ava/no-todo-test": "warn",
         "ava/no-unknown-modifiers": "error",
         "ava/prefer-async-await": "error",
-        "ava/prefer-power-assert": "off",
+        "ava/prefer-power-assert": "error",
         "ava/test-ended": "error",
         "ava/test-title": [
             "error",
