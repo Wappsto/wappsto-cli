@@ -15,6 +15,7 @@ avaSettings.theme.maxDepth = 2;
 tui.write = () => {};
 
 test.before((t) => {
+    files.createFolders(`${Config.cacheFolder()}/application`);
     files.saveJsonFile(`${Config.cacheFolder()}/application`, {
         version: [
             {
