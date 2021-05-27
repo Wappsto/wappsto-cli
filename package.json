@@ -55,9 +55,9 @@
         "figlet": "^1.5.0",
         "form-data": "^4.0.0",
         "http-proxy": "^1.18.1",
-        "inquirer": "^8.0.0",
+        "inquirer": "^8.1.0",
         "node-watch": "^0.7.1",
-        "ws": "^7.4.5"
+        "ws": "^7.4.6"
     },
     "devDependencies": {
         "ava": "^3.15.0",
