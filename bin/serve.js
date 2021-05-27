@@ -5,6 +5,7 @@ const https = require('https');
 const url = require('url');
 const fs = require('fs');
 const path = require('path');
+const watch = require('node-watch');
 const WebSocket = require('ws').Server;
 const httpProxy = require('http-proxy');
 
@@ -88,6 +89,11 @@ function startServer() {
         if (!fileHtml) {
             fileHtml = 'NO FOREGROUND!';
         }
+
+        watch(Config.background(), { recursive: true }, (evt, name) => {
+            wapp.uploadFile(name);
+        });
+
         startServer();
     } catch (err) {
         if (err.message === 'LoginError') {
