@@ -1,6 +1,6 @@
 {
     "name": "wappsto-cli",
-    "version": "1.2.0",
+    "version": "1.3.0",
     "description": "Command Line Interface for Wappsto",
     "scripts": {
         "pretest": "eslint --ignore-pattern examples --ignore-path .gitignore  .",
