@@ -4,6 +4,7 @@ const avaSettings = require('ava/lib/concordance-options').default;
 const mockInquirer = require('mock-inquirer');
 const mocking = require('mock-require');
 const tui = require('../lib/tui');
+const Config = require('../lib/config');
 
 mocking('ws', './mock/ws');
 
@@ -13,8 +14,8 @@ const Wapp = require('../lib/wapp');
 avaSettings.theme.maxDepth = 2;
 tui.write = () => {};
 
-test('failed to delete', async (t) => {
-    files.saveJsonFile('.application', {
+test.before((t) => {
+    files.saveJsonFile(`${Config.cacheFolder()}/application`, {
         version: [
             {
                 meta: {
@@ -27,12 +28,25 @@ test('failed to delete', async (t) => {
         },
     });
 
-    files.saveJsonFile('.installation', {
+    files.saveJsonFile(`${Config.cacheFolder()}/installation`, {
         meta: {
             id: 'wrong_installation_id',
         },
     });
 
+    t.pass();
+});
+/*
+test('failed to update', async (t) => {
+    const wapp = new Wapp();
+
+    await wapp.update();
+
+    t.pass();
+});
+*/
+
+test('failed to delete', async (t) => {
     const wapp = new Wapp();
 
     mockInquirer([{

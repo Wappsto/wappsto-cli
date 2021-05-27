@@ -2,13 +2,27 @@ const axios = require('axios');
 const MockAdapter = require('axios-mock-adapter');
 
 const mock = new MockAdapter(axios);
-const store = {};
+const store = {
+    version: {},
+    application: {},
+    installation: {},
+    file: {},
+    stream: {},
+};
 
 mock.onAny().reply((options) => {
-    const url = options.url.indexOf('services') !== -1 ? options.url.split('/services/')[1] : options.url.split('/files/')[1];
+    const url = new URL(options.url);
     const { method } = options;
+    let path = url.pathname.split('/services/')[1].split('/');
+    let id = path[1] || '';
+    const query = url.search.replace('?', '');
+    [path] = path;
     let data = {};
+    let status = 501;
+    let res = {};
 
+    // console.log(`${method} ${path} (${id}) ${query}`);
+    // console.log(store);
     try {
         if (options.data && options.data[0] === '{') {
             data = JSON.parse(options.data);
@@ -20,9 +34,7 @@ mock.onAny().reply((options) => {
 
     const session = options.headers['x-session'];
 
-    let status = 501;
-    let res = {};
-    switch (url) {
+    switch (path) {
     case 'session':
         if (method === 'get') {
             if (session === 'session') {
@@ -41,52 +53,69 @@ mock.onAny().reply((options) => {
             status = 401;
         }
         break;
-    case 'application?verbose=true':
+
     case 'application':
-        if (method === 'post') {
+        switch (method) {
+        case 'post':
+            if (id === '') {
+                id = 'application_id';
+            }
             status = 201;
             data.meta = {
-                id: 'application_id',
+                id,
+                revision: 1,
             };
             data.version[0].meta = {
                 id: 'version_id',
+                revision: 1,
             };
-            store.application_id = data;
-            [store.version_id] = data.version;
-            res = data;
-        }
-        break;
-    case 'application?expand=2&verbose=true':
-        if (method === 'get') {
-            status = 200;
-            res = [];
-            if (store.application_id) {
-                res.push(store.application_id);
+            if (!data.version[0].file) {
+                data.version[0].file = [];
             }
+            store.application[id] = data;
+            [store.version.version_id] = data.version;
+            res = data;
+            break;
+        case 'get':
+            if (id === '') {
+                status = 200;
+                res = Object.values(store.application);
+            } else {
+                status = 200;
+                res = store.application[id];
+            }
+            break;
+        case 'delete':
+            status = 200;
+            delete store.application[id];
+            break;
+        default:
         }
         break;
 
-    case 'application/application_id?expand=2&verbose=true':
-    case 'application/application_id':
-        if (method === 'get') {
+    case 'version':
+        switch (method) {
+        case 'get':
             status = 200;
-            res = store.application_id;
-        } else if (method === 'delete') {
+            if (!store.version[id].file) {
+                store.version[id].file = [];
+            }
+            if (!store.version[id].meta) {
+                store.version[id].meta = { id: 'version_id' };
+            }
+            if (!store.version[id].meta.revision) {
+                store.version[id].meta.revision = 1;
+            }
+            res = store.version[id];
+            break;
+        case 'delete':
+            if (store.application.application_id) {
+                delete store.application.application_id;
+            }
+            delete store.version[id];
             status = 200;
-            delete store.application_id;
-        }
-        break;
-
-    case 'version/version_id?expand=2&verbose=true':
-    case 'version/version_id':
-        if (method === 'get') {
-            status = 200;
-            res = store.version_id;
-        } else if (method === 'delete') {
-            delete store.application_id.version;
-            delete store.version_id;
-            status = 200;
-        } else if (method === 'patch') {
+            break;
+        case 'patch':
             status = 200;
 
             if (data.file) {
@@ -99,103 +128,131 @@ mock.onAny().reply((options) => {
             }
 
             Object.keys(data).forEach((key) => {
-                if (Array.isArray(store.version_id[key])) {
-                    store.version_id[key].push(data[key][0]);
+                if (Array.isArray(store.version[id][key])) {
+                    if (!store.version[id][key].includes(data[key][0])) {
+                        store.version[id][key].push(data[key][0]);
+                    }
                 } else {
-                    store.version_id[key] = data[key];
+                    store.version[id][key] = data[key];
                 }
             });
 
-            store.application_id.version[0] = store.version_id;
-            res = store.version_id;
-        } else if (method === 'put') {
-            status = 200;
+            store.application.application_id.version[0] = store.version[id];
+            res = store.version[id];
+            break;
+        default:
         }
         break;
 
     case 'installation':
-        if (method === 'post') {
+        switch (method) {
+        case 'post':
+            if (id === '') {
+                id = 'installation_id';
+            }
             status = 201;
             data.meta = {
-                id: 'installation_id',
+                id,
             };
             if (!data.file) {
                 data.file = [];
             }
-            store.installation_id = data;
+            store.installation[id] = data;
             res = data;
-        }
-        break;
-    case 'installation?this_version_id=version_id':
-        if (method === 'get') {
-            status = 200;
-            res = store.installation_id;
-        } else if (method === 'delete') {
-            status = 200;
-            delete store.installation_id;
-        }
-        break;
-    case 'version/wrong_version_id':
-        status = 200;
-        break;
-    case 'installation?this_version_id=wrong_version_id':
-        status = 401;
-        res = {
-            code: 300020,
-        };
-        break;
-    case 'installation/installation_id':
-        if (method === 'patch') {
-            status = 200;
-        }
-        break;
-    case 'installation?expand=2&this_version_id=version_id':
-        if (method === 'get') {
-            status = 200;
-            res = store.installation_id;
-        }
-        break;
-    case 'installation?expand=2&this_name=Wapp%20Creator':
-        if (method === 'get') {
-            status = 200;
-            res = {
-                session: 'sessionID',
-            };
+            break;
+        case 'get':
+            if (query === 'expand=2&this_name=Wapp%20Creator') {
+                status = 200;
+                res = {
+                    session: 'sessionID',
+                };
+            } else if (query === 'expand=2&this_version_id=version_id') {
+                status = 200;
+                res = store.installation.installation_id;
+            } else if (store.installation[id]) {
+                status = 200;
+                res = store.installation[id];
+            } else {
+                status = 404;
+            }
+            break;
+        case 'patch':
+            if (store.installation[id]) {
+                status = 200;
+                res = store.installation[id];
+            } else {
+                status = 404;
+            }
+            break;
+        case 'delete':
+            if (query === 'this_version_id=version_id') {
+                status = 200;
+                delete store.installation.version_id;
+            } else if (query === 'this_version_id=wrong_version_id') {
+                status = 401;
+                res = {
+                    code: 300020,
+                };
+            } else if (id === 'wrong_version_id') {
+                status = 404;
+            }
+            break;
+        default:
         }
         break;
 
-    case 'file/file_id':
-        if (method === 'get') {
+    case 'file':
+        switch (method) {
+        case 'get':
             status = 200;
             res = 'file content';
-        } else if (method === 'delete') {
+            break;
+        case 'delete':
             status = 200;
+            break;
+        default:
         }
         break;
+
     case 'stream':
         if (method === 'post') {
+            if (id === '') {
+                id = 'stream_id';
+            }
             status = 201;
             if (!data.meta) {
                 data.meta = {
-                    id: 'stream_id',
+                    id,
                 };
             }
-            store.stream_id = data;
+            store.stream[id] = data;
             res = data;
         } else if (method === 'get') {
-            status = 200;
-            res = store.stream_id;
+            if (id === '') {
+                status = 200;
+                res = Object.values(store.stream);
+            } else if (store.stream[id]) {
+                status = 200;
+                res = store.stream[id];
+            } else {
+                status = 404;
+            }
         }
         break;
-    case 'stream?expand=2':
-        status = 200;
-        break;
+
     default:
         break;
     }
-    if (status === 501) {
-        process.stderr.write(`*** unhandled *** ${method} ${url}`);
-        process.stderr.write(options);
+
+    if (status !== 200) {
+        if (status === 501) {
+            process.stderr.write(`*** unhandled *** ${method} ${url}`);
+            process.stderr.write(options);
+        }
+        if (!Object.keys(res).length) {
+            res = { response: { data: {} } };
+        }
     }
+
     return [status, res];
 });

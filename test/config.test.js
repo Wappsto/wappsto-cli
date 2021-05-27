@@ -9,6 +9,8 @@ avaSettings.theme.maxDepth = 2;
 test.before((t) => {
     files.deleteFile('wappsto.json');
 
+    Config.reload();
+
     t.pass();
 });
 
@@ -41,4 +43,15 @@ test('Custom Parameters', (t) => {
     t.deepEqual(Config.isCustomHost(), true);
 
     files.deleteFile('wappsto.json');
+});
+
+test('Default parameters after reload', (t) => {
+    Config.reload();
+
+    t.deepEqual(Config.foreground(), 'foreground');
+    t.deepEqual(Config.background(), 'background');
+    t.deepEqual(Config.host(), 'https://wappsto.com');
+    t.deepEqual(Config.port(), 3000);
+    t.deepEqual(Config.cacheFolder(), '.wappsto-cli-cache');
+    t.deepEqual(Config.isCustomHost(), false);
 });
