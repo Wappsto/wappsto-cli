@@ -207,7 +207,10 @@ test('update modified and deleted files', async (t) => {
     files.saveFile('foreground/index.html', 'modified');
     files.deleteFile('foreground/main.js');
     files.createFolders('background/node_modules/ws/index.js');
+    files.createFolders('background/ws/index.js');
+    files.saveFile('background/ws/index.js', 'modified');
     files.saveFile('background/node_modules/ws/index.js', 'modified');
+    files.saveFile('background/test.js', 'modified');
 
     t.deepEqual(files.directoryExists('background/node_modules'), true);
 
@@ -222,6 +225,14 @@ test('update modified and deleted files', async (t) => {
         {
             name: 'foreground/main.js',
             status: 'deleted',
+        },
+        {
+            name: 'background/test.js',
+            status: 'created',
+        },
+        {
+            name: 'background/ws/index.js',
+            status: 'created',
         },
     ]);
 });
