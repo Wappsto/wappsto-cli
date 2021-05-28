@@ -206,10 +206,10 @@ test('update modified and deleted files', async (t) => {
 
     files.saveFile('foreground/index.html', 'modified');
     files.deleteFile('foreground/main.js');
-    files.createFolders('foreground/node_modules/index.js');
-    files.saveFile('foreground/node_modules/index.js', 'modified');
+    files.createFolders('background/node_modules/ws/index.js');
+    files.saveFile('background/node_modules/ws/index.js', 'modified');
 
-    t.deepEqual(files.directoryExists('foreground/node_modules'), true);
+    t.deepEqual(files.directoryExists('background/node_modules'), true);
 
     await wapp.init();
     const updatedFiles = await wapp.update();
