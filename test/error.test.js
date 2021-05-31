@@ -12,6 +12,7 @@ const Wapp = require('../lib/wapp');
 
 util.inspect.defaultOptions.depth = 5; // Increase AVA's printing depth
 tui.write = () => {};
+tui.showError = () => {};
 
 test.before((t) => {
     files.createFolders(`${Config.cacheFolder()}/application`);
@@ -36,15 +37,14 @@ test.before((t) => {
 
     t.pass();
 });
-/*
+
 test('failed to update', async (t) => {
     const wapp = new Wapp();
 
-    await wapp.update();
+    const updatedFiles = await wapp.update();
 
-    t.pass();
+    t.deepEqual(updatedFiles, []);
 });
-*/
 
 test('failed to delete', async (t) => {
     const wapp = new Wapp();

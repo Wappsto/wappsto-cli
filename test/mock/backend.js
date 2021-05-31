@@ -244,12 +244,34 @@ mock.onAny().reply((options) => {
         switch (method) {
         case 'get':
             status = 200;
-            res = [{
-                meta: {
-                    id: 'network_id',
-                },
-                name: 'network',
-            }];
+            if (query.includes('[wrong]')) {
+                res = [];
+            } else {
+                res = [{
+                    meta: {
+                        id: 'network_id',
+                    },
+                    name: 'network',
+                }];
+            }
+            break;
+        default:
+        }
+        break;
+
+    case 'acl':
+        switch (method) {
+        case 'patch':
+            status = 200;
+            break;
+        default:
+        }
+        break;
+
+    case 'notification':
+        switch (method) {
+        case 'patch':
+            status = 200;
             break;
         default:
         }
@@ -263,7 +285,7 @@ mock.onAny().reply((options) => {
             process.stderr.write(`*** unhandled *** ${method} ${url}\n`);
         }
         if (!Object.keys(res).length) {
-            res = { response: { data: {} } };
+            res = { };
         }
     }
 
