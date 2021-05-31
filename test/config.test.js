@@ -1,10 +1,9 @@
-import test from 'ava';
-
-const avaSettings = require('ava/lib/concordance-options').default;
+const test = require('ava');
+const util = require('util');
 const files = require('../lib/files');
 const Config = require('../lib/config');
 
-avaSettings.theme.maxDepth = 2;
+util.inspect.defaultOptions.depth = 5; // Increase AVA's printing depth
 
 test.before((t) => {
     files.deleteFile('wappsto.json');

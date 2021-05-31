@@ -240,14 +240,27 @@ mock.onAny().reply((options) => {
         }
         break;
 
+    case 'network':
+        switch (method) {
+        case 'get':
+            status = 200;
+            res = [{
+                meta: {
+                    id: 'network_id',
+                },
+                name: 'network',
+            }];
+            break;
+        default:
+        }
+        break;
     default:
         break;
     }
 
     if (status !== 200) {
         if (status === 501) {
-            process.stderr.write(`*** unhandled *** ${method} ${url}`);
-            process.stderr.write(options);
+            process.stderr.write(`*** unhandled *** ${method} ${url}\n`);
         }
         if (!Object.keys(res).length) {
             res = { response: { data: {} } };

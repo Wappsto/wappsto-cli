@@ -1,18 +1,18 @@
-import test from 'ava';
-
-const avaSettings = require('ava/lib/concordance-options').default;
+const test = require('ava');
+const util = require('util');
 const mockInquirer = require('mock-inquirer');
 const mocking = require('mock-require');
 const fs = require('fs');
-const tui = require('../lib/tui');
-const Config = require('../lib/config');
 
 mocking('ws', './mock/ws');
 
+const tui = require('../lib/tui');
+const Config = require('../lib/config');
 const files = require('../lib/files');
 const Wapp = require('../lib/wapp');
 
-avaSettings.theme.maxDepth = 2;
+util.inspect.defaultOptions.depth = 5; // Increase AVA's printing depth
+
 tui.write = () => {};
 tui.showError = () => {};
 
