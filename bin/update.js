@@ -1,19 +1,52 @@
 #!/usr/bin/env node
 
+const commandLineArgs = require('command-line-args');
+const commandLineUsage = require('command-line-usage');
 const Wapp = require('../lib/wapp');
 const tui = require('../lib/tui');
 
-let reinstall = false;
+const optionDefinitions = [
+    {
+        name: 'help',
+        description: 'Display this usage guide.',
+        alias: 'h',
+        type: Boolean,
+    },
+    {
+        name: 'reinstall',
+        description: 'Trigger a reinstall of the background wapp',
+        alias: 'r',
+        type: Boolean,
+    },
+];
 
-for (let j = 2; j < process.argv.length; j += 1) {
-    switch (process.argv[j]) {
-    case '--reinstall':
-        reinstall = true;
-        break;
-    default:
-        tui.showError(`Unknown parameter: ${process.argv[j]}`);
-        process.exit(-1);
-    }
+const sections = [
+    {
+        header: 'Update Wapp',
+        content: 'Script to sync your local files with wappsto.',
+    },
+    {
+        header: 'Synopsis',
+        content: [
+            '$ update-wapp',
+            '$ update-wapp {bold --reinstall}',
+            '$ update-wapp {bold --help}',
+        ],
+    },
+    {
+        header: 'Options',
+        optionList: optionDefinitions,
+    },
+    {
+        content: 'Project home: {underline https://github.com/wappsto/wappsto-cli}',
+    },
+];
+
+const options = commandLineArgs(optionDefinitions);
+
+if (options.help) {
+    process.stdout.write(commandLineUsage(sections));
+    process.exit();
 }
 
 const run = async () => {
@@ -21,7 +54,7 @@ const run = async () => {
         const wapp = new Wapp();
         await wapp.init();
 
-        const files = await wapp.update(reinstall);
+        const files = await wapp.update(options.reinstall);
         files.forEach((f) => {
             tui.showMessage(`${f.name} was ${f.status}`);
         });
