@@ -13,10 +13,15 @@ const store = {
 mock.onAny().reply((options) => {
     const url = new URL(options.url);
     const { method } = options;
-    let path = url.pathname.split('/services/')[1].split('/');
-    let id = path[1] || '';
+    const paths = url.pathname.split('/services/')[1].split('/');
+
+    let path = paths.shift();
+    if (['2.0', '2.1'].includes(path)) {
+        path = paths.shift();
+    }
+    let id = paths.shift() || '';
     const query = url.search.replace('?', '');
-    [path] = path;
+
     let data = {};
     let status = 501;
     let res = {};
