@@ -179,22 +179,27 @@ test('update test files', async (t) => {
 
     t.deepEqual(updatedFiles, [
         {
+            id: 'file_id',
             name: 'foreground/index.html',
             status: 'created',
         },
         {
+            id: 'file_id',
             name: 'foreground/main.js',
             status: 'created',
         },
         {
+            id: 'file_id',
             name: 'foreground/testdir/file.js',
             status: 'created',
         },
         {
+            id: 'file_id',
             name: 'background/main.js',
             status: 'created',
         },
         {
+            id: 'file_id',
             name: 'background/package.json',
             status: 'created',
         },
@@ -219,18 +224,22 @@ test('update modified and deleted files', async (t) => {
 
     t.deepEqual(updatedFiles, [
         {
+            id: 'file_id',
             name: 'foreground/index.html',
             status: 'updated',
         },
         {
+            id: 'file_id',
             name: 'foreground/main.js',
             status: 'deleted',
         },
         {
+            id: 'file_id',
             name: 'background/test.js',
             status: 'created',
         },
         {
+            id: 'file_id',
             name: 'background/ws/index.js',
             status: 'created',
         },
@@ -245,6 +254,7 @@ test('reinstall test files', async (t) => {
 
     t.deepEqual(updatedFiles, [
         {
+            id: 'file_id',
             name: 'foreground/main.js',
             status: 'deleted',
         },
