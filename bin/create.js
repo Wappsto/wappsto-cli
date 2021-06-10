@@ -14,8 +14,8 @@ const optionDefinitions = [
     },
     {
         name: 'validate',
-        description: 'Validate all the data that was send to Wappsto',
-        alias: 'v',
+        description: 'Validate all the data that was send to Wappsto.',
+        alias: 'V',
         type: Boolean,
     },
 ];

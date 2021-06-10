@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+const commandLineArgs = require('command-line-args');
+const commandLineUsage = require('command-line-usage');
 const http = require('http');
 const https = require('https');
 const url = require('url');
@@ -13,21 +15,69 @@ const Wapp = require('../lib/wapp');
 const Config = require('../lib/config');
 const tui = require('../lib/tui');
 
-const wss = new WebSocket({ noServer: true });
-const wapp = new Wapp();
-const proxy = httpProxy.createProxyServer({
-    target: wapp.host,
-    agent: https.globalAgent,
-    headers: { host: url.parse(wapp.host).host },
-});
+const optionDefinitions = [
+    {
+        name: 'help',
+        description: 'Display this usage guide.',
+        alias: 'h',
+        type: Boolean,
+    },
+    {
+        name: 'port',
+        description: 'Change the port that the foreground wapp is served on.',
+        alias: 'p',
+        type: Number,
+    },
+    {
+        name: 'verbose',
+        description: 'Enable verbose output.',
+        alias: 'v',
+        type: Boolean,
+    },
+];
+
+const sections = [
+    {
+        header: 'Serve Wapp',
+        content: 'Script to run a local web server for the foreground part of the wapp and opens a stream to the background wapp running on Wappsto.',
+    },
+    {
+        header: 'Synopsis',
+        content: [
+            '$ serve-wapp',
+            '$ serve-wapp {bold --port 4000} {bold --verbose}',
+            '$ serve-wapp {bold --help}',
+        ],
+    },
+    {
+        header: 'Options',
+        optionList: optionDefinitions,
+    },
+    {
+        content: 'Project home: {underline https://github.com/wappsto/wappsto-cli}',
+    },
+];
+
+const options = commandLineArgs(optionDefinitions);
+
+if (options.help) {
+    process.stdout.write(commandLineUsage(sections));
+    process.exit();
+}
+
+const wapp = new Wapp(options.verbose);
 
 if (!wapp.present()) {
     tui.showError('No Wapp found in current folder');
     process.exit(-1);
 }
 
-let sessionID;
-let fileHtml;
+const wss = new WebSocket({ noServer: true });
+const proxy = httpProxy.createProxyServer({
+    target: wapp.host,
+    agent: https.globalAgent,
+    headers: { host: url.parse(wapp.host).host },
+});
 
 function getFileHtml() {
     const index = path.join(Config.foreground(), 'index.html');
@@ -38,7 +88,7 @@ function getFileHtml() {
     return fs.readFileSync(index, 'utf-8');
 }
 
-function startServer() {
+function startServer(sessionID, index) {
     const server = http.createServer((req, res) => {
         switch (req.url.split('/')[1]) {
         case 'services':
@@ -49,7 +99,7 @@ function startServer() {
                 'Content-Type': 'text/html',
                 'Set-Cookie': `sessionID=${sessionID}`,
             });
-            res.end(fileHtml, 'utf-8');
+            res.end(index, 'utf-8');
             break;
         default:
             try {
@@ -74,18 +124,18 @@ function startServer() {
         }
     });
 
-    tui.showMessage(`Foreground Wapp is running on port ${Config.port()}!`);
+    tui.showMessage(`Foreground Wapp is running on port ${options.port || Config.port()}!`);
 
-    server.listen(Config.port());
+    server.listen(options.port || Config.port());
 }
 
 (async () => {
     try {
         await wapp.init();
-        sessionID = await wapp.getInstallationSession();
+        const sessionID = await wapp.getInstallationSession();
         await wapp.openStream();
 
-        fileHtml = getFileHtml();
+        let fileHtml = getFileHtml();
         if (!fileHtml) {
             fileHtml = 'NO FOREGROUND!';
         }
@@ -94,7 +144,7 @@ function startServer() {
             wapp.uploadFile(name);
         });
 
-        startServer();
+        startServer(sessionID, fileHtml);
     } catch (err) {
         if (err.message === 'LoginError') {
             tui.showError('Failed to Login, please try again.');

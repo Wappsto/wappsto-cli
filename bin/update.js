@@ -14,8 +14,14 @@ const optionDefinitions = [
     },
     {
         name: 'reinstall',
-        description: 'Trigger a reinstall of the background wapp',
+        description: 'Trigger a reinstall of the background wapp.',
         alias: 'r',
+        type: Boolean,
+    },
+    {
+        name: 'verbose',
+        description: 'Enable verbose output.',
+        alias: 'v',
         type: Boolean,
     },
 ];
@@ -51,7 +57,7 @@ if (options.help) {
 
 const run = async () => {
     try {
-        const wapp = new Wapp();
+        const wapp = new Wapp(options.verbose);
         await wapp.init();
 
         const files = await wapp.update(options.reinstall);
