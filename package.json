@@ -62,6 +62,7 @@
         "ws": "^7.4.6"
     },
     "devDependencies": {
+        "@ava/babel": "^1.0.1",
         "ava": "^3.15.0",
         "axios-mock-adapter": "^1.19.0",
         "coveralls": "^3.1.0",
@@ -74,9 +75,11 @@
         "mock-inquirer": "^1.0.3",
         "mock-require": "^3.0.3",
         "np": "^7.5.0",
-        "nyc": "^15.1.0"
+        "nyc": "^15.1.0",
+        "sinon": "^4.2.2"
     },
     "ava": {
+        "babel": true,
         "require": [
             "esm",
             "./test/mock/backend.js"
