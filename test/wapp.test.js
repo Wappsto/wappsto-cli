@@ -14,7 +14,6 @@ const Wapp = require('../lib/wapp');
 util.inspect.defaultOptions.depth = 5; // Increase AVA's printing depth
 
 tui.write = () => {};
-tui.showError = () => {};
 
 // process.chdir('/tmp');
 
