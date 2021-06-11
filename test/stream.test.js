@@ -60,11 +60,13 @@ function sendMessage(w, msg) {
     w.appStream.message(JSON.stringify(tmp));
 }
 
-function sendData(w, type, data) {
+function sendData(w, type, data, parameters = {}) {
     const tmp = data;
-    tmp.meta = {
-        id: `${type}_id`,
-    };
+    if (typeof tmp !== 'string') {
+        tmp.meta = {
+            id: `${type}_id`,
+        };
+    }
     const msg = {
         data: tmp,
         event: 'update',
@@ -72,6 +74,10 @@ function sendData(w, type, data) {
             type,
         },
     };
+
+    Object.keys(parameters).forEach((key) => {
+        msg[key] = parameters[key];
+    });
 
     sendMessage(w, msg);
 }
@@ -89,8 +95,11 @@ test('stream invalid data', async (t) => {
 
     wapp.appStream.message('{"meta":{"id":"id"},"event":"delete"}');
     wapp.appStream.message('{"meta":{"id":"id"}}');
+    wapp.appStream.message('{}');
+    wapp.appStream.message('asd');
 
     sendData(wapp, 'wrong', {});
+    sendData(wapp, 'wrong', 'wrong');
 
     t.pass();
 });
@@ -299,18 +308,6 @@ test('stream notification req limitation', async (t) => {
     t.pass();
 });
 
-/*
-
-test('stream empty req', async (t) => {
-    const wapp = new Wapp();
-    await wapp.openStream();
-    wapp.handleStreamEvent({
-        req: {},
-    });
-    t.pass();
-});
-*/
-
 test('stream notification req collection', async (t) => {
     const wapp = new Wapp();
     await wapp.openStream();
@@ -371,6 +368,16 @@ test('stream notification req collection', async (t) => {
             },
         },
     });
+
+    t.pass();
+});
+
+test('stream console', async (t) => {
+    const wapp = new Wapp();
+    await wapp.openStream();
+
+    sendData(wapp, 'console', {});
+    sendData(wapp, 'console', {}, { type: 'error', timestamp: 'now' });
 
     t.pass();
 });
