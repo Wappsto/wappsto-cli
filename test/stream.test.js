@@ -2,6 +2,7 @@ const test = require('ava');
 const util = require('util');
 const mockInquirer = require('mock-inquirer');
 const mocking = require('mock-require');
+const sinon = require('sinon');
 
 mocking('ws', './mock/ws');
 
@@ -11,43 +12,7 @@ const files = require('../lib/files');
 const Wapp = require('../lib/wapp');
 
 util.inspect.defaultOptions.depth = 5; // Increase AVA's printing depth
-tui.write = () => {};
-
-test.before((t) => {
-    files.createFolders(`${Config.cacheFolder()}/application`);
-    files.saveJsonFile(`${Config.cacheFolder()}/application`, {
-        version: [
-            {
-                meta: {
-                    id: 'version_id',
-                },
-            },
-        ],
-        meta: {
-            id: 'application_id',
-        },
-    });
-
-    files.saveJsonFile(`${Config.cacheFolder()}/installation`, {
-        meta: {
-            id: 'installation_id',
-        },
-    });
-
-    t.pass();
-});
-
-test('stream error', async (t) => {
-    const wapp = new Wapp();
-    await wapp.openStream(() => {});
-
-    wapp.appStream.error('test error');
-    wapp.appStream.message('{}');
-    wapp.appStream.close(9999, 'test error');
-    wapp.appStream.close(1000, 'test error');
-
-    t.pass();
-});
+const writeStub = sinon.stub(tui, 'write');
 
 function sendMessage(w, msg) {
     const tmp = msg;
@@ -88,19 +53,80 @@ function sendBody(w, type, data, body) {
     sendData(w, type, tmp);
 }
 
+test.before((t) => {
+    files.createFolders(`${Config.cacheFolder()}/application`);
+    files.saveJsonFile(`${Config.cacheFolder()}/application`, {
+        version: [
+            {
+                meta: {
+                    id: 'version_id',
+                },
+            },
+        ],
+        meta: {
+            id: 'application_id',
+        },
+    });
+
+    files.saveJsonFile(`${Config.cacheFolder()}/installation`, {
+        meta: {
+            id: 'installation_id',
+        },
+    });
+
+    t.pass();
+});
+
+test('stream error', async (t) => {
+    const wapp = new Wapp();
+    await wapp.openStream(() => {});
+
+    writeStub.reset();
+    wapp.appStream.error('test error');
+    t.assert(writeStub.callCount === 2);
+    t.assert(writeStub.getCall(0).args[0].includes('Stream error: stream_id'));
+
+    writeStub.reset();
+    wapp.appStream.message('{}');
+    t.assert(writeStub.callCount === 0);
+
+    writeStub.reset();
+    wapp.appStream.close(9999, 'test error');
+    t.assert(writeStub.callCount === 1);
+    t.assert(writeStub.getCall(0).args[0].includes('test error (9999)'));
+
+    writeStub.reset();
+    wapp.appStream.close(1000, 'test error');
+    t.assert(writeStub.callCount === 0);
+});
+
 test('stream invalid data', async (t) => {
     const wapp = new Wapp();
     await wapp.openStream(() => {});
 
+    writeStub.reset();
     wapp.appStream.message('{"meta":{"id":"id"},"event":"delete"}');
+    t.assert(writeStub.callCount === 0);
+
+    writeStub.reset();
     wapp.appStream.message('{"meta":{"id":"id"}}');
+    t.assert(writeStub.callCount === 0);
+
+    writeStub.reset();
     wapp.appStream.message('{}');
+    t.assert(writeStub.callCount === 0);
+
+    writeStub.reset();
     wapp.appStream.message('asd');
+    t.assert(writeStub.callCount === 2);
 
+    writeStub.reset();
     sendData(wapp, 'wrong', {});
-    sendData(wapp, 'wrong', 'wrong');
+    t.assert(writeStub.callCount === 2);
 
-    t.pass();
+    writeStub.reset();
+    sendData(wapp, 'wrong', 'wrong');
+    t.assert(writeStub.callCount === 2);
 });
 
 test('stream state', async (t) => {
