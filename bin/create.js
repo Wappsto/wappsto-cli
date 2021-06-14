@@ -18,6 +18,12 @@ const optionDefinitions = [
         alias: 'V',
         type: Boolean,
     },
+    {
+        name: 'verbose',
+        description: 'Enable verbose output.',
+        alias: 'v',
+        type: Boolean,
+    },
 ];
 
 const sections = [
@@ -29,7 +35,7 @@ const sections = [
         header: 'Synopsis',
         content: [
             '$ create-wapp',
-            '$ create-wapp {bold --validate}',
+            '$ create-wapp {bold --validate} {bold --vervose}',
             '$ create-wapp {bold --help}',
         ],
     },
@@ -53,7 +59,7 @@ tui.header('Create Wapp');
 
 const run = async () => {
     try {
-        const wapp = new Wapp();
+        const wapp = new Wapp(options.verbose);
         await wapp.init();
         await wapp.create(options.validate);
     } catch (err) {

@@ -12,6 +12,12 @@ const optionDefinitions = [
         alias: 'h',
         type: Boolean,
     },
+    {
+        name: 'verbose',
+        description: 'Enable verbose output.',
+        alias: 'v',
+        type: Boolean,
+    },
 ];
 
 const sections = [
@@ -23,6 +29,7 @@ const sections = [
         header: 'Synopsis',
         content: [
             '$ delete-wapp',
+            '$ delete-wapp {bold --verbose}',
             '$ delete-wapp {bold --help}',
         ],
     },
@@ -46,7 +53,7 @@ tui.header('Delete Wapp');
 
 const run = async () => {
     try {
-        const wapp = new Wapp();
+        const wapp = new Wapp(options.verbose);
         if (wapp.present()) {
             await wapp.init();
             await wapp.delete();
