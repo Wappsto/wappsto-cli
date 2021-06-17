@@ -60,7 +60,7 @@
         "http-proxy": "^1.18.1",
         "inquirer": "^8.1.0",
         "node-watch": "^0.7.1",
-        "ws": "^7.4.6"
+        "ws": "^7.5.0"
     },
     "devDependencies": {
         "@ava/babel": "^1.0.1",
