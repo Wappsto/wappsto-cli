@@ -58,7 +58,7 @@
         "figlet": "^1.5.0",
         "form-data": "^4.0.0",
         "http-proxy": "^1.18.1",
-        "inquirer": "^8.1.0",
+        "inquirer": "^8.1.1",
         "node-watch": "^0.7.1",
         "ws": "^7.4.6"
     },
