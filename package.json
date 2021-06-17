@@ -14,7 +14,7 @@
         "update-wapp": "./bin/update.js",
         "delete-wapp": "./bin/delete.js",
         "serve-wapp": "./bin/serve.js",
-        "help": "./bin/help.js"
+        "configure-wapp": "./bin/configure.js"
     },
     "main": "lib/wapp.js",
     "repository": {
