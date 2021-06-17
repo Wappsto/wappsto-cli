@@ -3,6 +3,7 @@ const util = require('util');
 const mockInquirer = require('mock-inquirer');
 const mocking = require('mock-require');
 const fs = require('fs');
+const sinon = require('sinon');
 
 mocking('ws', './mock/ws');
 
@@ -12,10 +13,7 @@ const files = require('../lib/files');
 const Wapp = require('../lib/wapp');
 
 util.inspect.defaultOptions.depth = 5; // Increase AVA's printing depth
-
-tui.write = () => {};
-
-// process.chdir('/tmp');
+const writeStub = sinon.stub(tui, 'write');
 
 test.before((t) => {
     files.deleteFolder(`${Config.cacheFolder()}`);
@@ -30,31 +28,46 @@ test.before((t) => {
 });
 
 test('wapp constructor', (t) => {
+    writeStub.reset();
+    tui.header('test');
+    t.assert(writeStub.callCount === 2);
+
     const wapp = new Wapp();
     t.deepEqual(wapp.application.data, {});
     t.deepEqual(wapp.application.version, []);
     t.deepEqual(wapp.manifest, {});
 });
 
-test('clean no wapp', async (t) => {
+test('fail to create new wapp', async (t) => {
     const wapp = new Wapp();
 
     mockInquirer([{
-        override: false,
+        name: '',
+    }, {
+        name: 'Test Wapp',
+        author: 'author',
+        version: 'wrong',
+    }, {
+        name: 'Test Wapp',
+        author: 'author',
+        version: '1.1.1',
+        features: [],
     }]);
 
-    await wapp.clean();
+    await t.throwsAsync(async () => {
+        await wapp.create();
+    });
 
-    t.deepEqual(files.directoryExists('foreground'), false);
-    t.deepEqual(files.directoryExists('background'), false);
-    t.deepEqual(files.directoryExists('icon'), false);
-    t.deepEqual(files.fileExists(`${wapp.cacheFolder}/application`), false);
-    t.deepEqual(files.fileExists(`${wapp.cacheFolder}/installation`), false);
-    t.deepEqual(files.fileExists('manifest.json'), false);
+    await t.throwsAsync(async () => {
+        await wapp.create();
+    });
+
+    await t.throwsAsync(async () => {
+        await wapp.create();
+    });
 });
 
 test('create new empty wapp', async (t) => {
-    // console.log = t.log;
     const wapp = new Wapp();
 
     const answer = {
@@ -108,6 +121,9 @@ test('create new foreground example wapp', async (t) => {
     };
 
     mockInquirer([
+        {
+            override: true,
+        },
         answer,
     ]);
 
@@ -145,6 +161,9 @@ test('create new example wapp', async (t) => {
     };
 
     mockInquirer([
+        {
+            override: true,
+        },
         answer,
     ]);
 
@@ -174,9 +193,19 @@ test('update test files', async (t) => {
     files.createFolders('foreground/testdir/file.js');
     files.saveFile('foreground/testdir/file.js', 'file 1');
 
+    files.saveFile('foreground/file.bin', 'bin file');
+    files.saveFile('foreground/img.png', 'png file');
+
+    files.saveFile('icon/logo.png', 'png file');
+
     const updatedFiles = await wapp.update();
 
     t.deepEqual(updatedFiles, [
+        {
+            id: 'file_id',
+            name: 'foreground/img.png',
+            status: 'created',
+        },
         {
             id: 'file_id',
             name: 'foreground/index.html',
@@ -200,6 +229,11 @@ test('update test files', async (t) => {
         {
             id: 'file_id',
             name: 'background/package.json',
+            status: 'created',
+        },
+        {
+            id: 'file_id',
+            name: 'icon/logo.png',
             status: 'created',
         },
     ]);
@@ -271,6 +305,9 @@ test('download wapp', async (t) => {
     };
 
     mockInquirer([
+        {
+            override: true,
+        },
         answer,
     ]);
 
@@ -299,22 +336,6 @@ test('move files to cache folder', (t) => {
     t.deepEqual(files.fileExists(`${wapp.cacheFolder}/session`), true);
 });
 
-test('open stream', async (t) => {
-    const wapp = new Wapp();
-
-    t.deepEqual(Config.port(), 3000);
-    await wapp.openStream();
-
-    t.pass();
-
-    // return new Promise((resolve) => {
-    //   setTimeout(() => {
-    //        t.deepEqual(cbSession, 'session');
-    //        resolve();
-    //    }, 1000);
-    // });
-});
-
 test('generate new wapp from local', async (t) => {
     const wapp = new Wapp();
 
@@ -322,7 +343,11 @@ test('generate new wapp from local', async (t) => {
         create: 'generate',
     };
 
-    mockInquirer([answer]);
+    mockInquirer([
+        {
+            override: false,
+        },
+        answer]);
 
     await wapp.create();
 
