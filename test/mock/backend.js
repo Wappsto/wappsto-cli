@@ -189,7 +189,9 @@ mock.onAny().reply((options) => {
                     };
                 } else if (query === 'expand=2&this_version_id=version_id') {
                     status = 200;
-                    res = store.installation.installation_id;
+                    if (store.installation.installation_id) {
+                        res = [store.installation.installation_id];
+                    }
                 } else if (store.installation[id]) {
                     status = 200;
                     res = store.installation[id];
