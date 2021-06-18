@@ -10,6 +10,8 @@ const path = require('path');
 const watch = require('node-watch');
 const WebSocket = require('ws').Server;
 const httpProxy = require('http-proxy');
+const open = require('open');
+const detect = require('detect-port');
 
 const Wapp = require('../lib/wapp');
 const Config = require('../lib/config');
@@ -126,7 +128,20 @@ function startServer(sessionID, index) {
 
     tui.showMessage(`Foreground Wapp is running on port ${options.port || Config.port()}!`);
 
-    server.listen(options.port || Config.port());
+    const port = options.port || Config.port();
+    detect(port, (err, _port) => {
+        if (err) {
+            tui.showError('Failed to detect port', err);
+        }
+        let newPort = port;
+        if (port !== _port) {
+            tui.showWarning(`${port} is in use, switching to ${_port}`);
+            newPort = _port;
+        }
+        server.listen(newPort);
+
+        open(`http://localhost:${newPort}`);
+    });
 }
 
 (async () => {
@@ -135,16 +150,16 @@ function startServer(sessionID, index) {
         const sessionID = await wapp.getInstallationSession();
         await wapp.openStream();
 
-        let fileHtml = getFileHtml();
+        const fileHtml = getFileHtml();
         if (!fileHtml) {
-            fileHtml = 'NO FOREGROUND!';
+            tui.showWarning('No foreground files found, local webserver is not started');
+        } else {
+            startServer(sessionID, fileHtml);
         }
 
         watch(Config.background(), { recursive: true }, (evt, name) => {
             wapp.uploadFile(name);
         });
-
-        startServer(sessionID, fileHtml);
     } catch (err) {
         if (err.message === 'LoginError') {
             tui.showError('Failed to Login, please try again.');
