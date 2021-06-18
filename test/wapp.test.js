@@ -14,6 +14,7 @@ const Wapp = require('../lib/wapp');
 
 util.inspect.defaultOptions.depth = 5; // Increase AVA's printing depth
 const writeStub = sinon.stub(tui, 'write');
+sinon.stub(console, 'error');
 
 test.before((t) => {
     files.deleteFolder(`${Config.cacheFolder()}`);

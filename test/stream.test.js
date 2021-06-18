@@ -13,6 +13,7 @@ const Wapp = require('../lib/wapp');
 
 util.inspect.defaultOptions.depth = 5; // Increase AVA's printing depth
 const writeStub = sinon.stub(tui, 'write');
+sinon.stub(console, 'error');
 
 function sendMessage(w, msg) {
     const tmp = msg;
@@ -118,7 +119,7 @@ test('stream invalid data', async (t) => {
 
     writeStub.reset();
     wapp.appStream.message('asd');
-    t.assert(writeStub.callCount === 2);
+    t.assert(writeStub.callCount === 1);
 
     writeStub.reset();
     sendData(wapp, 'wrong', {});

@@ -295,8 +295,29 @@ mock.onAny().reply((options) => {
 
         case 'acl':
             switch (method) {
+            case 'get':
+                if (store.acl) {
+                    res = store.acl;
+                } else {
+                    res = {
+                        restriction: [{
+                            method: {
+                                create: false, update: false, retrieve: true, delete: false,
+                            },
+                        }],
+                        installation: [{
+                            method: {
+                                create: true, update: true, retrieve: true, delete: false,
+                            },
+                            create: ['stream'],
+                        }],
+                    };
+                }
+                status = 200;
+                break;
             case 'patch':
                 status = 200;
+                store.acl = data;
                 break;
             default:
             }
@@ -316,7 +337,7 @@ mock.onAny().reply((options) => {
 
         if (status !== 200) {
             if (status === 501) {
-                process.stderr.write(`*** unhandled *** ${method} ${url}\n`);
+                process.stderr.write(`*** unhandled *** ${method} ${url} ${path} (${id})\n`);
             }
             if (!Object.keys(res).length) {
                 res = { };
