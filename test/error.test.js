@@ -2,6 +2,7 @@ const test = require('ava');
 const util = require('util');
 const mockInquirer = require('mock-inquirer');
 const mocking = require('mock-require');
+const readline = require('readline');
 
 mocking('ws', './mock/ws');
 
@@ -14,6 +15,8 @@ util.inspect.defaultOptions.depth = 5; // Increase AVA's printing depth
 tui.write = () => {};
 // eslint-disable-next-line no-console
 console.error = () => {};
+readline.cursorTo = () => {};
+readline.clearLine = () => {};
 
 test.before((t) => {
     files.createFolders(`${Config.cacheFolder()}/application`);

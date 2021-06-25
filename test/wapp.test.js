@@ -4,6 +4,7 @@ const mockInquirer = require('mock-inquirer');
 const mocking = require('mock-require');
 const fs = require('fs');
 const sinon = require('sinon');
+const readline = require('readline');
 
 mocking('ws', './mock/ws');
 
@@ -15,6 +16,8 @@ const Wapp = require('../lib/wapp');
 util.inspect.defaultOptions.depth = 5; // Increase AVA's printing depth
 const writeStub = sinon.stub(tui, 'write');
 sinon.stub(console, 'error');
+readline.cursorTo = () => {};
+readline.clearLine = () => {};
 
 test.before((t) => {
     files.deleteFolder(`${Config.cacheFolder()}`);

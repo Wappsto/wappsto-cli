@@ -3,6 +3,7 @@ const util = require('util');
 const mockInquirer = require('mock-inquirer');
 const mocking = require('mock-require');
 const sinon = require('sinon');
+const readline = require('readline');
 
 mocking('ws', './mock/ws');
 
@@ -14,6 +15,8 @@ const Wapp = require('../lib/wapp');
 util.inspect.defaultOptions.depth = 5; // Increase AVA's printing depth
 const writeStub = sinon.stub(tui, 'write');
 sinon.stub(console, 'error');
+readline.cursorTo = () => {};
+readline.clearLine = () => {};
 
 function sendMessage(w, msg) {
     const tmp = msg;

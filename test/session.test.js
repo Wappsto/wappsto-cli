@@ -1,6 +1,7 @@
 const test = require('ava');
 const util = require('util');
 const mockInquirer = require('mock-inquirer');
+const readline = require('readline');
 const tui = require('../lib/tui');
 const files = require('../lib/files');
 const Wapp = require('../lib/wapp');
@@ -8,6 +9,8 @@ const Config = require('../lib/config');
 
 util.inspect.defaultOptions.depth = 5; // Increase AVA's printing depth
 tui.write = () => {};
+readline.cursorTo = () => {};
+readline.clearLine = () => {};
 
 test.before((t) => {
     files.deleteFile(`${Config.cacheFolder()}/session`);
