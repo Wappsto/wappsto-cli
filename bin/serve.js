@@ -2,16 +2,13 @@
 
 const commandLineArgs = require('command-line-args');
 const commandLineUsage = require('command-line-usage');
-const http = require('http');
-const https = require('https');
 const url = require('url');
 const fs = require('fs');
 const path = require('path');
 const watch = require('node-watch');
-const WebSocket = require('ws').Server;
-const httpProxy = require('http-proxy');
-const open = require('open');
 const detect = require('detect-port');
+const bs = require('browser-sync').create();
+const { createProxyMiddleware } = require('http-proxy-middleware');
 
 const Wapp = require('../lib/wapp');
 const Config = require('../lib/config');
@@ -74,87 +71,116 @@ if (!wapp.present()) {
     process.exit(-1);
 }
 
-const wss = new WebSocket({ noServer: true });
-const proxy = httpProxy.createProxyServer({
-    target: wapp.host,
-    agent: https.globalAgent,
-    headers: { host: url.parse(wapp.host).host },
-});
-
-function getFileHtml() {
+function isForegroundPresent() {
     const index = path.join(Config.foreground(), 'index.html');
     if (!fs.existsSync(index)) {
         tui.showWarning(`File '${index}' not found.`);
         return false;
     }
-    return fs.readFileSync(index, 'utf-8');
+    return true;
 }
 
-function startServer(sessionID, index) {
-    const server = http.createServer((req, res) => {
-        switch (req.url.split('/')[1]) {
-        case 'services':
-            proxy.web(req, res);
-            break;
-        case '':
-            res.writeHead(200, {
-                'Content-Type': 'text/html',
-                'Set-Cookie': `sessionID=${sessionID}`,
-            });
-            res.end(index, 'utf-8');
-            break;
-        default:
-            try {
-                res.writeHead(200);
-                const file = fs.readFileSync(path.join(Config.foreground(), req.url));
-                res.end(file, 'utf-8');
-            } catch (err) {
-                res.writeHead(404);
-                res.end();
-            }
-            break;
-        }
-    });
-
-    server.on('upgrade', (req, socket, head) => {
-        if (req.url.split('/')[1] === 'autoReload') {
-            wss.handleUpgrade(req, socket, head, (ws) => {
-                wss.emit('connection', ws, req);
-            });
-        } else {
-            proxy.ws(req, socket, head);
-        }
-    });
-
-    tui.showMessage(`Foreground Wapp is running on port ${options.port || Config.port()}!`);
-
+async function startServer(sessionID) {
     const port = options.port || Config.port();
-    detect(port, (err, _port) => {
-        if (err) {
-            tui.showError('Failed to detect port', err);
-        }
-        let newPort = port;
-        if (port !== _port) {
-            tui.showWarning(`${port} is in use, switching to ${_port}`);
-            newPort = _port;
-        }
-        server.listen(newPort);
+    const newPort = await detect(port);
 
-        open(`http://localhost:${newPort}`);
+    if (port !== newPort) {
+        tui.showWarning(`${port} is in use, switching to ${newPort}`);
+    }
+
+    function fileExists(dir, request) {
+        let status;
+        const baseDir = dir.split('/');
+        baseDir.reverse();
+        for (let i = 0, len = baseDir.length; i < len; i += 1) {
+            const uri = url.parse(request.url).pathname;
+            const filename = path.join(process.cwd(), baseDir[i], uri);
+
+            const index = '/index.html';
+
+            // try {
+            status = fs.statSync(filename);
+
+            if (status.isDirectory()) {
+                status = fs.statSync(filename + index);
+
+                request.url += index;
+            }
+
+            return true;
+            // } catch (err) {
+            // }
+        }
+        return false;
+    }
+
+    const proxy = createProxyMiddleware('/services', {
+        target: `${Config.host()}`,
+        changeOrigin: true,
+        logLevel: 'silent',
+        ws: true, // proxy websockets
+        onError(err) {
+            tui.showError(err);
+        },
+        onProxyReq(proxyReq, req) {
+            req.headers['x-session'] = sessionID;
+            if (req.headers && req.headers.referer) {
+                req.headers.referer = req.headers.referer.replace(`http://localhost:${newPort}`, `${Config.host()}`);
+            }
+        },
+        onProxyRes(proxyRes) {
+            if (proxyRes.headers && proxyRes.headers.location) {
+                // eslint-disable-next-line no-param-reassign
+                proxyRes.headers.location = proxyRes.headers.location.replace(Config.host(), `http://localhost:${newPort}`);
+            }
+        },
+    });
+
+    const server = {
+        baseDir: Config.foreground(),
+        middleware: [
+            function localServe(request, response, next) {
+                response.setHeader('set-cookie', `sessionID=${sessionID}`);
+                // check if requested file exists locally
+                if (fileExists(Config.foreground(), request)) {
+                    next();
+                } else {
+                    proxy(request, response, next);
+                }
+            },
+        ],
+    };
+
+    // .init starts the server
+    bs.init({
+        logPrefix: 'Wappsto Cli',
+        port: newPort,
+        ui: false,
+        server,
+        files: `${Config.foreground()}/*`,
     });
 }
 
 (async () => {
     try {
+        /*
+        const { childProcess, versionRange, version } = await nvexeca('8', 'node', [
+            '--version',
+        ]);
+        console.log(`Node ${versionRange} (${version})`); // Node 8 (8.16.2)
+        const { exitCode, stdout, stderr } = await childProcess;
+        console.log(`Exit code: ${exitCode}`); // 0
+        console.log(stdout); // v8.16.2
+*/
         await wapp.init();
         const sessionID = await wapp.getInstallationSession();
         await wapp.openStream();
 
-        const fileHtml = getFileHtml();
-        if (!fileHtml) {
-            tui.showWarning('No foreground files found, local webserver is not started');
+        const hasForeground = isForegroundPresent();
+        if (hasForeground) {
+            startServer(sessionID);
         } else {
-            startServer(sessionID, fileHtml);
+            tui.showWarning('No foreground files found, local webserver is not started');
         }
 
         watch(Config.background(), { recursive: true }, (evt, name) => {

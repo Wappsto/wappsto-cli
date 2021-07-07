@@ -42,7 +42,7 @@ wappsto.get("data", {/* no filter */}, {
     },
     "error": (model, response) => {
         console.error("ERROR: Failed to get data value!");
-        console.error(responses);
+        console.error(response);
     }
 });
 
@@ -60,7 +60,7 @@ wappsto.get("value", {
     },
     "error": (model, response) => {
         console.error("ERROR: Failed to get temperature value!");
-        console.error(responses);
+        console.error(response);
     }
 });
 
