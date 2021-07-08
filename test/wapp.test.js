@@ -34,7 +34,7 @@ test.before((t) => {
 test('wapp constructor', (t) => {
     writeStub.reset();
     tui.header('test');
-    t.assert(writeStub.callCount === 2);
+    t.assert(writeStub.callCount === 1);
 
     const wapp = new Wapp();
     t.deepEqual(wapp.application.data, {});
