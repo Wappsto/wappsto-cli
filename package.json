@@ -56,7 +56,7 @@
         "browser-sync": "2.27.4",
         "chalk": "^4.1.1",
         "axios": "^0.21.1",
-        "command-line-args": "^5.1.1",
+        "command-line-args": "^5.2.0",
         "command-line-usage": "^6.1.0",
         "detect-port": "^1.3.0",
         "figlet": "^1.5.0",
