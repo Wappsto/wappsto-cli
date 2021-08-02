@@ -13,6 +13,7 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 const Wapp = require('../lib/wapp');
 const Config = require('../lib/config');
 const tui = require('../lib/tui');
+const files = require('../lib/files');
 
 const optionDefinitions = [
     {
@@ -89,7 +90,6 @@ async function startServer(sessionID) {
     }
 
     function fileExists(dir, request) {
-        let status;
         const baseDir = dir.split('/');
         baseDir.reverse();
         for (let i = 0, len = baseDir.length; i < len; i += 1) {
@@ -98,18 +98,14 @@ async function startServer(sessionID) {
 
             const index = '/index.html';
 
-            // try {
-            status = fs.statSync(filename);
-
-            if (status.isDirectory()) {
-                status = fs.statSync(filename + index);
-
-                request.url += index;
+            if (files.directoryExists(filename)) {
+                if (files.fileExists(fs.statSync(filename + index))) {
+                    request.url += index;
+                    return true;
+                }
+            } else if (files.fileExists(filename)) {
+                return true;
             }
-
-            return true;
-            // } catch (err) {
-            // }
         }
         return false;
     }
