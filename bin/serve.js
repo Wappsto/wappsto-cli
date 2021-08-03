@@ -81,6 +81,14 @@ function isForegroundPresent() {
     return true;
 }
 
+function isBackgroundPresent() {
+    const index = path.join(Config.background(), 'main.js');
+    if (!fs.existsSync(index)) {
+        return false;
+    }
+    return true;
+}
+
 async function startServer(sessionID) {
     const port = options.port || Config.port();
     const newPort = await detect(port);
@@ -179,9 +187,11 @@ async function startServer(sessionID) {
             tui.showWarning('No foreground files found, local webserver is not started');
         }
 
-        watch(Config.background(), { recursive: true }, (evt, name) => {
-            wapp.uploadFile(name);
-        });
+        if (isBackgroundPresent()) {
+            watch(Config.background(), { recursive: true }, (evt, name) => {
+                wapp.uploadFile(name);
+            });
+        }
     } catch (err) {
         if (err.message === 'LoginError') {
             tui.showError('Failed to Login, please try again.');
