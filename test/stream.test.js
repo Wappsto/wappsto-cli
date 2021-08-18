@@ -401,6 +401,60 @@ test('stream notification req collection', async (t) => {
     t.pass();
 });
 
+test('stream notification req name installation', async (t) => {
+    const wapp = new Wapp();
+    await wapp.openStream();
+
+    mockInquirer([{}, {
+        accept: true,
+    }, {
+        accept: true,
+    }]);
+
+    sendData(wapp, 'notification', {
+        read: 'unread',
+        timestamp: '1234567',
+        base: {
+            code: 1100003,
+            from: 'installation_id',
+        },
+        custom: {
+            type: 'test',
+            name_installation: 'Test App',
+        },
+    });
+    /*
+    sendData(wapp, 'notification', {
+        read: 'unread',
+        timestamp: '1234568',
+        base: {
+            code: 1100003,
+            from: 'installation_id',
+        },
+        custom: {
+            type: 'test',
+            name_installation: 'Test App',
+            collection: 'Test Type',
+        },
+    });
+    */
+    sendData(wapp, 'notification', {
+        read: 'unread',
+        timestamp: '1234569',
+        base: {
+            code: 1100003,
+            from: 'installation_id',
+        },
+        custom: {
+            type: 'test',
+            name_installation: 'Test App',
+            message: 'Test message',
+        },
+    });
+
+    t.pass();
+});
+
 test('stream console', async (t) => {
     const wapp = new Wapp();
     await wapp.openStream();
