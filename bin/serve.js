@@ -98,24 +98,19 @@ async function startServer(sessionID) {
     }
 
     function fileExists(dir, request) {
-        const baseDir = dir.split('/');
-        baseDir.reverse();
-        for (let i = 0, len = baseDir.length; i < len; i += 1) {
-            const uri = url.parse(request.url).pathname;
-            const filename = path.join(process.cwd(), baseDir[i], uri);
+        const uri = url.parse(request.url).pathname;
+        const filename = path.join(process.cwd(), dir, uri);
+        const index = '/index.html';
 
-            const index = '/index.html';
-
-            if (files.directoryExists(filename)) {
-                if (files.fileExists(fs.statSync(filename + index))) {
-                    request.url += index;
-                    return true;
-                }
-            } else if (files.fileExists(filename)) {
+        if (files.directoryExists(filename)) {
+            if (files.fileExists(fs.statSync(filename + index))) {
+                request.url += index;
                 return true;
             }
+        } else if (files.fileExists(filename)) {
+            return true;
         }
-        return false;
+        return false
     }
 
     const proxy = createProxyMiddleware('/services', {
