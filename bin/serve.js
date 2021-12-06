@@ -110,7 +110,7 @@ async function startServer(sessionID) {
         } else if (files.fileExists(filename)) {
             return true;
         }
-        return false
+        return false;
     }
 
     const proxy = createProxyMiddleware('/services', {
