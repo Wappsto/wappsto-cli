@@ -110,8 +110,8 @@ npm install http-proxy-middleware --save
 and creating a file `src/setupProxy.js` with this:
 
 ```js
-const proxy = require('http-proxy-middleware');
-const Wapp = require('wappsto-cli');
+const { createProxyMiddleware } = require('http-proxy-middleware');
+const Wapp = require('wappsto-cli/lib/wapp');
 
 const wapp = new Wapp();
 
@@ -119,24 +119,26 @@ const HOST = wapp.host;
 let sessionID = '';
 
 const run = async () => {
-    await wapp.init();
-    sessionID = await wapp.getInstallationSession();
+  await wapp.init();
+  sessionID = await wapp.getInstallationSession();
 };
 run();
 
-module.exports = function(app) {
-    app.use(proxy('/services', {
-            target: HOST,
-            changeOrigin: true,
-            ws: true,
-            logLevel: 'error',
-    }));
+module.exports = function (app) {
+  app.use(
+    '/services', 
+    createProxyMiddleware({
+    target: HOST,
+    changeOrigin: true,
+    ws: true,
+    logLevel: 'error',
+  }));
 
-    // set a cookie
-    app.use((req, res, next) => {
-        res.cookie('sessionID', sessionID, { maxAge: 900000 });
-        next();
-    });
+  // set a cookie
+  app.use((req, res, next) => {
+    res.cookie('sessionID', sessionID, { maxAge: 900000 });
+    next();
+  });
 };
 ```
 
