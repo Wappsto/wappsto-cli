@@ -100,10 +100,13 @@ async function startServer(sessionID) {
     function fileExists(dir, request) {
         const uri = url.parse(request.url).pathname;
         const filename = path.join(process.cwd(), dir, uri);
-        const index = '/index.html';
+        const index = 'index.html';
 
         if (files.directoryExists(filename)) {
             if (files.fileExists(fs.statSync(filename + index))) {
+                if (request.url.endWith() !== '/') {
+                    request.url += '/';
+                }
                 request.url += index;
                 return true;
             }
@@ -140,11 +143,15 @@ async function startServer(sessionID) {
         middleware: [
             function localServe(request, response, next) {
                 response.setHeader('set-cookie', `sessionID=${sessionID}`);
-                // check if requested file exists locally
-                if (fileExists(Config.foreground(), request)) {
-                    next();
-                } else {
-                    proxy(request, response, next);
+                try {
+                    // check if requested file exists locally
+                    if (fileExists(Config.foreground(), request)) {
+                        next();
+                    } else {
+                        proxy(request, response, next);
+                    }
+                } catch (e) {
+                    tui.showError('Failed to serve local file');
                 }
             },
         ],
