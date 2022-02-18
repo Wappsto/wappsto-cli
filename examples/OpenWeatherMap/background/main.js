@@ -5,10 +5,14 @@ let forecast_count = 3;
 let owm;
 let timer;
 
-let current_temperature;
-let forecast_temperature = [];
 let latitude;
 let longitude;
+let current_temperature;
+let forecast_temperature = [];
+let forecast_pressure = [];
+let forecast_humidity = [];
+let forecast_wind_speed = [];
+let forecast_wind_deg = [];
 
 Wappsto.startLogging();
 
@@ -28,11 +32,23 @@ async function generateNetwork() {
     longitude = await device.createValue('Longitude', 'r', Wappsto.ValueTemplate.LONGITUDE);
     city_value = await device.createValue('City', 'r', Wappsto.ValueTemplate.CITY);
 
-    current_temperature = await device.createValue('Current Temperature', 'r', Wappsto.ValueTemplate.TEMPERATURE_CELSIUS);
+    current_temperature = await device.createValue('Temperature', 'r', Wappsto.ValueTemplate.TEMPERATURE_CELSIUS);
+    current_pressure = await device.createValue(`Pressure`, 'r', Wappsto.ValueTemplate.PRESSURE_HPA);
+    current_humidity = await device.createValue(`Humidity`, 'r', Wappsto.ValueTemplate.HUMIDITY);
+    current_wind_speed = await device.createValue(`Wind Speed`, 'r', Wappsto.ValueTemplate.SPEED_MS);
+    current_wind_deg = await device.createValue(`Wind Direction`, 'r', Wappsto.ValueTemplate.ANGLE);
 
     for(let i=0; i<forecast_count; i++) {
-        forecast_temperature[0] = await device.createValue(`Temperature in ${(i+1)*3} hours`, 'r', Wappsto.ValueTemplate.TEMPERATURE_CELSIUS);
+        forecast_temperature[i] = await device.createValue(`Temperature in ${(i+1)*3} hours`, 'r', Wappsto.ValueTemplate.TEMPERATURE_CELSIUS);
+	forecast_pressure[i] = await device.createValue(`Pressure in ${(i+1)*3} hours`, 'r', Wappsto.ValueTemplate.PRESSURE_HPA);
+	forecast_humidity[i] = await device.createValue(`Humidity in ${(i+1)*3} hours`, 'r', Wappsto.ValueTemplate.HUMIDITY);
+	forecast_wind_speed[i] = await device.createValue(`Wind Speed in ${(i+1)*3} hours`, 'r', Wappsto.ValueTemplate.SPEED_MS);
+	forecast_wind_deg[i] = await device.createValue(`Wind Direction in ${(i+1)*3} hours`, 'r', Wappsto.ValueTemplate.ANGLE);
     }
+}
+
+function convertTimestamp(txt) {
+    return txt.replace(" ", "T") + "Z";
 }
 
 async function updateValues() {
@@ -45,8 +61,17 @@ async function updateValues() {
     city_value.report(city);
 
     current_temperature.report(data.current.main.temp);
+    current_pressure.report(data.current.main.pressure);
+    current_humidity.report(data.current.main.humidity);
+    current_wind_speed.report(data.current.wind.speed);
+    current_wind_deg.report(data.current.wind.deg);
+    
     for(let i=0; i<forecast_count; i++) {
-	    forecast_temperature[i].report(data.forecast[i].main.temp);
+	forecast_temperature[i].report(data.forecast[i].main.temp, convertTimestamp(data.forecast[i].dt_txt));
+	forecast_humidity[i].report(data.forecast[i].main.humidity, convertTimestamp(data.forecast[i].dt_txt));
+	forecast_pressure[i].report(data.forecast[i].main.pressure, convertTimestamp(data.forecast[i].dt_txt));
+	forecast_wind_speed[i].report(data.forecast[i].wind.speed, convertTimestamp(data.forecast[i].dt_txt));
+	forecast_wind_deg[i].report(data.forecast[i].wind.deg, convertTimestamp(data.forecast[i].dt_txt));
     }
 }
 
