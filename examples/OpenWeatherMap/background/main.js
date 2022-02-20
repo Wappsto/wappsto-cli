@@ -4,6 +4,7 @@ let OpenWeatherMap = require('./owm');
 let forecast_count = 3;
 let owm;
 let timer;
+let last_data;
 
 let latitude;
 let longitude;
@@ -18,19 +19,24 @@ Wappsto.startLogging();
 
 async function generateNetwork() {
     let network = await Wappsto.createNetwork({
-	    name: "Open Weather Map",
-	    description: "This network contains the virtual device for Open Weather Map Converter"
+        name: "Open Weather Map",
+        description: "This network contains the virtual device for Open Weather Map Converter"
     });
     let device = await network.createDevice({
-    	name: 'Open Weather Map',
-    	description: 'This is a device for teh virtual Open Weather Map Converter',
-    	product: 'Open Weather Map Converter',
-    	version: '1.0.0',
-    	manufacturer: 'Seluxit A/S',
+        name: 'Open Weather Map',
+        description: 'This is a device for teh virtual Open Weather Map Converter',
+        product: 'Open Weather Map Converter',
+        version: '1.0.0',
+        manufacturer: 'Seluxit A/S',
     });
     latitude = await device.createValue('Latitude', 'r', Wappsto.ValueTemplate.LATITUDE);
     longitude = await device.createValue('Longitude', 'r', Wappsto.ValueTemplate.LONGITUDE);
-    city_value = await device.createValue('City', 'r', Wappsto.ValueTemplate.CITY);
+    city_value = await device.createValue('City', 'rw', Wappsto.ValueTemplate.CITY);
+
+    city_value.onControl((value, data) => {
+        city = data;
+        start();
+    });
 
     current_temperature = await device.createValue('Temperature', 'r', Wappsto.ValueTemplate.TEMPERATURE_CELSIUS);
     current_pressure = await device.createValue(`Pressure`, 'r', Wappsto.ValueTemplate.PRESSURE_HPA);
@@ -40,10 +46,10 @@ async function generateNetwork() {
 
     for(let i=0; i<forecast_count; i++) {
         forecast_temperature[i] = await device.createValue(`Temperature in ${(i+1)*3} hours`, 'r', Wappsto.ValueTemplate.TEMPERATURE_CELSIUS);
-	forecast_pressure[i] = await device.createValue(`Pressure in ${(i+1)*3} hours`, 'r', Wappsto.ValueTemplate.PRESSURE_HPA);
-	forecast_humidity[i] = await device.createValue(`Humidity in ${(i+1)*3} hours`, 'r', Wappsto.ValueTemplate.HUMIDITY);
-	forecast_wind_speed[i] = await device.createValue(`Wind Speed in ${(i+1)*3} hours`, 'r', Wappsto.ValueTemplate.SPEED_MS);
-	forecast_wind_deg[i] = await device.createValue(`Wind Direction in ${(i+1)*3} hours`, 'r', Wappsto.ValueTemplate.ANGLE);
+        forecast_pressure[i] = await device.createValue(`Pressure in ${(i+1)*3} hours`, 'r', Wappsto.ValueTemplate.PRESSURE_HPA);
+        forecast_humidity[i] = await device.createValue(`Humidity in ${(i+1)*3} hours`, 'r', Wappsto.ValueTemplate.HUMIDITY);
+        forecast_wind_speed[i] = await device.createValue(`Wind Speed in ${(i+1)*3} hours`, 'r', Wappsto.ValueTemplate.SPEED_MS);
+        forecast_wind_deg[i] = await device.createValue(`Wind Direction in ${(i+1)*3} hours`, 'r', Wappsto.ValueTemplate.ANGLE);
     }
 }
 
@@ -54,7 +60,8 @@ function convertTimestamp(txt) {
 async function updateValues() {
     console.log("Updating Weather values");
     let data = await owm.getAllData(city, forecast_count);
-    console.log(data);
+    last_data = data;
+    console.log("data", data);
 
     latitude.report(data.current.coord.lat);
     longitude.report(data.current.coord.lon);
@@ -65,49 +72,85 @@ async function updateValues() {
     current_humidity.report(data.current.main.humidity);
     current_wind_speed.report(data.current.wind.speed);
     current_wind_deg.report(data.current.wind.deg);
-    
+
     for(let i=0; i<forecast_count; i++) {
-	forecast_temperature[i].report(data.forecast[i].main.temp, convertTimestamp(data.forecast[i].dt_txt));
-	forecast_humidity[i].report(data.forecast[i].main.humidity, convertTimestamp(data.forecast[i].dt_txt));
-	forecast_pressure[i].report(data.forecast[i].main.pressure, convertTimestamp(data.forecast[i].dt_txt));
-	forecast_wind_speed[i].report(data.forecast[i].wind.speed, convertTimestamp(data.forecast[i].dt_txt));
-	forecast_wind_deg[i].report(data.forecast[i].wind.deg, convertTimestamp(data.forecast[i].dt_txt));
+        forecast_temperature[i].report(data.forecast[i].main.temp, convertTimestamp(data.forecast[i].dt_txt));
+        forecast_humidity[i].report(data.forecast[i].main.humidity, convertTimestamp(data.forecast[i].dt_txt));
+        forecast_pressure[i].report(data.forecast[i].main.pressure, convertTimestamp(data.forecast[i].dt_txt));
+        forecast_wind_speed[i].report(data.forecast[i].wind.speed, convertTimestamp(data.forecast[i].dt_txt));
+        forecast_wind_deg[i].report(data.forecast[i].wind.deg, convertTimestamp(data.forecast[i].dt_txt));
+    }
+
+    console.log("update", data);
+    let res = await Wappsto.sendToForeground(data);
+    console.log("updated res", res);
+}
+
+async function init(key) {
+    console.log("Init");
+    if(!current_temperature) {
+        await generateNetwork();
+    }
+    console.log("Network created");
+    let res = await Wappsto.sendToForeground({"network": "created"});
+    console.log("init res", res);
+
+    if(!owm) {
+        owm = new OpenWeatherMap(key);
+    }
+
+    city = city_value.getReportData();
+    if(city) {
+        console.log("Saved city", city);
+        start();
     }
 }
 
-async function start(key, city) {
-    console.log("Starting");
-    if(!current_temperature) {
-	    await generateNetwork();
-    }
-    if(!owm) {
-	    owm = new OpenWeatherMap(key);
-    }
+async function start() {
+    console.log("Updating", city);
+    if(city) {
+        if(timer) {
+            clearInterval(timer);
+        }
 
-    if(timer) {
-	    cancelTimer(timer);
+        timer = setInterval(updateValues, 60*60*1000);
+
+        updateValues();
     }
+}
 
-    timer = setInterval(updateValues, 60*60*1000);
-
-    updateValues();
+function handleCommand(event) {
+    console.log("handleCommand", event);
+    if(event.update) {
+        console.log("sending update");
+        Wappsto.sendToForeground(last_data).then((res) => {
+            console.log("last_data res", res);
+        });
+    } else if(event.network) {
+        if(current_temperature) {
+            Wappsto.sendToForeground({"network": "created"}).then((res) => {
+                console.log("created res", res);
+            });
+        }
+    }
+    return "OK";
 }
 
 (async () => {
+    Wappsto.fromForeground(handleCommand);
     let storage = await Wappsto.wappStorage();
     let key = storage.get('api_key');
-    city = storage.get('city');
 
-	storage.onChange(() => {
-	    key = storage.get('api_key');
-	    city = storage.get('city');
+    storage.onChange(() => {
+        console.log("Configuration changed");
+        key = storage.get('api_key');
 
-	    if(city && key) {
-		    start(key, city);
-	    }
-	});
+        if(key) {
+            init(key);
+        }
+    });
 
-    if(key && city) {
-	    start(key, city);
+    if(key) {
+        init(key);
     }
 })();
