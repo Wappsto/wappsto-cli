@@ -16,7 +16,7 @@
         "ava"
     ],
     "rules": {
-        "indent": ["error", 4],
+        "indent": ["error", 2],
         "no-console": "warn",
         "ava/assertion-arguments": "error",
         "ava/max-asserts": [

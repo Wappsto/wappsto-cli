@@ -19,47 +19,47 @@ readline.cursorTo = () => {};
 readline.clearLine = () => {};
 
 test.before((t) => {
-    files.createFolders(`${Config.cacheFolder()}/application`);
-    files.saveJsonFile(`${Config.cacheFolder()}/application`, {
-        version: [
-            {
-                meta: {
-                    id: 'wrong_version_id',
-                },
-            },
-        ],
+  files.createFolders(`${Config.cacheFolder()}/application`);
+  files.saveJsonFile(`${Config.cacheFolder()}/application`, {
+    version: [
+      {
         meta: {
-            id: 'application_id',
+          id: 'wrong_version_id',
         },
-    });
+      },
+    ],
+    meta: {
+      id: 'application_id',
+    },
+  });
 
-    files.saveJsonFile(`${Config.cacheFolder()}/installation`, {
-        meta: {
-            id: 'wrong_installation_id',
-        },
-    });
+  files.saveJsonFile(`${Config.cacheFolder()}/installation`, {
+    meta: {
+      id: 'wrong_installation_id',
+    },
+  });
 
-    t.pass();
+  t.pass();
 });
 
 test('failed to update', async (t) => {
-    const wapp = new Wapp();
+  const wapp = new Wapp();
 
-    const updatedFiles = await wapp.update();
+  const updatedFiles = await wapp.update();
 
-    t.deepEqual(updatedFiles, []);
+  t.deepEqual(updatedFiles, []);
 });
 
 test('failed to delete', async (t) => {
-    const wapp = new Wapp();
+  const wapp = new Wapp();
 
-    mockInquirer([{
-        del: true,
-        local: true,
-        remote: true,
-    }]);
+  mockInquirer([{
+    del: true,
+    local: true,
+    remote: true,
+  }]);
 
-    await wapp.delete();
+  await wapp.delete();
 
-    t.pass();
+  t.pass();
 });
