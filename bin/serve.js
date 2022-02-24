@@ -89,7 +89,7 @@ function isBackgroundPresent() {
     return true;
 }
 
-async function startServer(sessionID) {
+async function startServer(sessionID, tokenID) {
     const port = options.port || Config.port();
     const newPort = await detect(port);
 
@@ -126,6 +126,7 @@ async function startServer(sessionID) {
         },
         onProxyReq(proxyReq, req) {
             req.headers['x-session'] = sessionID;
+            req.headers.tokenID = tokenID;
             if (req.headers && req.headers.referer) {
                 req.headers.referer = req.headers.referer.replace(`http://localhost:${newPort}`, `${Config.host()}`);
             }
@@ -143,6 +144,7 @@ async function startServer(sessionID) {
         middleware: [
             function localServe(request, response, next) {
                 response.setHeader('set-cookie', `sessionID=${sessionID}`);
+                response.setHeader('set-cookie', `tokenID=${tokenID}`);
                 try {
                     // check if requested file exists locally
                     if (fileExists(Config.foreground(), request)) {
@@ -180,11 +182,12 @@ async function startServer(sessionID) {
 */
         await wapp.init();
         const sessionID = await wapp.getInstallationSession();
+        const tokenID = wapp.getInstallationToken();
         await wapp.openStream();
 
         const hasForeground = isForegroundPresent();
         if (hasForeground) {
-            startServer(sessionID);
+            startServer(sessionID, tokenID);
         } else {
             tui.showWarning('No foreground files found, local webserver is not started');
         }
