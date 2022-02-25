@@ -15,7 +15,7 @@ Command Line Interface for Wappsto, so that it is possible to create Wapps local
 
 ## Install
 
-Just install the package using npm.
+Just install the package using `npm`.
 
 ```sh
 npm install wappsto-cli --save-dev
@@ -36,26 +36,36 @@ Here you get the option to download any exsisting Wapps or create a new Wapp.
 
 This will generate a file called manifest.json where you can modify the description of your wapp.
 
+### Run
+
+To start a local web server and local background runner, that will serve the Wapp run the `serve-wapp` using `npx`:
+
+```sh
+npx serve-wapp
+```
+
+This will run a local web server where you can test your wapp foreground part of your wapp. It is default listen on port 3000.
+This will also run your background files in a local node instance.
+Any notifications from your Wapp is presented in the terminal where you are running `serve-wapp`.
+
+### Configure
+
+To configure your wapp you can run `configure-wapp` using `npx`, to chaange some settings for your wapp.
+This is also where you can create OAuth configurations for your wapp.
+
+```sh
+ǹpx configure-wapp
+```
+
 ### Update
 
-To update the Wapp run the `update-wapp` using `npx`:
+To update the Wapp on wappsto run the `update-wapp` using `npx`:
 
 ```sh
 npx update-wapp
 ```
 
 This will upload all your files to Wappsto and download any new files created for your Wapp.
-
-### Run
-
-To start a web server that will serve the Wapp run the `serve-wapp` using `npx`:
-
-```sh
-npx serve-wapp
-```
-
-This will run a local web server where you can test your wapp. It is default listen on port 3000.
-Any notifications from your Wapp is presented in the terminal where you are running `serve-wapp`.
 
 ### Delete
 
@@ -149,7 +159,7 @@ Then run `npx serve-wapp` to serve the build version of your react application.
 
 ## Related
 
-- [wapp-api](https://github.com/wappsto/wapp-api)
+- [wappsto-wapp](https://github.com/wappsto/javascript-wappsto-wapp) - Javascript lib for writing Wapps in [Wappsto](wappsto.com)
 
 ## License
 

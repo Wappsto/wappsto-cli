@@ -8,7 +8,6 @@
         "pretest": "yarn lint:fix",
         "test": "nyc ava -sv test/*.js",
         "coverage": "nyc report --reporter=text-lcov | coveralls",
-        "release": "np",
         "prepare": "husky install"
     },
     "type": "commonjs",
@@ -82,7 +81,6 @@
         "husky": "^7.0.4",
         "mock-inquirer": "^1.0.3",
         "mock-require": "^3.0.3",
-        "np": "^7.5.0",
         "nyc": "^15.1.0",
         "sinon": "^13.0.1"
     },
