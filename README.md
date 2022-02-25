@@ -159,7 +159,7 @@ Then run `npx serve-wapp` to serve the build version of your react application.
 
 ## Related
 
-- [wappsto-wapp](https://github.com/wappsto/javascript-wappsto-wapp) - Javascript lib for writing Wapps in [Wappsto](wappsto.com)
+- [wappsto-wapp](https://github.com/wappsto/javascript-wappsto-wapp) - Javascript lib for writing Wapps in [Wappsto](https://wappsto.com)
 
 ## License
 
