@@ -35,6 +35,12 @@ const optionDefinitions = [
     alias: 'v',
     type: Boolean,
   },
+  {
+    name: 'remote',
+    description: 'Run the background wapp on the server',
+    alias: 'r',
+    type: Boolean,
+  },
 ];
 
 const sections = [
@@ -47,6 +53,7 @@ const sections = [
     content: [
       '$ serve-wapp',
       '$ serve-wapp {bold --port 4000} {bold --verbose}',
+      '$ serve-wapp {bold --remote}',
       '$ serve-wapp {bold --help}',
     ],
   },
@@ -91,7 +98,7 @@ function isBackgroundPresent() {
   return true;
 }
 
-async function startServer(sessionID, tokenID) {
+async function startForegroundServer(sessionID, tokenID) {
   const port = options.port || Config.port();
   const newPort = await detect(port);
 
@@ -171,7 +178,38 @@ async function startServer(sessionID, tokenID) {
   });
 }
 
-async function startBackgroundRunner(sessionID, tokenID) {
+function registerBackgroundWatcher(cb) {
+  let restarting = false;
+  watch(Config.background(), {
+    filter(f, skip) {
+      // skip node_modules
+      if (/\/node_modules/.test(f)) return skip;
+      // skip .git folder
+      if (/\.git/.test(f)) return skip;
+      if (/\.#/.test(f)) return skip;
+      // only watch for js and json files
+      return /\.js|\.json$/.test(f);
+    },
+    recursive: true,
+  }, (evt, name) => {
+    if (!restarting) {
+      restarting = true;
+      cb(name).then(() => {
+        restarting = false;
+      });
+    }
+  });
+}
+
+async function startRemoteBackgroundRunner() {
+  tui.showMessage('Starting the background wapp on the server');
+  registerBackgroundWatcher(async (name) => {
+    wapp.uploadFile(name);
+  });
+}
+
+async function startLocalBackgroundRunner(sessionID, tokenID) {
+  tui.showMessage('Starting the background wapp locally');
   async function install() {
     return new Promise((resolve, reject) => {
       const npm = spawn('npm', ['install'], {
@@ -236,7 +274,6 @@ async function startBackgroundRunner(sessionID, tokenID) {
     runner.kill();
   }
 
-  let restarting = false;
   let runner;
   try {
     await install();
@@ -245,32 +282,16 @@ async function startBackgroundRunner(sessionID, tokenID) {
     // empty
   }
 
-  watch(Config.background(), {
-    filter(f, skip) {
-      // skip node_modules
-      if (/\/node_modules/.test(f)) return skip;
-      // skip .git folder
-      if (/\.git/.test(f)) return skip;
-      if (/\.#/.test(f)) return skip;
-      // only watch for js and json files
-      return /\.js|\.json$/.test(f);
-    },
-    recursive: true,
-  }, (evt, name) => {
-    if (!restarting) {
-      restarting = true;
-      stop(runner);
-      if (name === `${Config.background()}/package.json`) {
-        install().then(() => {
-          runner = start();
-          restarting = false;
-        }).catch(() => {
-          restarting = false;
-        });
-      } else {
+  registerBackgroundWatcher(async (name) => {
+    stop(runner);
+    if (name === `${Config.background()}/package.json`) {
+      install().then(() => {
         runner = start();
-        restarting = false;
-      }
+      }).catch(() => {
+        // empty
+      });
+    } else {
+      runner = start();
     }
   });
 }
@@ -284,7 +305,7 @@ async function startBackgroundRunner(sessionID, tokenID) {
 
     if (wapp.hasForeground) {
       if (isForegroundPresent()) {
-        startServer(sessionID, tokenID);
+        startForegroundServer(sessionID, tokenID);
       } else {
         tui.showWarning('No foreground files found, local webserver is not started');
       }
@@ -292,10 +313,16 @@ async function startBackgroundRunner(sessionID, tokenID) {
 
     if (wapp.hasBackground) {
       if (isBackgroundPresent()) {
-        if (await wapp.installation.stop()) {
-          startBackgroundRunner(sessionID, tokenID);
+        if (options.remote) {
+          const backgroundFiles = await wapp.update(options.reinstall);
+          backgroundFiles.forEach((f) => {
+            tui.showMessage(`${f.name} was ${f.status}`);
+          });
+          startRemoteBackgroundRunner();
+        } else if (await wapp.installation.stop()) {
+          startLocalBackgroundRunner(sessionID, tokenID);
         } else {
-          tui.showError('Not starting background runner');
+          tui.showError('Failed to stop the background runner on the server. Not starting background runner');
         }
       } else {
         tui.showWarning('No background files found, local background runner is not started');
