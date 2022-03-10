@@ -6,19 +6,36 @@
 Command Line Interface for Wappsto, so that it is possible to create Wapps locally.
 
 # Table of Contents
-1. [Install](#install)
-2. [Usage](#usage)
-3. [Configuration](#configuration)
-4. [Frameworks](#frameworks)
-5. [Related](#related)
-6. [License](#license)
+1. [Requirements](#Requirements)
+2. [Install](#install)
+3. [Usage](#usage)
+4. [Configuration](#configuration)
+5. [Frameworks](#frameworks)
+6. [Related](#related)
+7. [License](#license)
+
+## Requirements
+
+Wappsto-cli requires node version `16.4.0` or higher to work properly.
 
 ## Install
 
-Just install the package using `npm`.
+You can install the pacakge with `npm`.
 
 ```sh
 npm install wappsto-cli --save-dev
+```
+
+Or using `yarn`. 
+
+```sh
+yarn add wappsto-cli -D
+```
+
+When use `yarn` remember to create a `package.json` file in your folder before installing.
+
+```sh
+echo '{}' > package.json
 ```
 
 ## Usage
@@ -47,6 +64,7 @@ npx serve-wapp
 This will run a local web server where you can test your wapp foreground part of your wapp. It is default listen on port 3000.
 This will also run your background files in a local node instance.
 Any notifications from your Wapp is presented in the terminal where you are running `serve-wapp`.
+If you want to run your background files on the server, you can use the `--remote` flag when starting `serve-wapp`.
 
 ### Configure
 
