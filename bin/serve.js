@@ -174,6 +174,7 @@ async function startForegroundServer(sessionID, tokenID) {
     ui: false,
     server,
     files: `${Config.foreground()}/*`,
+    browser: Config.browser(),
   });
 }
 

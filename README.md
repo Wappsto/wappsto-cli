@@ -117,11 +117,12 @@ You can configure wappsto-cli by creating a 'wappsto.json' file and add this:
 
 Valid options is:
 
-| Option     | Default      | Description                                           |
-|------------|--------------|-------------------------------------------------------|
-| foreground | `foreground` | The folder where the foreground files will be stored. |
-| background | `background` | The folder where the background files will be stored. |
-| port       | `3000`       | The port the web server will serve the Wapp on.       |
+| Option     | Default      | Description                                                                  |
+|------------|--------------|------------------------------------------------------------------------------|
+| foreground | `foreground` | The folder where the foreground files will be stored.                        |
+| background | `background` | The folder where the background files will be stored.                        |
+| port       | `3000`       | The port the web server will serve the Wapp on.                              |
+| browser    | `default`    | The browser used to serve the frontend files. ('google chrome' or 'firefox') |
 
 ## Frameworks
 
