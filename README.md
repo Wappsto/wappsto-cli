@@ -122,7 +122,7 @@ Valid options is:
 | foreground | `foreground` | The folder where the foreground files will be stored.                        |
 | background | `background` | The folder where the background files will be stored.                        |
 | port       | `3000`       | The port the web server will serve the Wapp on.                              |
-| browser    | `default`    | The browser used to serve the frontend files. ('google chrome' or 'firefox') |
+| browser    | `default`    | The browser used to serve the frontend files. ('google-chrome' or 'firefox') |
 
 ## Frameworks
 

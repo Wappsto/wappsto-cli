@@ -41,6 +41,12 @@ const optionDefinitions = [
     alias: 'r',
     type: Boolean,
   },
+  {
+    name: 'nobrowser',
+    description: 'Do not open the browser',
+    alias: 'n',
+    type: Boolean,
+  },
 ];
 
 const sections = [
@@ -53,7 +59,7 @@ const sections = [
     content: [
       '$ serve-wapp',
       '$ serve-wapp {bold --port 4000} {bold --verbose}',
-      '$ serve-wapp {bold --remote}',
+      '$ serve-wapp {bold --remote} {bold --nobrowser}',
       '$ serve-wapp {bold --help}',
     ],
   },
@@ -175,6 +181,7 @@ async function startForegroundServer(sessionID, tokenID) {
     server,
     files: `${Config.foreground()}/*`,
     browser: Config.browser(),
+    open: !options.nobrowser,
   });
 }
 
