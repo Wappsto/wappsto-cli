@@ -152,8 +152,7 @@ async function startForegroundServer(sessionID, tokenID) {
     baseDir: Config.foreground(),
     middleware: [
       function localServe(request, response, next) {
-        response.setHeader('set-cookie', `sessionID=${sessionID}`);
-        response.setHeader('set-cookie', `tokenID=${tokenID}`);
+        response.setHeader('set-cookie', `sessionID=${sessionID}; tokenID=${tokenID}`);
         try {
           // check if requested file exists locally
           if (fileExists(Config.foreground(), request)) {
