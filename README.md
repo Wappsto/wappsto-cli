@@ -20,7 +20,14 @@ Wappsto-cli requires node version `16.4.0` or higher to work properly.
 
 ## Install
 
-You can install the pacakge with `npm`.
+First create a new folder for you wapp and enter it.
+
+```shell
+mkdir my-new-wapp
+cd my-new-wapp
+```
+
+You can now install the package with `npm`.
 
 ```sh
 npm install wappsto-cli --save-dev

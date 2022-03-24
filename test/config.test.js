@@ -18,7 +18,7 @@ test('Default parameters', (t) => {
   t.deepEqual(Config.background(), 'background');
   t.deepEqual(Config.host(), 'https://wappsto.com');
   t.deepEqual(Config.port(), 3000);
-  t.deepEqual(Config.cacheFolder(), '.wappsto-cli-cache');
+  t.deepEqual(Config.cacheFolder(), '.wappsto-cli-cache/');
   t.deepEqual(Config.isCustomHost(), false);
 });
 
@@ -38,7 +38,7 @@ test('Custom Parameters', (t) => {
   t.deepEqual(Config.background(), data.background);
   t.deepEqual(Config.host(), data.host);
   t.deepEqual(Config.port(), data.port);
-  t.deepEqual(Config.cacheFolder(), data.cacheFolder);
+  t.deepEqual(Config.cacheFolder(), `${data.cacheFolder}/`);
   t.deepEqual(Config.isCustomHost(), true);
 
   files.deleteFile('wappsto.json');
@@ -51,6 +51,6 @@ test('Default parameters after reload', (t) => {
   t.deepEqual(Config.background(), 'background');
   t.deepEqual(Config.host(), 'https://wappsto.com');
   t.deepEqual(Config.port(), 3000);
-  t.deepEqual(Config.cacheFolder(), '.wappsto-cli-cache');
+  t.deepEqual(Config.cacheFolder(), '.wappsto-cli-cache/');
   t.deepEqual(Config.isCustomHost(), false);
 });
