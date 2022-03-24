@@ -72,7 +72,7 @@ To configure your wapp you can run `configure-wapp` using `npx`, to chaange some
 This is also where you can create OAuth configurations for your wapp.
 
 ```sh
-ǹpx configure-wapp
+npx configure-wapp
 ```
 
 ### Update

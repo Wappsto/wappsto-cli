@@ -270,7 +270,7 @@ async function startLocalBackgroundRunner(sessionID, tokenID) {
       printLog(data, 'error');
     });
 
-    tui.showMessage('Backgrouund Runner Started');
+    tui.showMessage('Background Runner Started');
     return runner;
   }
 
