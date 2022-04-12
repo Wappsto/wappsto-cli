@@ -49,10 +49,10 @@ echo '{}' > package.json
 
 ### Create
 
-To create a Wapp run the `create-wapp` using `npx`:
+To create a Wapp run the `wapp create` using `npx`:
 
 ```sh
-npx create-wapp
+npx wapp create
 ```
 
 It will ask for your 'username' and 'password' to Wappsto, unless you are already logged in.
@@ -62,42 +62,42 @@ This will generate a file called manifest.json where you can modify the descript
 
 ### Run
 
-To start a local web server and local background runner, that will serve the Wapp run the `serve-wapp` using `npx`:
+To start a local web server and local background runner, that will serve the Wapp run the `wapp serve` using `npx`:
 
 ```sh
-npx serve-wapp
+npx wapp serve
 ```
 
 This will run a local web server where you can test your wapp foreground part of your wapp. It is default listen on port 3000.
 This will also run your background files in a local node instance.
-Any notifications from your Wapp is presented in the terminal where you are running `serve-wapp`.
-If you want to run your background files on the server, you can use the `--remote` flag when starting `serve-wapp`.
+Any notifications from your Wapp is presented in the terminal where you are running `wapp serve`.
+If you want to run your background files on the server, you can use the `--remote` flag when starting `wapp serve`.
 
 ### Configure
 
-To configure your wapp you can run `configure-wapp` using `npx`, to chaange some settings for your wapp.
+To configure your wapp you can run `wapp configure` using `npx`, to chaange some settings for your wapp.
 This is also where you can create OAuth configurations for your wapp.
 
 ```sh
-npx configure-wapp
+npx wapp configure
 ```
 
 ### Update
 
-To update the Wapp on wappsto run the `update-wapp` using `npx`:
+To update the Wapp on wappsto run the `wapp update` using `npx`:
 
 ```sh
-npx update-wapp
+npx wapp update
 ```
 
 This will upload all your files to Wappsto and download any new files created for your Wapp.
 
 ### Delete
 
-To delete the Wapp run the `delete-wapp` using `npx`:
+To delete the Wapp run the `wapp delete` using `npx`:
 
 ```sh
-npx delete-wapp
+npx wapp delete
 ```
 
 This will delete your Wapp locally and/or remotely.
@@ -107,7 +107,7 @@ This will delete your Wapp locally and/or remotely.
 To trigger a reinstall of the application run:
 
 ```sh
-npx update-wapp --reinstall
+npx wapp update --reinstall
 ```
 
 ## Configuration
@@ -181,7 +181,7 @@ module.exports = function (app) {
 And insert `"homepage": "./",` into your `package.json` file.
 
 To use the build version of React, change the `foreground` configuration to `build` and then run `npm run build` to build the react application.
-Then run `npx serve-wapp` to serve the build version of your react application.
+Then run `npx wapp serve` to serve the build version of your react application.
 
 ## Related
 
