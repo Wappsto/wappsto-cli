@@ -1,5 +1,5 @@
 #!/usr/bin/env node
 
-const Serve = require('../lib/cmd/serve');
+import serve from '../lib/cmd/serve.js';
 
-Serve.serve(process.argv);
+serve(process.argv);

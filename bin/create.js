@@ -1,5 +1,5 @@
 #!/usr/bin/env node
 
-const Create = require('../lib/cmd/create');
+import create from '../lib/cmd/create.js';
 
-Create.create(process.argv);
+create(process.argv);

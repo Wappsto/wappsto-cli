@@ -1,5 +1,5 @@
 #!/usr/bin/env node
 
-const Update = require('../lib/cmd/update');
+import update from '../lib/cmd/update.js';
 
-Update.update(process.argv);
+update(process.argv);

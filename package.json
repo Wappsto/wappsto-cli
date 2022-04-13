@@ -1,16 +1,21 @@
 {
   "name": "wappsto-cli",
-  "version": "1.5.4",
   "description": "Command Line Interface for Wappsto",
+  "version": "1.5.4",
+  "author": {
+    "name": "Seluxit A/S",
+    "email": "developer@wappsto.com",
+    "url": "https://wappsto.com"
+  },
+  "type": "module",
   "scripts": {
     "lint": "eslint --ignore-pattern examples --ignore-path .gitignore  .",
     "lint:fix": "yarn lint --fix",
-    "pretest": "yarn lint:fix",
-    "test": "nyc ava -sv test/*.js",
-    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "posttest": "yarn lint:fix",
+    "test": "jest --coverage",
+    "prettify": "prettier --write .",
     "prepare": "husky install"
   },
-  "type": "commonjs",
   "engines": {
     "node": ">=16.4.0"
   },
@@ -33,11 +38,6 @@
     "iot",
     "seluxit"
   ],
-  "author": {
-    "name": "Seluxit A/S",
-    "email": "developer@wappsto.com",
-    "url": "https://wappsto.com"
-  },
   "files": [
     "bin/*.js",
     "lib/*.js",
@@ -70,27 +70,22 @@
     "ws": "^8.5.0"
   },
   "devDependencies": {
-    "@ava/babel": "^2.0.0",
-    "ava": "^3.15.0",
-    "axios-mock-adapter": "^1.19.0",
-    "coveralls": "^3.1.0",
-    "eslint": "^8.10.0",
+    "@babel/core": "^7.17.9",
+    "@babel/plugin-transform-modules-commonjs": "^7.17.9",
+    "babel-jest": "^27.5.1",
+    "eslint": "^8.13.0",
     "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-plugin-ava": "^13.2.0",
-    "eslint-plugin-import": "^2.23.2",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jest": "^26.1.4",
+    "eslint-plugin-prettier": "^4.0.0",
     "esm": "^3.2.25",
     "husky": "^7.0.4",
+    "jest": "^27.5.1",
+    "jest-mock-axios": "^4.5.0",
+    "jest-websocket-mock": "^2.3.0",
     "mock-inquirer": "^1.0.3",
-    "mock-require": "^3.0.3",
-    "nyc": "^15.1.0",
-    "sinon": "^13.0.1"
-  },
-  "ava": {
-    "babel": true,
-    "require": [
-      "esm",
-      "./test/mock/backend.js"
-    ]
+    "prettier": "2.6.2"
   },
   "husky": {
     "hooks": {

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
 
-const Configure = require('../lib/cmd/configure');
+import configure from '../lib/cmd/configure.js';
 
-Configure.configure(process.argv);
+configure(process.argv);

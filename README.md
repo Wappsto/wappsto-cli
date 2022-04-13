@@ -1,4 +1,5 @@
 # wappsto-cli
+
 [![Build Status](https://travis-ci.com/Wappsto/wappsto-cli.svg?branch=master)](https://travis-ci.com/Wappsto/wappsto-cli)
 [![Depfu](https://badges.depfu.com/badges/c25acea9b059ab7760cb61d1de54f29d/overview.svg)](https://depfu.com/github/Wappsto/wappsto-cli?project_id=7056)
 [![Coverage Status](https://coveralls.io/repos/github/Wappsto/wappsto-cli/badge.svg?branch=master)](https://coveralls.io/github/Wappsto/wappsto-cli?branch=master)
@@ -6,6 +7,7 @@
 Command Line Interface for Wappsto, so that it is possible to create Wapps locally.
 
 # Table of Contents
+
 1. [Requirements](#Requirements)
 2. [Install](#install)
 3. [Usage](#usage)
@@ -33,7 +35,7 @@ You can now install the package with `npm`.
 npm install wappsto-cli --save-dev
 ```
 
-Or using `yarn`. 
+Or using `yarn`.
 
 ```sh
 yarn add wappsto-cli -D
@@ -116,16 +118,16 @@ You can configure wappsto-cli by creating a 'wappsto.json' file and add this:
 
 ```json
 {
- "foreground": "foreground",
- "background": "background",
- "port": "3000"
+  "foreground": "foreground",
+  "background": "background",
+  "port": "3000"
 }
 ```
 
 Valid options is:
 
 | Option     | Default      | Description                                                                  |
-|------------|--------------|------------------------------------------------------------------------------|
+| ---------- | ------------ | ---------------------------------------------------------------------------- |
 | foreground | `foreground` | The folder where the foreground files will be stored.                        |
 | background | `background` | The folder where the background files will be stored.                        |
 | port       | `3000`       | The port the web server will serve the Wapp on.                              |
@@ -146,13 +148,13 @@ npm install http-proxy-middleware --save
 and creating a file `src/setupProxy.js` with this:
 
 ```js
-const { createProxyMiddleware } = require('http-proxy-middleware');
-const Wapp = require('wappsto-cli/lib/wapp');
+const { createProxyMiddleware } = require("http-proxy-middleware");
+const Wapp = require("wappsto-cli/lib/wapp");
 
 const wapp = new Wapp();
 
 const HOST = wapp.host;
-let sessionID = '';
+let sessionID = "";
 
 const run = async () => {
   await wapp.init();
@@ -162,17 +164,18 @@ run();
 
 module.exports = function (app) {
   app.use(
-    '/services', 
+    "/services",
     createProxyMiddleware({
-    target: HOST,
-    changeOrigin: true,
-    ws: true,
-    logLevel: 'error',
-  }));
+      target: HOST,
+      changeOrigin: true,
+      ws: true,
+      logLevel: "error",
+    })
+  );
 
   // set a cookie
   app.use((req, res, next) => {
-    res.cookie('sessionID', sessionID, { maxAge: 900000 });
+    res.cookie("sessionID", sessionID, { maxAge: 900000 });
     next();
   });
 };

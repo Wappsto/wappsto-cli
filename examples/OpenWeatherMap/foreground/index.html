@@ -1,9 +1,12 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1.4.2/css/pico.min.css">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@1.4.2/css/pico.min.css"
+    />
     <script src="https://cdn.jsdelivr.net/npm/wappsto-wapp@latest/dist/wappsto-wapp.min.js"></script>
     <script src="main.js"></script>
     <title>Open Weather Map Converter</title>
@@ -27,7 +30,14 @@
           <figcaption id="weather_text"></figcaption>
         </figure>
         <form id="city_form" onsubmit="return saveCity()">
-          <input type="text" name="city" id="city" placeholder="City" required disabled>
+          <input
+            type="text"
+            name="city"
+            id="city"
+            placeholder="City"
+            required
+            disabled
+          />
           <button type="submit" disabled>Save City</button>
         </form>
       </article>
@@ -37,10 +47,22 @@
       <summary>Open Weather Map API Key</summary>
       <hgroup>
         <h1>Enter your Open Weather Map API Key</h1>
-        <h2>You can get it from <a target="_blank" href="https://home.openweathermap.org/api_keys">Open Weather Map API</a></h2>
+        <h2>
+          You can get it from
+          <a target="_blank" href="https://home.openweathermap.org/api_keys"
+            >Open Weather Map API</a
+          >
+        </h2>
       </hgroup>
       <form id="api_form" onsubmit="return saveApiKey()">
-        <input type="text" name="api_key" id="api_key" placeholder="API Key" required disabled>
+        <input
+          type="text"
+          name="api_key"
+          id="api_key"
+          placeholder="API Key"
+          required
+          disabled
+        />
         <button type="submit" disabled>Save Key</button>
       </form>
     </details>

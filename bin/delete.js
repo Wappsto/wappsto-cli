@@ -1,5 +1,5 @@
 #!/usr/bin/env node
 
-const Delete = require('../lib/cmd/delete');
+import Delete from '../lib/cmd/delete.js';
 
-Delete.delete(process.argv);
+Delete(process.argv);

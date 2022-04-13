@@ -1,49 +1,25 @@
 {
-    "env": {
-        "commonjs": true,
-        "es6": true,
-        "node": true
-    },
-    "extends": "airbnb-base",
-    "globals": {
-        "Atomics": "readonly",
-        "SharedArrayBuffer": "readonly"
-    },
-    "parserOptions": {
-        "ecmaVersion": 2018
-    },
-    "plugins": [
-        "ava"
-    ],
-    "rules": {
-        "indent": ["error", 2],
-        "no-console": "warn",
-        "ava/assertion-arguments": "error",
-        "ava/max-asserts": [
-            "off",
-            5
-        ],
-        "ava/no-async-fn-without-await": "error",
-        "ava/no-duplicate-modifiers": "error",
-        "ava/no-identical-title": "error",
-        "ava/no-ignored-test-files": "error",
-        "ava/no-import-test-files": "error",
-        "ava/no-nested-tests": "error",
-        "ava/no-only-test": "error",
-        "ava/no-skip-assert": "error",
-        "ava/no-skip-test": "error",
-        "ava/no-todo-implementation": "error",
-        "ava/no-todo-test": "warn",
-        "ava/no-unknown-modifiers": "error",
-        "ava/prefer-async-await": "error",
-        "ava/prefer-power-assert": "error",
-        "ava/test-title": [
-            "error"
-        ],
-        "ava/use-t-well": "error",
-        "ava/use-t": "error",
-        "ava/use-test": "error",
-        "ava/use-true-false": "error",
-        "no-continue": "off"
-    }
+  "env": {
+    "node": true,
+    "jest": true,
+    "es2021": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "prettier",
+    "plugin:jest/recommended",
+    "airbnb-base"
+  ],
+  "plugins": ["jest"],
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "rules": {
+    "import/extensions": [
+      "error",
+      "ignorePackages",
+      { "js": "always" }
+    ]
+  }
 }
