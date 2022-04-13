@@ -41,6 +41,7 @@
   "files": [
     "bin/*.js",
     "lib/*.js",
+    "lib/cmd/*.js",
     "examples/*"
   ],
   "directories": {
