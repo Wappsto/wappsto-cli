@@ -12,7 +12,7 @@
     "lint": "eslint --ignore-pattern examples --ignore-path .gitignore  .",
     "lint:fix": "yarn lint --fix",
     "posttest": "yarn lint:fix",
-    "test": "jest --coverage",
+    "test": "jest --coverage --runInBand",
     "prettify": "prettier --write .",
     "prepare": "husky install"
   },

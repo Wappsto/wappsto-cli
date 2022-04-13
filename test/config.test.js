@@ -1,10 +1,15 @@
-import { deleteFile, saveJsonFile } from '../lib/files.js';
+import { deleteFile, deleteFolder, saveJsonFile } from '../lib/files.js';
 import Config from '../lib/config.js';
 
 describe('config', () => {
   beforeEach(() => {
     deleteFile('wappsto.json');
     Config.reload();
+  });
+
+  afterAll(() => {
+    deleteFile('wappsto.json');
+    deleteFolder('customFolder');
   });
 
   test('Default parameters', () => {
