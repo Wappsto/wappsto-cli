@@ -16,10 +16,6 @@
     "sourceType": "module"
   },
   "rules": {
-    "import/extensions": [
-      "error",
-      "ignorePackages",
-      { "js": "always" }
-    ]
+    "import/extensions": ["error", "ignorePackages", { "js": "always" }]
   }
 }

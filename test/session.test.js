@@ -119,7 +119,7 @@ describe('session', () => {
   });
 
   test('Validate session', async () => {
-    mockAxios.get.mockRejectedValueOnce({ });
+    mockAxios.get.mockRejectedValueOnce({});
     mockAxios.post.mockResolvedValueOnce({ data: { meta: { id: 'session' } } });
 
     mockInquirer(

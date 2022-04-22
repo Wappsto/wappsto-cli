@@ -4,17 +4,20 @@ import readline from 'readline';
 import tui from '../lib/tui.js';
 import Config from '../lib/config.js';
 import {
-  createFolders, saveJsonFile, saveFile, deleteFolder,
+  createFolders,
+  saveJsonFile,
+  saveFile,
+  deleteFolder,
 } from '../lib/files.js';
 import Wapp from '../lib/wapp.js';
 
 describe('error', () => {
-  tui.write = () => { };
+  tui.write = () => {};
 
   // eslint-disable-next-line no-console
-  console.error = () => { };
-  readline.cursorTo = () => { };
-  readline.clearLine = () => { };
+  console.error = () => {};
+  readline.cursorTo = () => {};
+  readline.clearLine = () => {};
 
   beforeEach(() => {
     deleteFolder(Config.cacheFolder());
@@ -73,8 +76,17 @@ describe('error', () => {
     await wapp.delete();
 
     expect(mockAxios.delete).toHaveBeenCalledTimes(3);
-    expect(mockAxios.delete).toHaveBeenCalledWith('https://wappsto.com/services/2.0/version/wrong_version_id', {});
-    expect(mockAxios.delete).toHaveBeenCalledWith('https://wappsto.com/services/2.0/installation?this_version_id=wrong_version_id', {});
-    expect(mockAxios.delete).toHaveBeenCalledWith('https://wappsto.com/services/2.0/application/application_id', {});
+    expect(mockAxios.delete).toHaveBeenCalledWith(
+      'https://wappsto.com/services/2.0/version/wrong_version_id',
+      {},
+    );
+    expect(mockAxios.delete).toHaveBeenCalledWith(
+      'https://wappsto.com/services/2.0/installation?this_version_id=wrong_version_id',
+      {},
+    );
+    expect(mockAxios.delete).toHaveBeenCalledWith(
+      'https://wappsto.com/services/2.0/application/application_id',
+      {},
+    );
   });
 });
