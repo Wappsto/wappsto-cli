@@ -93,7 +93,8 @@ test('create new empty wapp', async (t) => {
   t.deepEqual(files.fileExists('manifest.json'), true);
   t.deepEqual(files.directoryExists('foreground'), true);
   t.deepEqual(files.directoryExists('background'), false);
-  t.deepEqual(files.fileExists('foreground/index.html'), false);
+  t.deepEqual(files.fileExists('foreground/index.html'), true);
+  t.deepEqual(files.fileExists('foreground/main.js'), true);
 
   const manifest = files.loadJsonFile('manifest.json');
   t.deepEqual(manifest.name, answer.name);
@@ -106,6 +107,11 @@ test('create new empty wapp', async (t) => {
 
 test('update empty files', async (t) => {
   const wapp = new Wapp();
+
+  if (files.directoryExists('foreground')) {
+    files.deleteFile('foreground/main.js');
+    files.deleteFile('foreground/index.html');
+  }
 
   const updatedFiles = await wapp.update();
   t.deepEqual(updatedFiles, []);
@@ -418,7 +424,8 @@ test('create new custom wapp', async (t) => {
   t.deepEqual(files.directoryExists('customForeground'), true);
   t.deepEqual(files.directoryExists('customBackground'), false);
   t.deepEqual(files.directoryExists('background'), false);
-  t.deepEqual(files.fileExists('customForeground/index.html'), false);
+  t.deepEqual(files.fileExists('customForeground/index.html'), true);
+  t.deepEqual(files.fileExists('customForeground/main.js'), true);
 
   const manifest = files.loadJsonFile('manifest.json');
   t.deepEqual(manifest.name, answer.name);
