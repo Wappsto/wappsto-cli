@@ -1,6 +1,6 @@
 {
   "name": "wappsto-cli",
-  "version": "1.5.8",
+  "version": "1.5.9",
   "description": "Command Line Interface for Wappsto",
   "scripts": {
     "lint": "eslint --ignore-pattern examples --ignore-path .gitignore  .",
@@ -58,8 +58,8 @@
   "dependencies": {
     "async-mutex": "^0.3.1",
     "axios": "^0.27.2",
-    "browser-sync-client": "2.27.9",
     "browser-sync": "2.26.14",
+    "browser-sync-client": "2.27.9",
     "chalk": "^4.1.2",
     "command-line-args": "^5.2.1",
     "command-line-usage": "^6.1.0",
