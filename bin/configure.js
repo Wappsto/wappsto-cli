@@ -2,4 +2,4 @@
 
 const Configure = require('../lib/cmd/configure');
 
-Configure.configure(process.argv);
+Configure.run(process.argv);

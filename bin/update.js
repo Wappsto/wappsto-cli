@@ -2,4 +2,4 @@
 
 const Update = require('../lib/cmd/update');
 
-Update.update(process.argv);
+Update.run(process.argv);

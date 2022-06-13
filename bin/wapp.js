@@ -44,19 +44,19 @@ try {
 
   switch (mainOptions.command) {
   case 'create':
-    Create.create(argv);
+    Create.run(argv);
     break;
   case 'update':
-    Update.update(argv);
+    Update.run(argv);
     break;
   case 'configure':
-    Configure.configure(argv);
+    Configure.run(argv);
     break;
   case 'delete':
-    Delete.delete(argv);
+    Delete.run(argv);
     break;
   case 'serve':
-    Serve.serve(argv);
+    Serve.run(argv);
     break;
   case 'help':
   default:

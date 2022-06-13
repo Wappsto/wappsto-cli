@@ -2,4 +2,4 @@
 
 const Delete = require('../lib/cmd/delete');
 
-Delete.delete(process.argv);
+Delete.run(process.argv);

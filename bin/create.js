@@ -2,4 +2,4 @@
 
 const Create = require('../lib/cmd/create');
 
-Create.create(process.argv);
+Create.run(process.argv);

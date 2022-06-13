@@ -2,4 +2,4 @@
 
 const Serve = require('../lib/cmd/serve');
 
-Serve.serve(process.argv);
+Serve.run(process.argv);
