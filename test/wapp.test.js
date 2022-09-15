@@ -19,15 +19,26 @@ sinon.stub(console, 'error');
 readline.cursorTo = () => {};
 readline.clearLine = () => {};
 
-test.before((t) => {
+function cleanUp() {
   files.deleteFolder(`${Config.cacheFolder()}`);
   files.deleteFile('manifest.json');
   files.deleteFolder('foreground');
   files.deleteFolder('background');
   files.deleteFolder('icon');
+  files.deleteFolder('customForeground');
+  files.deleteFolder('customBackground');
 
   files.createFolders(`${Config.cacheFolder()}/.`);
   files.saveFile(`${Config.cacheFolder()}/session`, 'session');
+}
+
+test.before((t) => {
+  cleanUp();
+  t.pass();
+});
+
+test.after((t) => {
+  cleanUp();
   t.pass();
 });
 
@@ -93,8 +104,8 @@ test('create new empty wapp', async (t) => {
   t.deepEqual(files.fileExists('manifest.json'), true);
   t.deepEqual(files.directoryExists('foreground'), true);
   t.deepEqual(files.directoryExists('background'), false);
-  t.deepEqual(files.fileExists('foreground/index.html'), true);
-  t.deepEqual(files.fileExists('foreground/main.js'), true);
+  t.deepEqual(files.fileExists('foreground/index.html'), false);
+  t.deepEqual(files.fileExists('foreground/main.js'), false);
 
   const manifest = files.loadJsonFile('manifest.json');
   t.deepEqual(manifest.name, answer.name);
@@ -424,8 +435,8 @@ test('create new custom wapp', async (t) => {
   t.deepEqual(files.directoryExists('customForeground'), true);
   t.deepEqual(files.directoryExists('customBackground'), false);
   t.deepEqual(files.directoryExists('background'), false);
-  t.deepEqual(files.fileExists('customForeground/index.html'), true);
-  t.deepEqual(files.fileExists('customForeground/main.js'), true);
+  t.deepEqual(files.fileExists('customForeground/index.html'), false);
+  t.deepEqual(files.fileExists('customForeground/main.js'), false);
 
   const manifest = files.loadJsonFile('manifest.json');
   t.deepEqual(manifest.name, answer.name);
@@ -457,4 +468,39 @@ test('delete custom wapp', async (t) => {
   t.deepEqual(files.fileExists('manifest.json'), false);
 
   files.deleteFile('wappsto.json');
+});
+
+test('Generate new wapp and do not override files', async (t) => {
+  files.createFolders('foreground/');
+  files.createFolders('background/');
+  files.saveFile('background/main.js', 'do not delete');
+  files.saveFile('foreground/main.js', 'do not delete');
+
+  const wapp = new Wapp();
+
+  const answer = {
+    name: 'Test Wapp',
+    author: 'author',
+    version: '1.1.1',
+    features: ['foreground', 'background'],
+    general: 'general',
+    foreground: 'foreground',
+    background: 'background',
+    examples: false,
+  };
+
+  mockInquirer([answer]);
+
+  await wapp.create();
+
+  t.deepEqual(files.fileExists('manifest.json'), true);
+  t.deepEqual(files.directoryExists('foreground'), true);
+  t.deepEqual(files.directoryExists('background'), true);
+  t.deepEqual(files.fileExists('foreground/main.js'), true);
+  t.deepEqual(files.fileExists('background/main.js'), true);
+
+  let data = files.loadFile('foreground/main.js');
+  t.deepEqual(data, 'do not delete');
+  data = files.loadFile('background/main.js');
+  t.deepEqual(data, 'do not delete');
 });
