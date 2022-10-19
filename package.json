@@ -1,6 +1,6 @@
 {
   "name": "wappsto-cli",
-  "version": "1.5.13",
+  "version": "1.6.0",
   "description": "Command Line Interface for Wappsto",
   "scripts": {
     "lint": "eslint --ignore-pattern examples --ignore-path .gitignore  .",
@@ -69,7 +69,7 @@
     "http-proxy-middleware": "2.0.6",
     "inquirer": "^8.2.1",
     "node-watch": "^0.7.3",
-    "update-notifier": "^5.1.0",
+    "update-notifier": "^4.1.1",
     "ws": "^8.9.0"
   },
   "devDependencies": {
