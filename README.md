@@ -2,6 +2,8 @@
 [![Build Status](https://travis-ci.com/Wappsto/wappsto-cli.svg?branch=master)](https://travis-ci.com/Wappsto/wappsto-cli)
 [![Depfu](https://badges.depfu.com/badges/c25acea9b059ab7760cb61d1de54f29d/overview.svg)](https://depfu.com/github/Wappsto/wappsto-cli?project_id=7056)
 [![Coverage Status](https://coveralls.io/repos/github/Wappsto/wappsto-cli/badge.svg?branch=master)](https://coveralls.io/github/Wappsto/wappsto-cli?branch=master)
+[![DeepScan
+grade](https://deepscan.io/api/teams/18594/projects/21918/branches/639553/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=18594&pid=21918&bid=639553)
 
 Command Line Interface for Wappsto, so that it is possible to create Wapps locally.
 
@@ -33,7 +35,7 @@ You can now install the package with `npm`.
 npm install wappsto-cli --save-dev
 ```
 
-Or using `yarn`. 
+Or using `yarn`.
 
 ```sh
 yarn add wappsto-cli -D
@@ -162,7 +164,7 @@ run();
 
 module.exports = function (app) {
   app.use(
-    '/services', 
+    '/services',
     createProxyMiddleware({
     target: HOST,
     changeOrigin: true,
