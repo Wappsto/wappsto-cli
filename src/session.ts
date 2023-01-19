@@ -1,16 +1,11 @@
+import Model from './model';
 import HTTP from './http';
-import { deleteFile, saveFile, loadFile } from './files';
-import Config from './config';
 
-export default class Session {
-  HOST: string;
-  cacheFolder: string;
-  session: string | false;
+export default class Session extends Model {
+  session?: string;
 
   constructor() {
-    this.HOST = `${Config.host()}/services/2.1/session`;
-    this.cacheFolder = Config.cacheFolder();
-    this.session = false;
+    super('session');
   }
 
   async login(user: string, pass: string): Promise<void> {
@@ -23,44 +18,40 @@ export default class Session {
   }
 
   get(): string | false {
-    return this.session;
+    return this.session || false;
   }
 
   clear(): void {
-    deleteFile(`${this.cacheFolder}session`);
+    super.clear();
     HTTP.removeHeader('x-session');
   }
 
+  toJSON(): any {
+    return this.session;
+  }
+
+  parse(data: any) {
+    if(data) {
+      this.session = data.toString().trim();
+      HTTP.setHeader('x-session', this.session || '');
+    }
+  }
+
   set(session: string): void {
-    this.session = session;
-    saveFile(`${this.cacheFolder}session`, session);
-    HTTP.setHeader('x-session', session);
+    this.parse(session);
+    this.save();
   }
 
   setXSession(): boolean {
-    this.session = loadFile(`${this.cacheFolder}session`);
-    if (this.session) {
-      HTTP.setHeader('x-session', this.session);
-      return true;
-    }
-    return false;
-  }
-
-  async load(): Promise<boolean> {
-    try {
-      await HTTP.get(this.HOST);
-      return true;
-    } catch (err) {
-      this.clear();
-    }
-
-    return false;
+    super.load();
+    return !!this.session;
   }
 
   async validate(): Promise<boolean> {
-    if (this.setXSession() && (await this.load())) {
+    if (this.setXSession() && (await this.fetch())) {
       return true;
     }
+    this.clear();
     return false;
   }
 }

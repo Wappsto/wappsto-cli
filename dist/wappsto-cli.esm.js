@@ -366,6 +366,18 @@ function _createClass(Constructor, protoProps, staticProps) {
   });
   return Constructor;
 }
+function _inheritsLoose(subClass, superClass) {
+  subClass.prototype = Object.create(superClass.prototype);
+  subClass.prototype.constructor = subClass;
+  _setPrototypeOf(subClass, superClass);
+}
+function _setPrototypeOf(o, p) {
+  _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) {
+    o.__proto__ = p;
+    return o;
+  };
+  return _setPrototypeOf(o, p);
+}
 function _toPrimitive(input, hint) {
   if (typeof input !== "object" || input === null) return input;
   var prim = input[Symbol.toPrimitive];
@@ -2474,14 +2486,73 @@ var Questions = /*#__PURE__*/function () {
 }();
 var questions = /*#__PURE__*/new Questions();
 
-var Session = /*#__PURE__*/function () {
-  function Session() {
+var Model = /*#__PURE__*/function () {
+  function Model(type) {
+    this.type = void 0;
     this.HOST = void 0;
     this.cacheFolder = void 0;
-    this.session = void 0;
-    this.HOST = config.host() + "/services/2.1/session";
+    this.type = type;
+    this.HOST = config.host() + "/services/2.1/" + type;
     this.cacheFolder = config.cacheFolder();
-    this.session = false;
+  }
+  var _proto = Model.prototype;
+  _proto.toJSON = function toJSON() {
+    return {};
+  };
+  _proto.parse = function parse(data) {};
+  _proto.save = function save() {
+    saveFile("" + this.cacheFolder + this.type, this.toJSON());
+  };
+  _proto.load = function load() {
+    var data = loadFile("" + this.cacheFolder + this.type);
+    if (data) {
+      this.parse(data);
+    }
+  };
+  _proto.clear = function clear() {
+    deleteFile("" + this.cacheFolder + this.type);
+  };
+  _proto.fetch = /*#__PURE__*/function () {
+    var _fetch = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
+      var response;
+      return _regeneratorRuntime().wrap(function _callee$(_context) {
+        while (1) switch (_context.prev = _context.next) {
+          case 0:
+            _context.prev = 0;
+            _context.next = 3;
+            return HTTP.get(this.HOST);
+          case 3:
+            response = _context.sent;
+            this.parse(response.data);
+            return _context.abrupt("return", true);
+          case 8:
+            _context.prev = 8;
+            _context.t0 = _context["catch"](0);
+            console.log(JSON.stringify(_context.t0));
+            tui.showError("Failed to fetch " + this.type, _context.t0);
+          case 12:
+            return _context.abrupt("return", false);
+          case 13:
+          case "end":
+            return _context.stop();
+        }
+      }, _callee, this, [[0, 8]]);
+    }));
+    function fetch() {
+      return _fetch.apply(this, arguments);
+    }
+    return fetch;
+  }();
+  return Model;
+}();
+
+var Session = /*#__PURE__*/function (_Model) {
+  _inheritsLoose(Session, _Model);
+  function Session() {
+    var _this;
+    _this = _Model.call(this, 'session') || this;
+    _this.session = void 0;
+    return _this;
   }
   var _proto = Session.prototype;
   _proto.login = /*#__PURE__*/function () {
@@ -2511,79 +2582,56 @@ var Session = /*#__PURE__*/function () {
     return login;
   }();
   _proto.get = function get() {
-    return this.session;
+    return this.session || false;
   };
   _proto.clear = function clear() {
-    deleteFile(this.cacheFolder + "session");
+    _Model.prototype.clear.call(this);
     HTTP.removeHeader('x-session');
   };
+  _proto.toJSON = function toJSON() {
+    return this.session;
+  };
+  _proto.parse = function parse(data) {
+    this.session = data.trim();
+    console.log('session', this.session, 'done');
+    HTTP.setHeader('x-session', this.session || '');
+  };
   _proto.set = function set(session) {
-    this.session = session;
-    saveFile(this.cacheFolder + "session", session);
-    HTTP.setHeader('x-session', session);
+    this.parse(session);
+    this.save();
   };
   _proto.setXSession = function setXSession() {
-    this.session = loadFile(this.cacheFolder + "session");
-    if (this.session) {
-      HTTP.setHeader('x-session', this.session);
-      return true;
-    }
-    return false;
+    _Model.prototype.load.call(this);
+    return !!this.session;
   };
-  _proto.load = /*#__PURE__*/function () {
-    var _load = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
+  _proto.validate = /*#__PURE__*/function () {
+    var _validate = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
       return _regeneratorRuntime().wrap(function _callee2$(_context2) {
         while (1) switch (_context2.prev = _context2.next) {
           case 0:
-            _context2.prev = 0;
-            _context2.next = 3;
-            return HTTP.get(this.HOST);
-          case 3:
+            _context2.t0 = this.setXSession();
+            if (!_context2.t0) {
+              _context2.next = 5;
+              break;
+            }
+            _context2.next = 4;
+            return this.fetch();
+          case 4:
+            _context2.t0 = _context2.sent;
+          case 5:
+            if (!_context2.t0) {
+              _context2.next = 7;
+              break;
+            }
             return _context2.abrupt("return", true);
-          case 6:
-            _context2.prev = 6;
-            _context2.t0 = _context2["catch"](0);
+          case 7:
             this.clear();
-          case 9:
             return _context2.abrupt("return", false);
-          case 10:
+          case 9:
           case "end":
             return _context2.stop();
         }
-      }, _callee2, this, [[0, 6]]);
-    }));
-    function load() {
-      return _load.apply(this, arguments);
-    }
-    return load;
-  }();
-  _proto.validate = /*#__PURE__*/function () {
-    var _validate = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
-      return _regeneratorRuntime().wrap(function _callee3$(_context3) {
-        while (1) switch (_context3.prev = _context3.next) {
-          case 0:
-            _context3.t0 = this.setXSession();
-            if (!_context3.t0) {
-              _context3.next = 5;
-              break;
-            }
-            _context3.next = 4;
-            return this.load();
-          case 4:
-            _context3.t0 = _context3.sent;
-          case 5:
-            if (!_context3.t0) {
-              _context3.next = 7;
-              break;
-            }
-            return _context3.abrupt("return", true);
-          case 7:
-            return _context3.abrupt("return", false);
-          case 8:
-          case "end":
-            return _context3.stop();
-        }
-      }, _callee3, this);
+      }, _callee2, this);
     }));
     function validate() {
       return _validate.apply(this, arguments);
@@ -2591,7 +2639,7 @@ var Session = /*#__PURE__*/function () {
     return validate;
   }();
   return Session;
-}();
+}(Model);
 
 var Wappsto = /*#__PURE__*/function () {
   function Wappsto() {

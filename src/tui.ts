@@ -116,14 +116,22 @@ class Tui {
   showError(msg: string, err?: any): void {
     this.write(`\r${red('!')} ${bold(red(msg))}\n`);
     if (err) {
+      let data;
       if (err.response && err.response.data) {
-        if (err.response.data.code === 300098) {
-          this.write(`${red(err.response.data.message)}\n`);
+        data = err.response.data;
+      } else if(err.data) {
+        data = err.data;
+      }
+      if(data) {
+        if (data.code === 117000000) {
+          // do not print invalid session error
+        } else if (err.response.data.code === 300098) {
+          this.write(`${red(data.message)}\n`);
           this.write(
             `Please visit ${config.host()}/pricing for more information\n`
           );
         } else {
-          this.write(`${JSON.stringify(err.response.data)}\n`);
+          this.write(`${JSON.stringify(data)}\n`);
         }
       } else if (err.stack) {
         // eslint-disable-next-line no-console
@@ -143,7 +151,9 @@ class Tui {
       return;
     }
 
-    process.stdout.write(msg);
+    if(process.env.NODE_ENV !== 'test') {
+      process.stdout.write(msg);
+    }
   }
 }
 

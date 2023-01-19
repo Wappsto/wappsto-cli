@@ -78,7 +78,7 @@ describe('Session', () => {
   });
 
   it('can validate invalid session', async () => {
-    mockedAxios.get.mockRejectedValueOnce({});
+    mockedAxios.get.mockRejectedValueOnce({data: {"meta":{"type":"httpresponse","version":"2.1"},"message":"X-Session is not valid","code":117000000,"service":"session"}});
     mockedAxios.post.mockResolvedValueOnce({
       data: {
         meta: {
