@@ -1,7 +1,7 @@
 import WebSocket from 'ws';
-import HTTP from './http';
+import HTTP from './util/http';
 import Config from './config';
-import tui from './tui';
+import tui from './util/tui';
 
 export default class Stream {
   wappsto: any;

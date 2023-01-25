@@ -1,7 +1,7 @@
-import HTTP from './http';
-import { loadJsonFile, saveJsonFile } from './files';
+import HTTP from './util/http';
+import { loadJsonFile, saveJsonFile } from './util/files';
 import Config from './config';
-import tui from './tui';
+import tui from './util/tui';
 import Model from './model';
 
 export default class Installation extends Model {

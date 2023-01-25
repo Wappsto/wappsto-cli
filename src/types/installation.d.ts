@@ -27,19 +27,19 @@ export interface Installation21 {
   session?: string;
   status: {
     background?:
-      | "no_background"
-      | "pending"
-      | "not_paid"
-      | "running"
-      | "crashed"
-      | "restarting"
-      | "error"
-      | "failed"
-      | "stopped"
-      | "completed"
-      | "no_more_points";
-    version?: "uninstalled" | "not updated" | "disabled" | "updated" | "editor";
-    payment?: "free" | "owned" | "pending" | "paid" | "not_paid";
+      | 'no_background'
+      | 'pending'
+      | 'not_paid'
+      | 'running'
+      | 'crashed'
+      | 'restarting'
+      | 'error'
+      | 'failed'
+      | 'stopped'
+      | 'completed'
+      | 'no_more_points';
+    version?: 'uninstalled' | 'not updated' | 'disabled' | 'updated' | 'editor';
+    payment?: 'free' | 'owned' | 'pending' | 'paid' | 'not_paid';
   };
   description?: {
     general?: string;
@@ -68,11 +68,11 @@ export interface Meta21 {
   id?: string;
   type?: string;
   version?: string;
-  manufacturer?: (string | ("unassigned" | "admin")) & string;
-  owner?: (string | ("unassigned" | "admin")) & string;
-  created?: (string | "not_available") & string;
-  updated?: (string | "not_available") & string;
-  changed?: (string | "not_available") & string;
+  manufacturer?: (string | ('unassigned' | 'admin')) & string;
+  owner?: (string | ('unassigned' | 'admin')) & string;
+  created?: (string | 'not_available') & string;
+  updated?: (string | 'not_available') & string;
+  changed?: (string | 'not_available') & string;
   application?: string;
   revision?: number;
   trace?: string;
@@ -118,11 +118,11 @@ export interface Meta211 {
   id?: string;
   type?: string;
   version?: string;
-  manufacturer?: (string | ("unassigned" | "admin")) & string;
-  owner?: (string | ("unassigned" | "admin")) & string;
-  created?: (string | "not_available") & string;
-  updated?: (string | "not_available") & string;
-  changed?: (string | "not_available") & string;
+  manufacturer?: (string | ('unassigned' | 'admin')) & string;
+  owner?: (string | ('unassigned' | 'admin')) & string;
+  created?: (string | 'not_available') & string;
+  updated?: (string | 'not_available') & string;
+  changed?: (string | 'not_available') & string;
   application?: string;
   revision?: number;
   trace?: string;
@@ -173,11 +173,11 @@ export interface Meta212 {
   id?: string;
   type?: string;
   version?: string;
-  manufacturer?: (string | ("unassigned" | "admin")) & string;
-  owner?: (string | ("unassigned" | "admin")) & string;
-  created?: (string | "not_available") & string;
-  updated?: (string | "not_available") & string;
-  changed?: (string | "not_available") & string;
+  manufacturer?: (string | ('unassigned' | 'admin')) & string;
+  owner?: (string | ('unassigned' | 'admin')) & string;
+  created?: (string | 'not_available') & string;
+  updated?: (string | 'not_available') & string;
+  changed?: (string | 'not_available') & string;
   application?: string;
   revision?: number;
   trace?: string;

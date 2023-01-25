@@ -1,8 +1,8 @@
-import HTTP from './http';
+import HTTP from './util/http';
 import Config from './config';
-import tui from './tui';
+import tui from './util/tui';
 import Version from './version';
-import { saveJsonFile } from './files';
+import { saveJsonFile } from './util/files';
 import Model from './model';
 import {
   Application21,
@@ -137,26 +137,6 @@ export default class Application extends Model implements Application21 {
       tui.showError('Failed to load all applications');
     }
     return result;
-  }
-
-  async delete(): Promise<void> {
-    this.trace('delete');
-    try {
-      await HTTP.delete(`${this.HOST}/${this.id}`);
-    } catch (err: any) {
-      /* istanbul ignore next */
-      switch (err.response.data.code) {
-        case 9900067:
-          // Application already deleted
-          /* istanbul ignore next */
-          break;
-        case 300024:
-          throw Error('Can not delete application that is published!');
-        default:
-          /* istanbul ignore next */
-          tui.showError(`Failed to delete application: ${this.id}`, err);
-      }
-    }
   }
 
   async createOauthExternal(oauth: any, externals: any[] = []): Promise<void> {

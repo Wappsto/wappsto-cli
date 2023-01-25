@@ -17,8 +17,8 @@ import {
 
 import Wapp from '../wapp';
 import Config from '../config';
-import tui from '../tui';
-import { directoryExists, fileExists } from '../files';
+import tui from '../util/tui';
+import { directoryExists, fileExists } from '../util/files';
 
 const optionDefinitions = [
   {

@@ -5,7 +5,7 @@ import Stream from './stream';
 import Installation from './installation';
 import Application from './application';
 import Version from './version';
-import Spinner from './spinner';
+import Spinner from './util/spinner';
 import {
   loadJsonFile,
   directoryExists,
@@ -19,9 +19,9 @@ import {
   deleteFolder,
   getAllFiles,
   saveJsonFile,
-} from './files';
-import tui from './tui';
-import questions from './questions';
+} from './util/files';
+import tui from './util/tui';
+import questions from './util/questions';
 import Wappsto from './wappsto';
 import Config from './config';
 import {
@@ -31,7 +31,7 @@ import {
   getFileType,
   getFileName,
   getFileUse,
-} from './util';
+} from './util/helpers';
 
 export default class Wapp {
   mutex: Mutex;
@@ -145,10 +145,13 @@ export default class Wapp {
     let new_app: Application | undefined;
     switch (newWapp.create) {
       case 'download':
+        const wapp = wapps.find((w: Application) => w.id === newWapp.wapp);
+        if (!wapp) {
+          tui.showError('Failed to find Application from id');
+          return;
+        }
         this.deleteLocal();
-        await this.downloadWapp(
-          wapps.find((w: any) => w.meta.id === newWapp.wapp)
-        );
+        await this.downloadWapp(wapp);
         break;
       case 'generate':
         status.setMessage('Creating Wapp, please wait...');
@@ -286,13 +289,14 @@ export default class Wapp {
     }
   }
 
-  async downloadWapp(app: any): Promise<void> {
-    const status = new Spinner(`Downloading Wapp ${app.version[0].name}`);
+  async downloadWapp(app: Application): Promise<void> {
+    const status = new Spinner(`Downloading Wapp ${app.getVersion().name}`);
     status.start();
 
     this.application = new Application(app);
     await this.createFolders();
 
+    /*
     for (let i = 0; i < app.version[0].file.length; i += 1) {
       const file = app.version[0].file[i];
       const filePath = `${getFilePath(file.use)}/${file.name}`;
@@ -303,17 +307,16 @@ export default class Wapp {
         const stats = fs.statSync(filePath);
         file.meta.modified = stats.mtime;
       } catch (err) {
-        /* istanbul ignore next */
         deleteFile(filePath);
       }
     }
-
+*/
     status.setMessage('Downloading installation, please wait...');
-    await this.installation.fetchById(app.version[0].meta.id);
+    await this.installation.fetchById(app.getVersion().id);
     this.saveApplication();
 
     status.stop();
-    tui.showMessage(`Downloaded Wapp ${app.version[0].name}`);
+    tui.showMessage(`Downloaded Wapp ${app.getVersion().name}`);
   }
 
   saveApplication(): any {

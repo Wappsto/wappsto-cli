@@ -2,9 +2,9 @@ import isEqual from 'lodash.isequal';
 import pick from 'lodash.pick';
 import omit from 'lodash.omit';
 import Config from './config';
-import HTTP from './http';
-import { deleteFile, saveFile, loadFile } from './files';
-import tui from './tui';
+import HTTP from './util/http';
+import { deleteFile, saveFile, loadFile } from './util/files';
+import tui from './util/tui';
 import { Meta21 } from './types/application.d';
 
 export default class Model {
@@ -108,6 +108,11 @@ export default class Model {
         case 300020:
           // Installation already deleted
           break;
+        case 9900067:
+          // Already deleted
+          break;
+        case 300024:
+          throw Error('Can not delete application that is published!');
         default:
           /* istanbul ignore next */
           tui.showError(`Failed to delete ${this.meta.type}: ${this.id}`, err);

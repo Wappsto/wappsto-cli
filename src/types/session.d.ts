@@ -23,11 +23,11 @@ export interface Meta21 {
   id?: string;
   type?: string;
   version?: string;
-  manufacturer?: (string | ("unassigned" | "admin")) & string;
-  owner?: (string | ("unassigned" | "admin")) & string;
-  created?: (string | "not_available") & string;
-  updated?: (string | "not_available") & string;
-  changed?: (string | "not_available") & string;
+  manufacturer?: (string | ('unassigned' | 'admin')) & string;
+  owner?: (string | ('unassigned' | 'admin')) & string;
+  created?: (string | 'not_available') & string;
+  updated?: (string | 'not_available') & string;
+  changed?: (string | 'not_available') & string;
   application?: string;
   revision?: number;
   trace?: string;

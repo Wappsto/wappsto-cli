@@ -1,4 +1,4 @@
-import { loadJsonFile } from './files';
+import { loadJsonFile } from './util/files';
 
 class Config {
   custom: any;

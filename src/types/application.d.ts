@@ -17,7 +17,7 @@ export interface Application21 {
     native?: boolean;
     uninstallable?: boolean;
     max_number_installation?: number;
-    supported_features?: ("foreground" | "background" | "widget")[];
+    supported_features?: ('foreground' | 'background' | 'widget')[];
     description?: {
       general?: string;
       foreground?: string;
@@ -47,11 +47,11 @@ export interface Meta21 {
   id?: string;
   type?: string;
   version?: string;
-  manufacturer?: (string | ("unassigned" | "admin")) & string;
-  owner?: (string | ("unassigned" | "admin")) & string;
-  created?: (string | "not_available") & string;
-  updated?: (string | "not_available") & string;
-  changed?: (string | "not_available") & string;
+  manufacturer?: (string | ('unassigned' | 'admin')) & string;
+  owner?: (string | ('unassigned' | 'admin')) & string;
+  created?: (string | 'not_available') & string;
+  updated?: (string | 'not_available') & string;
+  changed?: (string | 'not_available') & string;
   application?: string;
   revision?: number;
   trace?: string;
@@ -104,14 +104,14 @@ export interface Version21 {
   uninstallable?: boolean;
   published?: boolean;
   executable?: {
-    engine?: "node" | "python";
+    engine?: 'node' | 'python';
     version?: string;
   };
   max_number_installation?: number;
   object_requested?: {
     [k: string]: unknown;
   };
-  supported_features?: ("foreground" | "background" | "widget")[];
+  supported_features?: ('foreground' | 'background' | 'widget')[];
   description?: {
     general?: string;
     foreground?: string;
@@ -120,22 +120,22 @@ export interface Version21 {
     version?: string;
   };
   status:
-    | "idle"
-    | "commit"
-    | "revision"
-    | "publish"
-    | "uncommit"
-    | "unpublish"
-    | "republish"
-    | "disable"
-    | "reenable"
-    | "duplicate"
-    | "pending"
-    | "uncommitted"
-    | "published"
-    | "not updated"
-    | "unpublished"
-    | "disabled";
+    | 'idle'
+    | 'commit'
+    | 'revision'
+    | 'publish'
+    | 'uncommit'
+    | 'unpublish'
+    | 'republish'
+    | 'disable'
+    | 'reenable'
+    | 'duplicate'
+    | 'pending'
+    | 'uncommitted'
+    | 'published'
+    | 'not updated'
+    | 'unpublished'
+    | 'disabled';
   used_files: {
     [k: string]: unknown;
   };
@@ -157,11 +157,11 @@ export interface Meta211 {
   id?: string;
   type?: string;
   version?: string;
-  manufacturer?: (string | ("unassigned" | "admin")) & string;
-  owner?: (string | ("unassigned" | "admin")) & string;
-  created?: (string | "not_available") & string;
-  updated?: (string | "not_available") & string;
-  changed?: (string | "not_available") & string;
+  manufacturer?: (string | ('unassigned' | 'admin')) & string;
+  owner?: (string | ('unassigned' | 'admin')) & string;
+  created?: (string | 'not_available') & string;
+  updated?: (string | 'not_available') & string;
+  changed?: (string | 'not_available') & string;
   application?: string;
   revision?: number;
   trace?: string;
@@ -223,11 +223,11 @@ export interface Meta212 {
   id?: string;
   type?: string;
   version?: string;
-  manufacturer?: (string | ("unassigned" | "admin")) & string;
-  owner?: (string | ("unassigned" | "admin")) & string;
-  created?: (string | "not_available") & string;
-  updated?: (string | "not_available") & string;
-  changed?: (string | "not_available") & string;
+  manufacturer?: (string | ('unassigned' | 'admin')) & string;
+  owner?: (string | ('unassigned' | 'admin')) & string;
+  created?: (string | 'not_available') & string;
+  updated?: (string | 'not_available') & string;
+  changed?: (string | 'not_available') & string;
   application?: string;
   revision?: number;
   trace?: string;
@@ -284,11 +284,11 @@ export interface Meta213 {
   id?: string;
   type?: string;
   version?: string;
-  manufacturer?: (string | ("unassigned" | "admin")) & string;
-  owner?: (string | ("unassigned" | "admin")) & string;
-  created?: (string | "not_available") & string;
-  updated?: (string | "not_available") & string;
-  changed?: (string | "not_available") & string;
+  manufacturer?: (string | ('unassigned' | 'admin')) & string;
+  owner?: (string | ('unassigned' | 'admin')) & string;
+  created?: (string | 'not_available') & string;
+  updated?: (string | 'not_available') & string;
+  changed?: (string | 'not_available') & string;
   application?: string;
   revision?: number;
   trace?: string;
@@ -335,27 +335,27 @@ export interface OauthExternal21 {
   api_extra_access_token?: {
     [k: string]: unknown;
   };
-  access_token_method?: "get" | "post";
+  access_token_method?: 'get' | 'post';
   application_id?: string;
-  oauth_version: "1.0" | "1.0a" | "2.0";
+  oauth_version: '1.0' | '1.0a' | '2.0';
   oauth_request_token_url?: string;
   oauth_access_token_url?: string;
   oauth_refresh_access_token_url?: string;
   api_extra_refresh_access_token?: {
     [k: string]: unknown;
   };
-  refresh_access_token_method?: "get" | "post";
+  refresh_access_token_method?: 'get' | 'post';
   meta: Meta214;
 }
 export interface Meta214 {
   id?: string;
   type?: string;
   version?: string;
-  manufacturer?: (string | ("unassigned" | "admin")) & string;
-  owner?: (string | ("unassigned" | "admin")) & string;
-  created?: (string | "not_available") & string;
-  updated?: (string | "not_available") & string;
-  changed?: (string | "not_available") & string;
+  manufacturer?: (string | ('unassigned' | 'admin')) & string;
+  owner?: (string | ('unassigned' | 'admin')) & string;
+  created?: (string | 'not_available') & string;
+  updated?: (string | 'not_available') & string;
+  changed?: (string | 'not_available') & string;
   application?: string;
   revision?: number;
   trace?: string;
@@ -397,11 +397,11 @@ export interface ApplicationProduct21 {
   stripe?: {
     [k: string]: unknown;
   };
-  type?: "one_time" | "subscription";
+  type?: 'one_time' | 'subscription';
   currency?: string;
   amount?: number;
   recurring?: {
-    interval: "day" | "week" | "month" | "year";
+    interval: 'day' | 'week' | 'month' | 'year';
     interval_count: number;
   };
   tax?: {
@@ -432,11 +432,11 @@ export interface Meta215 {
   id?: string;
   type?: string;
   version?: string;
-  manufacturer?: (string | ("unassigned" | "admin")) & string;
-  owner?: (string | ("unassigned" | "admin")) & string;
-  created?: (string | "not_available") & string;
-  updated?: (string | "not_available") & string;
-  changed?: (string | "not_available") & string;
+  manufacturer?: (string | ('unassigned' | 'admin')) & string;
+  owner?: (string | ('unassigned' | 'admin')) & string;
+  created?: (string | 'not_available') & string;
+  updated?: (string | 'not_available') & string;
+  changed?: (string | 'not_available') & string;
   application?: string;
   revision?: number;
   trace?: string;

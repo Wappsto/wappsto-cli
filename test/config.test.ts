@@ -1,5 +1,5 @@
 import { setup, teardown } from './util/setup';
-import { saveJsonFile } from '../src/files';
+import { saveJsonFile } from '../src/util/files';
 import Config from '../src/config';
 
 describe('config', () => {

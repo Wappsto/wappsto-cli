@@ -1,13 +1,13 @@
 import { createWriteStream, createReadStream } from 'fs';
 import FormData from 'form-data';
-import HTTP from './http';
-import Spinner from './spinner';
-import tui from './tui';
-import questions from './questions';
-import { createFolders, saveFile } from './files';
+import HTTP from './util/http';
+import Spinner from './util/spinner';
+import tui from './util/tui';
+import questions from './util/questions';
+import { createFolders, saveFile } from './util/files';
 import Config from './config';
 import Session from './session';
-import { getFileName, getFileUse, snooze } from './util';
+import { getFileName, getFileUse, snooze } from './util/helpers';
 
 export default class Wappsto {
   HOST: string;

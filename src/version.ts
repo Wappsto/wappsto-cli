@@ -1,7 +1,7 @@
-import HTTP from './http';
+import HTTP from './util/http';
 import Config from './config';
-import tui from './tui';
-import { getFilePath } from './util';
+import tui from './util/tui';
+import { getFilePath } from './util/helpers';
 import Model from './model';
 import File from './file';
 import { Version21 } from './types/application.d';

@@ -581,6 +581,7 @@ var prettier = {
 };
 var jest = {
 	testEnvironment: "node",
+	resetMocks: true,
 	moduleNameMapper: {
 		axios: "axios/dist/node/axios.cjs"
 	}
@@ -1381,20 +1382,24 @@ var Model = /*#__PURE__*/function () {
             _context2.next = 4;
             return HTTP["delete"](this.HOST + "/" + this.id);
           case 4:
-            _context2.next = 13;
+            _context2.next = 15;
             break;
           case 6:
             _context2.prev = 6;
             _context2.t0 = _context2["catch"](1);
             _context2.t1 = _context2.t0.response.data.code;
-            _context2.next = _context2.t1 === 300020 ? 11 : 12;
+            _context2.next = _context2.t1 === 300020 ? 11 : _context2.t1 === 9900067 ? 12 : _context2.t1 === 300024 ? 13 : 14;
             break;
           case 11:
-            return _context2.abrupt("break", 13);
+            return _context2.abrupt("break", 15);
           case 12:
+            return _context2.abrupt("break", 15);
+          case 13:
+            throw Error('Can not delete application that is published!');
+          case 14:
             /* istanbul ignore next */
             tui.showError("Failed to delete " + this.meta.type + ": " + this.id, _context2.t0);
-          case 13:
+          case 15:
           case "end":
             return _context2.stop();
         }
@@ -2087,86 +2092,50 @@ var Application = /*#__PURE__*/function (_Model) {
     }
     return getAll;
   }();
-  _proto["delete"] = /*#__PURE__*/function () {
-    var _delete2 = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
+  _proto.createOauthExternal = /*#__PURE__*/function () {
+    var _createOauthExternal = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(oauth, externals) {
       return _regeneratorRuntime().wrap(function _callee4$(_context4) {
         while (1) switch (_context4.prev = _context4.next) {
-          case 0:
-            this.trace('delete');
-            _context4.prev = 1;
-            _context4.next = 4;
-            return HTTP["delete"](this.HOST + "/" + this.id);
-          case 4:
-            _context4.next = 14;
-            break;
-          case 6:
-            _context4.prev = 6;
-            _context4.t0 = _context4["catch"](1);
-            _context4.t1 = _context4.t0.response.data.code;
-            _context4.next = _context4.t1 === 9900067 ? 11 : _context4.t1 === 300024 ? 12 : 13;
-            break;
-          case 11:
-            return _context4.abrupt("break", 14);
-          case 12:
-            throw Error('Can not delete application that is published!');
-          case 13:
-            /* istanbul ignore next */
-            tui.showError("Failed to delete application: " + this.id, _context4.t0);
-          case 14:
-          case "end":
-            return _context4.stop();
-        }
-      }, _callee4, this, [[1, 6]]);
-    }));
-    function _delete() {
-      return _delete2.apply(this, arguments);
-    }
-    return _delete;
-  }();
-  _proto.createOauthExternal = /*#__PURE__*/function () {
-    var _createOauthExternal = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(oauth, externals) {
-      return _regeneratorRuntime().wrap(function _callee5$(_context5) {
-        while (1) switch (_context5.prev = _context5.next) {
           case 0:
             if (externals === void 0) {
               externals = [];
             }
             this.trace('createOauthExternal', oauth);
             if (!(externals.length === 0)) {
-              _context5.next = 14;
+              _context4.next = 14;
               break;
             }
-            _context5.prev = 3;
-            _context5.next = 6;
+            _context4.prev = 3;
+            _context4.next = 6;
             return HTTP.post(this.HOST + "/" + this.id + "/oauth_external", oauth);
           case 6:
             tui.showMessage('External OAuth created');
-            _context5.next = 12;
+            _context4.next = 12;
             break;
           case 9:
-            _context5.prev = 9;
-            _context5.t0 = _context5["catch"](3);
-            tui.showError('Failed to create OAuth External', _context5.t0);
+            _context4.prev = 9;
+            _context4.t0 = _context4["catch"](3);
+            tui.showError('Failed to create OAuth External', _context4.t0);
           case 12:
-            _context5.next = 23;
+            _context4.next = 23;
             break;
           case 14:
-            _context5.prev = 14;
-            _context5.next = 17;
+            _context4.prev = 14;
+            _context4.next = 17;
             return HTTP.patch(this.HOST + "/" + this.id + "/oauth_external/" + externals[0].meta.id, oauth);
           case 17:
             tui.showMessage('External OAuth updated');
-            _context5.next = 23;
+            _context4.next = 23;
             break;
           case 20:
-            _context5.prev = 20;
-            _context5.t1 = _context5["catch"](14);
-            tui.showError('Failed to update OAuth External', _context5.t1);
+            _context4.prev = 20;
+            _context4.t1 = _context4["catch"](14);
+            tui.showError('Failed to update OAuth External', _context4.t1);
           case 23:
           case "end":
-            return _context5.stop();
+            return _context4.stop();
         }
-      }, _callee5, this, [[3, 9], [14, 20]]);
+      }, _callee4, this, [[3, 9], [14, 20]]);
     }));
     function createOauthExternal(_x2, _x3) {
       return _createOauthExternal.apply(this, arguments);
@@ -2174,10 +2143,10 @@ var Application = /*#__PURE__*/function (_Model) {
     return createOauthExternal;
   }();
   _proto.createOauthClient = /*#__PURE__*/function () {
-    var _createOauthClient = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6(oauth) {
+    var _createOauthClient = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(oauth) {
       var newOauth;
-      return _regeneratorRuntime().wrap(function _callee6$(_context6) {
-        while (1) switch (_context6.prev = _context6.next) {
+      return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+        while (1) switch (_context5.prev = _context5.next) {
           case 0:
             this.trace('createOauthClient');
             newOauth = oauth;
@@ -2187,41 +2156,41 @@ var Application = /*#__PURE__*/function (_Model) {
             if (typeof oauth.path_access_token === 'string') {
               newOauth.path_access_token = [oauth.path_access_token];
             }
-            _context6.prev = 4;
-            _context6.next = 7;
+            _context5.prev = 4;
+            _context5.next = 7;
             return HTTP.post(this.HOST + "/" + this.id + "/oauth_client", oauth);
           case 7:
             tui.showMessage('OAuth Client created');
-            _context6.next = 25;
+            _context5.next = 25;
             break;
           case 10:
-            _context6.prev = 10;
-            _context6.t0 = _context6["catch"](4);
-            if (!(_context6.t0.response.data.code === 500232)) {
-              _context6.next = 24;
+            _context5.prev = 10;
+            _context5.t0 = _context5["catch"](4);
+            if (!(_context5.t0.response.data.code === 500232)) {
+              _context5.next = 24;
               break;
             }
-            _context6.prev = 13;
-            _context6.next = 16;
+            _context5.prev = 13;
+            _context5.next = 16;
             return HTTP.patch(this.HOST + "/" + this.id + "/oauth_client", oauth);
           case 16:
             tui.showMessage('OAuth Client updated');
-            _context6.next = 22;
+            _context5.next = 22;
             break;
           case 19:
-            _context6.prev = 19;
-            _context6.t1 = _context6["catch"](13);
-            tui.showError('Failed to create OAuth Client', _context6.t1);
+            _context5.prev = 19;
+            _context5.t1 = _context5["catch"](13);
+            tui.showError('Failed to create OAuth Client', _context5.t1);
           case 22:
-            _context6.next = 25;
+            _context5.next = 25;
             break;
           case 24:
-            tui.showError('Failed to create OAuth Client', _context6.t0);
+            tui.showError('Failed to create OAuth Client', _context5.t0);
           case 25:
           case "end":
-            return _context6.stop();
+            return _context5.stop();
         }
-      }, _callee6, this, [[4, 10], [13, 19]]);
+      }, _callee5, this, [[4, 10], [13, 19]]);
     }));
     function createOauthClient(_x4) {
       return _createOauthClient.apply(this, arguments);
@@ -2753,7 +2722,7 @@ var Session = /*#__PURE__*/function (_Model) {
   _proto.parse = function parse(data) {
     if (typeof data === 'string') {
       this.meta.id = data.toString().trim();
-      HTTP.setHeader('x-session', this.id || '');
+      HTTP.setHeader('x-session', this.id);
     } else {
       _Model.prototype.parse.call(this, data);
     }
@@ -3318,7 +3287,7 @@ var Wapp = /*#__PURE__*/function () {
   _proto.create = /*#__PURE__*/function () {
     var _create = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(validate) {
       var _this = this;
-      var listWapps, updateFiles, status, wapps, newWapp, new_app, customFolders, ignore, addLines;
+      var listWapps, updateFiles, status, wapps, newWapp, new_app, wapp, customFolders, ignore, addLines;
       return _regeneratorRuntime().wrap(function _callee3$(_context3) {
         while (1) switch (_context3.prev = _context3.next) {
           case 0:
@@ -3352,42 +3321,50 @@ var Wapp = /*#__PURE__*/function () {
             return _context3.abrupt("return");
           case 13:
             _context3.t0 = newWapp.create;
-            _context3.next = _context3.t0 === 'download' ? 16 : _context3.t0 === 'generate' ? 20 : 40;
+            _context3.next = _context3.t0 === 'download' ? 16 : _context3.t0 === 'generate' ? 24 : 44;
             break;
           case 16:
-            this.deleteLocal();
-            _context3.next = 19;
-            return this.downloadWapp(wapps.find(function (w) {
-              return w.meta.id === newWapp.wapp;
-            }));
-          case 19:
-            return _context3.abrupt("break", 60);
+            wapp = wapps.find(function (w) {
+              return w.id === newWapp.wapp;
+            });
+            if (wapp) {
+              _context3.next = 20;
+              break;
+            }
+            tui.showError('Failed to find Application from id');
+            return _context3.abrupt("return");
           case 20:
+            this.deleteLocal();
+            _context3.next = 23;
+            return this.downloadWapp(wapp);
+          case 23:
+            return _context3.abrupt("break", 64);
+          case 24:
             status.setMessage('Creating Wapp, please wait...');
             status.start();
             if (this.manifest.meta) {
               this.manifest = this.saveManifest(this.manifest);
             }
-            _context3.next = 25;
+            _context3.next = 29;
             return Application.create(this.manifest);
-          case 25:
+          case 29:
             new_app = _context3.sent;
             if (new_app) {
-              _context3.next = 29;
+              _context3.next = 33;
               break;
             }
             status.stop();
             throw new Error('Failed to generate Application');
-          case 29:
+          case 33:
             this.application = new_app;
-            _context3.next = 32;
+            _context3.next = 36;
             return this.installation.create(this.versionID);
-          case 32:
+          case 36:
             this.manifest = this.saveApplication();
             status.stop();
-            _context3.next = 36;
+            _context3.next = 40;
             return this.update();
-          case 36:
+          case 40:
             updateFiles = _context3.sent;
             updateFiles.forEach( /*#__PURE__*/function () {
               var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(f) {
@@ -3431,41 +3408,41 @@ var Wapp = /*#__PURE__*/function () {
             if (this.application && this.installation.id) {
               tui.showMessage("Wapp created with id: " + this.application.id);
             }
-            return _context3.abrupt("break", 60);
-          case 40:
+            return _context3.abrupt("break", 64);
+          case 44:
             status.setMessage('Creating Wapp, please wait...');
             status.start();
-            _context3.next = 44;
+            _context3.next = 48;
             return Application.create(newWapp);
-          case 44:
+          case 48:
             new_app = _context3.sent;
             if (new_app) {
-              _context3.next = 48;
+              _context3.next = 52;
               break;
             }
             status.stop();
             throw new Error('Failed to create Application');
-          case 48:
+          case 52:
             this.application = new_app;
             customFolders = {
               foreground: config.foreground(),
               background: config.background()
             };
             status.stop();
-            _context3.next = 53;
+            _context3.next = 57;
             return this.createFolders(newWapp.features, newWapp.examples, customFolders);
-          case 53:
+          case 57:
             status.start();
-            _context3.next = 56;
+            _context3.next = 60;
             return this.installation.create(this.application.getVersion().id);
-          case 56:
+          case 60:
             this.saveApplication();
             status.stop();
             if (this.application) {
               tui.showMessage("Wapp created with id: " + this.application.id);
             }
-            return _context3.abrupt("break", 60);
-          case 60:
+            return _context3.abrupt("break", 64);
+          case 64:
             if (fileExists('.gitignore')) {
               ignore = loadFile('.gitignore');
               addLines = '';
@@ -3481,7 +3458,7 @@ var Wapp = /*#__PURE__*/function () {
             } else {
               saveFile('.gitignore', this.ignore_file);
             }
-          case 61:
+          case 65:
           case "end":
             return _context3.stop();
         }
@@ -3566,56 +3543,43 @@ var Wapp = /*#__PURE__*/function () {
   }();
   _proto.downloadWapp = /*#__PURE__*/function () {
     var _downloadWapp = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(app) {
-      var status, i, file, filePath, stats;
+      var status;
       return _regeneratorRuntime().wrap(function _callee5$(_context5) {
         while (1) switch (_context5.prev = _context5.next) {
           case 0:
-            status = new Spinner("Downloading Wapp " + app.version[0].name);
+            status = new Spinner("Downloading Wapp " + app.getVersion().name);
             status.start();
             this.application = new Application(app);
             _context5.next = 5;
             return this.createFolders();
           case 5:
-            i = 0;
-          case 6:
-            if (!(i < app.version[0].file.length)) {
-              _context5.next = 23;
-              break;
+            /*
+            for (let i = 0; i < app.version[0].file.length; i += 1) {
+              const file = app.version[0].file[i];
+              const filePath = `${getFilePath(file.use)}/${file.name}`;
+              try {
+                status.setMessage(`Downloading ${filePath}, please wait...`);
+                // eslint-disable-next-line no-await-in-loop
+                await this.wappsto.downloadFile(`file/${file.meta.id}`, filePath);
+                const stats = fs.statSync(filePath);
+                file.meta.modified = stats.mtime;
+              } catch (err) {
+                deleteFile(filePath);
+              }
             }
-            file = app.version[0].file[i];
-            filePath = getFilePath(file.use) + "/" + file.name;
-            _context5.prev = 9;
-            status.setMessage("Downloading " + filePath + ", please wait...");
-            // eslint-disable-next-line no-await-in-loop
-            _context5.next = 13;
-            return this.wappsto.downloadFile("file/" + file.meta.id, filePath);
-          case 13:
-            stats = fs.statSync(filePath);
-            file.meta.modified = stats.mtime;
-            _context5.next = 20;
-            break;
-          case 17:
-            _context5.prev = 17;
-            _context5.t0 = _context5["catch"](9);
-            /* istanbul ignore next */
-            deleteFile(filePath);
-          case 20:
-            i += 1;
-            _context5.next = 6;
-            break;
-          case 23:
+            */
             status.setMessage('Downloading installation, please wait...');
-            _context5.next = 26;
-            return this.installation.fetchById(app.version[0].meta.id);
-          case 26:
+            _context5.next = 8;
+            return this.installation.fetchById(app.getVersion().id);
+          case 8:
             this.saveApplication();
             status.stop();
-            tui.showMessage("Downloaded Wapp " + app.version[0].name);
-          case 29:
+            tui.showMessage("Downloaded Wapp " + app.getVersion().name);
+          case 11:
           case "end":
             return _context5.stop();
         }
-      }, _callee5, this, [[9, 17]]);
+      }, _callee5, this);
     }));
     function downloadWapp(_x6) {
       return _downloadWapp.apply(this, arguments);

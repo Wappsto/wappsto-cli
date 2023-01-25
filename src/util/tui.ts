@@ -10,8 +10,8 @@ import {
 import figlet from 'figlet';
 import { clearLine, cursorTo } from 'readline';
 import updateNotifier from 'simple-update-notifier';
-import config from './config';
-import packageJson from '../package.json';
+import config from '../config';
+import packageJson from '../../package.json';
 /*import { createRequire } from 'module';
 const require = createRequire(import.meta.url || '');
 const packageJson = require('../package.json');*/

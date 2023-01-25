@@ -1,5 +1,7 @@
 language: node_js
 node_js:
-  - "14"
   - "16"
-after_script: "npm run coverage"
+  - "17"
+  - "18"
+  - "19"
+after_script: "yarn test:coverage"

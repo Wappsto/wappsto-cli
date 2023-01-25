@@ -1,4 +1,4 @@
-import Config from './config';
+import Config from '../config';
 
 export function validateFile(file: string): boolean {
   const ending = file.split('.').slice(-1)[0];

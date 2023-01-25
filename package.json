@@ -57,6 +57,7 @@
   },
   "jest": {
     "testEnvironment": "node",
+    "resetMocks": true,
     "moduleNameMapper": {
       "axios": "axios/dist/node/axios.cjs"
     }

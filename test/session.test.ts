@@ -1,7 +1,7 @@
 import axios from 'axios';
 import prompts from 'prompts';
 import { setup, teardown } from './util/setup';
-import { loadFile, saveFile, createFolders } from '../src/files';
+import { loadFile, saveFile, createFolders } from '../src/util/files';
 import Config from '../src/config';
 import Wapp from '../src/wapp';
 
