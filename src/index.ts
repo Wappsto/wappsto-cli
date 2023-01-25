@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+/* istanbul ignore file */
+
 import commandLineArgs from 'command-line-args';
 import commandLineUsage from 'command-line-usage';
 import create from './cmd/create';
