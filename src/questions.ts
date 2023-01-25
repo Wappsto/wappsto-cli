@@ -2,8 +2,16 @@ import prompt from 'prompts';
 import tui from './tui';
 
 class Questions {
-  askWappstoCredentials(host: string): Promise<any> {
-    return prompt([
+  private async ask(questions: any): Promise<any | false> {
+    const answers = await prompt(questions);
+    if (Object.keys(answers).length === 0) {
+      return false;
+    }
+    return answers;
+  }
+
+  askWappstoCredentials(host: string): Promise<any | false> {
+    return this.ask([
       {
         name: 'username',
         type: 'text' as const,
@@ -29,7 +37,7 @@ class Questions {
     ]);
   }
 
-  async askForNewWapp(wapps: any[], present: boolean): Promise<any> {
+  async askForNewWapp(wapps: any[], present: boolean): Promise<any | false> {
     const choices = [
       {
         title: 'Create new Wapp',
@@ -45,7 +53,7 @@ class Questions {
     }
     if (present) {
       tui.showWarning('It seams like you already have a wapp in this folder!');
-      const override = await prompt([
+      const override = await this.ask([
         {
           name: 'override',
           type: 'confirm' as const,
@@ -53,6 +61,9 @@ class Questions {
           message: 'Do you want to delete your local wapp?',
         },
       ]);
+      if (override === false) {
+        return false;
+      }
       if (!override.override) {
         choices.push({
           title: 'Generate a new Wapp from existing wapp',
@@ -64,7 +75,7 @@ class Questions {
     const ifNew = (values: any) =>
       values.create === 'new' || values.create === undefined;
 
-    return prompt([
+    return this.ask([
       {
         message: 'How do you want to create the Wapp?',
         name: 'create',
@@ -73,14 +84,14 @@ class Questions {
       },
       {
         name: 'wapp',
-        type: (prev, values) =>
+        type: (prev: any, values: any) =>
           values.create === 'download' ? 'select' : null,
         message: 'Please choose the wapp to download:',
         choices: wapps,
       },
       {
         name: 'name',
-        type: (prev, values) => (ifNew(values) ? 'text' : null),
+        type: (prev: any, values: any) => (ifNew(values) ? 'text' : null),
         message: 'Please enter the name of your Wapp:',
         validate: (answer: string) => {
           if (answer === '') {
@@ -91,12 +102,12 @@ class Questions {
       },
       {
         name: 'author',
-        type: (prev, values) => (ifNew(values) ? 'text' : null),
+        type: (prev: any, values: any) => (ifNew(values) ? 'text' : null),
         message: 'Please enter the Author of your Wapp:',
       },
       {
         name: 'version',
-        type: (prev, values) => (ifNew(values) ? 'text' : null),
+        type: (prev: any, values: any) => (ifNew(values) ? 'text' : null),
         message: 'Please enter the Version of your Wapp:',
         initial: '0.0.1',
         validate: (answer: string) => {
@@ -108,7 +119,8 @@ class Questions {
       },
       {
         name: 'features',
-        type: (prev, values) => (ifNew(values) ? 'multiselect' : null),
+        type: (prev: any, values: any) =>
+          ifNew(values) ? 'multiselect' : null,
         message: 'Please choose features for the Wapp:',
         choices: [
           {
@@ -130,12 +142,12 @@ class Questions {
       },
       {
         name: 'general',
-        type: (prev, values) => (ifNew(values) ? 'text' : null),
+        type: (prev: any, values: any) => (ifNew(values) ? 'text' : null),
         message: 'Please enter a general description about your Wapp:',
       },
       {
         name: 'foreground',
-        type: (prev, values) =>
+        type: (prev: any, values: any) =>
           ifNew(values) && values.features.indexOf('foreground') !== -1
             ? 'text'
             : null,
@@ -144,7 +156,7 @@ class Questions {
       },
       {
         name: 'background',
-        type: (prev, values) =>
+        type: (prev: any, values: any) =>
           ifNew(values) && values.features.indexOf('background') !== -1
             ? 'text'
             : null,
@@ -153,7 +165,7 @@ class Questions {
       },
       {
         name: 'examples',
-        type: (prev, values) => (ifNew(values) ? 'confirm' : null),
+        type: (prev: any, values: any) => (ifNew(values) ? 'confirm' : null),
         message: 'Generate example files for the Wapp?',
         initial: false,
       },

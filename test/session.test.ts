@@ -5,12 +5,11 @@ import { loadFile, saveFile, createFolders } from '../src/files';
 import Config from '../src/config';
 import Wapp from '../src/wapp';
 
-jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
-
 describe('Session', () => {
+  let mockedAxios: jest.Mocked<typeof axios>;
+
   beforeEach(async () => {
-    await setup();
+    mockedAxios = await setup(false);
   });
 
   afterEach(() => {
@@ -36,6 +35,7 @@ describe('Session', () => {
       data: {
         meta: {
           id: 'session',
+          type: 'session',
         },
       },
     });
@@ -60,47 +60,54 @@ describe('Session', () => {
       data: {
         meta: {
           id: 'session',
+          type: 'session',
         },
       },
     });
 
-    const wapp = new Wapp();
     createFolders(Config.cacheFolder());
     saveFile(`${Config.cacheFolder()}/session`, 'session');
 
+    const wapp = new Wapp();
     await wapp.init();
 
     expect(mockedAxios.get).toHaveBeenCalledTimes(1);
     expect(mockedAxios.get).toHaveBeenCalledWith(
-      'https://wappsto.com/services/2.1/session',
+      'https://wappsto.com/services/2.1/session/session',
       {}
     );
   });
 
   it('can validate invalid session', async () => {
-    mockedAxios.get.mockRejectedValueOnce({data: {"meta":{"type":"httpresponse","version":"2.1"},"message":"X-Session is not valid","code":117000000,"service":"session"}});
+    mockedAxios.get.mockRejectedValueOnce({
+      data: {
+        meta: { type: 'httpresponse', version: '2.1' },
+        message: 'X-Session is not valid',
+        code: 117000000,
+        service: 'session',
+      },
+    });
     mockedAxios.post.mockResolvedValueOnce({
       data: {
         meta: {
           id: 'session',
+          type: 'session',
         },
       },
     });
 
-    const wapp = new Wapp();
     createFolders(Config.cacheFolder());
-
     saveFile(`${Config.cacheFolder()}/session`, 'invalid');
-
     prompts.inject(['user@wappsto.com', 'password']);
 
+    const wapp = new Wapp();
     await wapp.init();
 
     expect(loadFile(`${Config.cacheFolder()}/session`)).toEqual('session');
 
     expect(mockedAxios.get).toHaveBeenCalledTimes(1);
     expect(mockedAxios.get).toHaveBeenCalledWith(
-      'https://wappsto.com/services/2.1/session',
+      'https://wappsto.com/services/2.1/session/invalid',
       {}
     );
     expect(mockedAxios.post).toHaveBeenCalledTimes(1);

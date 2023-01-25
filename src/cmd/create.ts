@@ -53,10 +53,17 @@ const sections = [
 ];
 
 export default async function create(argv: string[]) {
-  const options = commandLineArgs(optionDefinitions, { argv });
+  let options;
+  try {
+    options = commandLineArgs(optionDefinitions, { argv });
+  } catch (err: any) {
+    tui.showError(err.message);
+    console.log(commandLineUsage(sections));
+    return;
+  }
 
   if (options.help) {
-    process.stdout.write(commandLineUsage(sections));
+    console.log(commandLineUsage(sections));
     return;
   }
 
@@ -72,7 +79,7 @@ export default async function create(argv: string[]) {
     if (err.message === 'LoginError') {
       tui.showError('Failed to Login, please try again.');
     } else {
-      tui.showError('Run error', err);
+      tui.showError('Create error', err);
     }
   }
 }

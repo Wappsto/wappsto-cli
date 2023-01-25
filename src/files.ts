@@ -74,7 +74,7 @@ export function loadJsonFile(file: string): any {
   }
 }
 
-export function saveFile(file: string, data: any) {
+export function saveFile(file: string, data: string) {
   writeFileSync(file, data);
 }
 

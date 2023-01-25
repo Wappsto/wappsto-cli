@@ -5,6 +5,9 @@ dist/*
 !dist/wappsto-cli.esm.js
 
 .wappsto-cli-cache/
+manifest.json
 coverage
+old_ava
 *~
 \#*\#
+.\#*

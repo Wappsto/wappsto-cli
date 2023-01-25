@@ -3,45 +3,70 @@ import Config from './config';
 import tui from './tui';
 import Version from './version';
 import { saveJsonFile } from './files';
+import Model from './model';
+import {
+  Application21,
+  OauthClient21,
+  OauthExternal21,
+  ApplicationProduct21,
+} from './types/application.d';
 
-export default class Application {
-  HOST: string;
-  data: any;
-  version: any[];
-  id: string = '';
+export default class Application extends Model implements Application21 {
+  name: string = '';
+  version: (Version | string)[] = [];
+  oauth_client: [] | [OauthClient21 | string] = [];
+  oauth_external: (OauthExternal21 | string)[] = [];
+  application_product: (ApplicationProduct21 | string)[] = [];
 
   constructor(data: any) {
-    this.HOST = `${Config.host()}/services/2.1/application`;
-    this.data = data;
-    this.version = [];
-    if (data && data.meta) {
-      this.id = data.meta.id;
-    }
-    if (data.version) {
-      data.version.forEach((v: any) => {
-        this.version.push(new Version(v, this));
-      });
-    }
+    super('application');
+    this.trace('constructor');
+    this.parse(data);
   }
 
-  save(): void {
-    const { data } = this;
+  getAttributes() {
+    this.trace('getAttributes');
+    return ['name', 'name_identifier', 'version'];
+  }
+
+  toJSON(): any {
+    this.trace('toJSON', this);
+    const data = super.toJSON();
+    data.version = [];
     for (let i = 0; i < this.version.length; i += 1) {
-      data.version[i] = this.version[i].getJSON();
+      const ver = this.version[i];
+      if (typeof ver !== 'string') {
+        data.version.push(ver.toJSON());
+      }
     }
-    saveJsonFile(`${Config.cacheFolder()}application`, data);
+    return data;
   }
 
-  getVersion(): any {
+  getVersion(): Version {
+    this.trace('getVersion');
     if (this.version.length > 0) {
-      return this.version[0];
+      const last = this.version[this.version.length - 1];
+      if (typeof last !== 'string') {
+        return last;
+      }
     }
     /* istanbul ignore next */
     return new Version();
   }
 
-  async create(info: any): Promise<any> {
-    let result = null;
+  parse(data: any): void {
+    this.trace('parse', data);
+    super.parse(data);
+    const vs = this.version || [];
+    this.version = [];
+    vs.forEach((v: any) => {
+      this.version.push(new Version(v, this));
+    });
+  }
+
+  static async create(info: any): Promise<Application | undefined> {
+    tui.trace('application', 'create', info);
+    let result = undefined;
     let data: any;
     if (!info.description || info.object_requested) {
       data = {
@@ -69,9 +94,12 @@ export default class Application {
     }
 
     try {
-      const response = await HTTP.post(`${this.HOST}?verbose=true`, {
-        version: [data],
-      });
+      const response = await HTTP.post(
+        `${Model.getHost('application')}?verbose=true`,
+        {
+          version: [data],
+        }
+      );
       result = new Application(response.data);
     } catch (err) {
       /* istanbul ignore next */
@@ -81,6 +109,7 @@ export default class Application {
   }
 
   async get(): Promise<any> {
+    this.trace('get');
     let result = {};
     try {
       const response = await HTTP.get(
@@ -94,11 +123,15 @@ export default class Application {
     return result;
   }
 
-  async getAll(): Promise<any> {
-    let result = {};
+  async getAll(): Promise<Application[]> {
+    this.trace('getAll');
+    let result: Application[] = [];
     try {
       const response = await HTTP.get(`${this.HOST}?expand=2&verbose=true`);
-      result = response.data;
+      response.data.forEach((data: any) => {
+        const app = new Application(data);
+        result.push(app);
+      });
     } catch (err) {
       /* istanbul ignore next */
       tui.showError('Failed to load all applications');
@@ -107,6 +140,7 @@ export default class Application {
   }
 
   async delete(): Promise<void> {
+    this.trace('delete');
     try {
       await HTTP.delete(`${this.HOST}/${this.id}`);
     } catch (err: any) {
@@ -125,7 +159,8 @@ export default class Application {
     }
   }
 
-  async oauth_external(oauth: any, externals: any[] = []): Promise<void> {
+  async createOauthExternal(oauth: any, externals: any[] = []): Promise<void> {
+    this.trace('createOauthExternal', oauth);
     if (externals.length === 0) {
       try {
         await HTTP.post(`${this.HOST}/${this.id}/oauth_external`, oauth);
@@ -146,7 +181,8 @@ export default class Application {
     }
   }
 
-  async oauth_client(oauth: any): Promise<void> {
+  async createOauthClient(oauth: any): Promise<void> {
+    this.trace('createOauthClient');
     const newOauth = oauth;
     if (typeof oauth.redirect_uri === 'string') {
       newOauth.redirect_uri = [oauth.redirect_uri];

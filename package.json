@@ -27,21 +27,21 @@
     "seluxit"
   ],
   "files": [
-    "dist"
+    "dist/wappsto-cli.esm.js"
   ],
   "bin": {
     "wapp": "./dist/wappsto-cli.esm.js"
   },
   "scripts": {
-    "analyze": "size-limit --why",
     "build": "dts build",
     "lint": "dts lint src test",
     "lint:fix": "yarn lint --fix",
     "prettify": "yarn run prettier -w src/ test/",
     "prepare": "dts build",
-    "size": "size-limit",
     "start": "dts watch",
-    "test": "dts test --coverage"
+    "test": "dts test",
+    "test:coverage": "dts test --coverage",
+    "generate-types": "npx json2ts -i schemas -o src/types"
   },
   "husky": {
     "hooks": {
@@ -64,19 +64,8 @@
   "engines": {
     "node": ">=16"
   },
-  "size-limit": [
-    {
-      "path": "dist/wappsto-cli.cjs.production.min.js",
-      "limit": "10 KB"
-    },
-    {
-      "path": "dist/wappsto-cli.esm.js",
-      "limit": "10 KB"
-    }
-  ],
   "devDependencies": {
     "@jest/globals": "^29.3.1",
-    "@size-limit/preset-small-lib": "^8.1.0",
     "@tsconfig/recommended": "^1.0.1",
     "@types/axios": "^0.14.0",
     "@types/browser-sync": "^2.26.3",
@@ -87,6 +76,9 @@
     "@types/figlet": "^1.5.5",
     "@types/inquirer": "^9.0.3",
     "@types/jest": "^29.2.5",
+    "@types/lodash.isequal": "^4.5.6",
+    "@types/lodash.omit": "^4.5.7",
+    "@types/lodash.pick": "^4.4.7",
     "@types/node": "^18.11.18",
     "@types/prompts": "^2.4.2",
     "@types/ws": "^8.5.4",
@@ -94,7 +86,7 @@
     "dts-cli": "^1.6.3",
     "husky": "^8.0.3",
     "jest": "^29.3.1",
-    "size-limit": "^8.1.0",
+    "json-schema-to-typescript": "^11.0.3",
     "ts-jest": "^29.0.3",
     "ts-node": "^10.9.1",
     "tslib": "^2.4.1",
@@ -112,6 +104,9 @@
     "form-data": "^4.0.0",
     "http-proxy-middleware": "^2.0.6",
     "kleur": "^4.1.5",
+    "lodash.isequal": "^4.5.0",
+    "lodash.omit": "^4.5.0",
+    "lodash.pick": "^4.4.0",
     "node-watch": "^0.7.3",
     "prompts": "^2.4.2",
     "simple-update-notifier": "^1.1.0",

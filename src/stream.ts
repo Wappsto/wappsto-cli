@@ -23,7 +23,7 @@ export default class Stream {
         `${Config.host()}/services/2.0/stream?expand=2`,
         {
           headers: {
-            'x-session': session || this.wappsto.session.get(),
+            'x-session': session || this.wappsto.session.id,
           },
         }
       );
@@ -46,7 +46,7 @@ export default class Stream {
         },
         {
           headers: {
-            'x-session': session || this.wappsto.session.get(),
+            'x-session': session || this.wappsto.session.id,
           },
         }
       );
@@ -60,7 +60,7 @@ export default class Stream {
 
   open(env: string, id: string, callback: any, session?: string): any {
     const host = env + Config.host().split('//')[1];
-    const ses = session || this.wappsto.session.get();
+    const ses = session || this.wappsto.session.id;
     const wss = `${Config.websocket()}/services/2.1/websocket/${id}?x-session=${ses}`;
     const self = this;
 

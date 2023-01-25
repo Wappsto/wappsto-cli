@@ -1,16 +1,36 @@
-import * as path from 'path';
-import os from 'node:os';
-import { mkdtemp, rmSync } from 'node:fs';
+import axios from 'axios';
+import { join } from 'path';
+import { tmpdir } from 'node:os';
+import { mkdtemp, rmSync, mkdirSync, writeFileSync } from 'node:fs';
 
-export async function setup() {
-  return new Promise<void>((resolve, reject) => {
-    mkdtemp(path.join(os.tmpdir(), 'wappsto-cli-test-'), (err, directory) => {
+jest.mock('axios');
+const mockedAxios = axios as jest.Mocked<typeof axios>;
+
+export async function setup(
+  init: boolean = true
+): Promise<jest.Mocked<typeof axios>> {
+  return new Promise<any>((resolve, reject) => {
+    mkdtemp(join(tmpdir(), 'wappsto-cli-test-'), (err, directory) => {
       if (err) {
         reject(err);
       }
 
       process.chdir(directory);
-      resolve();
+
+      if (init) {
+        mkdirSync('.wappsto-cli-cache');
+        writeFileSync('.wappsto-cli-cache/session', 'session');
+
+        mockedAxios.get.mockResolvedValueOnce({
+          data: {
+            meta: {
+              id: 'session',
+            },
+          },
+        });
+      }
+
+      resolve(mockedAxios);
     });
   });
 }

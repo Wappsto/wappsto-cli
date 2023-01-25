@@ -2,46 +2,35 @@ import HTTP from './http';
 import { loadJsonFile, saveJsonFile } from './files';
 import Config from './config';
 import tui from './tui';
+import Model from './model';
 
-export default class Installation {
-  HOST: string;
-  HOST_21: string;
-  cacheFolder: string;
-  json: any;
+export default class Installation extends Model {
+  token_installation: string = '';
+  supported_features: string[] = [];
 
   constructor() {
-    this.HOST = `${Config.host()}/services/2.0/installation`;
-    this.HOST_21 = `${Config.host()}/services/2.1/installation`;
-    this.cacheFolder = Config.cacheFolder();
-    this.json = loadJsonFile(`${this.cacheFolder}installation`);
+    super('installation');
+    this.load();
   }
 
-  save(): void {
-    saveJsonFile(`${this.cacheFolder}installation`, this.json);
-  }
-
-  get data(): any {
-    return this.json;
+  getAttributes() {
+    return ['token_installation', 'supported_features'];
   }
 
   get session(): string {
-    return this.json.session;
-  }
-
-  get id(): string {
-    return this.json.meta.id;
+    return this.session;
   }
 
   get token(): string {
-    return this.json.token_installation;
+    return this.token_installation;
   }
 
   get hasForeground(): boolean {
-    return this.json.supported_features.indexOf('foreground') !== -1;
+    return this.supported_features.indexOf('foreground') !== -1;
   }
 
   get hasBackground(): boolean {
-    return this.json.supported_features.indexOf('background') !== -1;
+    return this.supported_features.indexOf('background') !== -1;
   }
 
   async create(id: string): Promise<boolean> {
@@ -49,7 +38,7 @@ export default class Installation {
       const response = await HTTP.post(`${this.HOST}`, {
         application: id,
       });
-      this.json = response.data;
+      this.parse(response.data);
       this.save();
       return true;
     } catch (err) {
@@ -59,19 +48,17 @@ export default class Installation {
     }
   }
 
-  async load(id: string): Promise<boolean> {
+  async fetchById(id: string): Promise<boolean> {
     let ret = true;
     try {
-      let url = `${this.HOST}?expand=2`;
-      if (id) {
-        url += `&this_version_id=${id}`;
-      }
+      let url = `${this.HOST}?expand=2&this_version_id=${id}`;
       const response = await HTTP.get(url);
       if (response.data && response.data.length) {
-        this.json = response.data[0];
+        this.parse(response.data[0]);
         this.save();
       } else {
-        ret = await this.create(id);
+        tui.showError(`Failed to fetch installation by ID: ${id}`);
+        ret = false;
       }
     } catch (err) {
       /* istanbul ignore next */
@@ -110,7 +97,7 @@ export default class Installation {
 
   async stop(): Promise<boolean> {
     try {
-      await HTTP.patch(`${this.HOST_21}/${this.id}`, {
+      await HTTP.patch(`${this.HOST}/${this.id}`, {
         restart: {
           stop_background: true,
         },
@@ -137,7 +124,7 @@ export default class Installation {
     }
   }
 
-  async delete(id: string): Promise<void> {
+  async deleteById(id: string): Promise<void> {
     try {
       await HTTP.delete(`${this.HOST}?this_version_id=${id}`);
     } catch (err: any) {

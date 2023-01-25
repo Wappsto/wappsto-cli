@@ -1,8 +1,10 @@
 import fs from 'fs';
 import { Mutex } from 'async-mutex';
+import pick from 'lodash.pick';
 import Stream from './stream';
 import Installation from './installation';
 import Application from './application';
+import Version from './version';
 import Spinner from './spinner';
 import {
   loadJsonFile,
@@ -32,7 +34,7 @@ import {
 } from './util';
 
 export default class Wapp {
-  mutex: any;
+  mutex: Mutex;
   wapp_files: string[];
   ignoreFolders: string[];
   wapp_folders: string[];
@@ -95,12 +97,6 @@ export default class Wapp {
     if (!directoryExists(this.cacheFolder)) {
       createFolder(this.cacheFolder);
     }
-    ['application', 'installation', 'session'].forEach((e) => {
-      const f = `.${e}`;
-      if (fileExists(f)) {
-        moveFile(f, `${this.cacheFolder}${e}`);
-      }
-    });
   }
 
   present(): any {
@@ -128,13 +124,12 @@ export default class Wapp {
 
     const wapps = await this.application.getAll();
     if (wapps.length) {
-      wapps.forEach((w: any) => {
-        if (w.version && w.version[0]) {
+      wapps.forEach((w: Application) => {
+        if (w.version && typeof w.version[0] !== 'string') {
           const { name } = w.version[0];
-          const { id } = w.meta;
           listWapps.push({
-            name: `${name} (${id})`,
-            value: id,
+            name: `${name} (${w.id})`,
+            value: w.id,
           });
         }
       });
@@ -143,8 +138,11 @@ export default class Wapp {
     status.stop();
 
     const newWapp = await questions.askForNewWapp(listWapps, this.present());
+    if (newWapp === false) {
+      return;
+    }
 
-    let data: any;
+    let new_app: Application | undefined;
     switch (newWapp.create) {
       case 'download':
         this.deleteLocal();
@@ -157,19 +155,18 @@ export default class Wapp {
         status.start();
 
         if (this.manifest.meta) {
-          this.manifest = Wapp.saveManifest(this.manifest);
+          this.manifest = this.saveManifest(this.manifest);
         }
 
-        this.application = await this.application.create(this.manifest);
-        if (!this.application) {
-          /* istanbul ignore next */
+        new_app = await Application.create(this.manifest);
+        if (!new_app) {
           status.stop();
-          /* istanbul ignore next */
           throw new Error('Failed to generate Application');
         }
+        this.application = new_app;
 
         await this.installation.create(this.versionID);
-        this.manifest = Wapp.saveApplication(this.application);
+        this.manifest = this.saveApplication();
         status.stop();
 
         updateFiles = await this.update();
@@ -194,34 +191,35 @@ export default class Wapp {
           tui.showMessage(`${f.name} was ${f.status}`);
         });
 
-        if (this.application && this.installation.data) {
+        if (this.application && this.installation.id) {
           tui.showMessage(`Wapp created with id: ${this.application.id}`);
         }
         break;
-      case undefined:
-        return;
       default:
         status.setMessage('Creating Wapp, please wait...');
         status.start();
 
-        this.application = await this.application.create(newWapp);
-        if (this.application) {
-          const customFolders = {
-            foreground: Config.foreground(),
-            background: Config.background(),
-          };
+        new_app = await Application.create(newWapp);
+        if (!new_app) {
           status.stop();
-          await this.createFolders(
-            newWapp.features,
-            newWapp.examples,
-            customFolders
-          );
-          status.start();
-          await this.installation.create(
-            this.application.data.version[0].meta.id
-          );
-          Wapp.saveApplication(this.application);
+          throw new Error('Failed to create Application');
         }
+
+        this.application = new_app;
+        const customFolders = {
+          foreground: Config.foreground(),
+          background: Config.background(),
+        };
+        status.stop();
+        await this.createFolders(
+          newWapp.features,
+          newWapp.examples,
+          customFolders
+        );
+        status.start();
+        await this.installation.create(this.application.getVersion().id);
+        this.saveApplication();
+
         status.stop();
 
         if (this.application) {
@@ -311,36 +309,28 @@ export default class Wapp {
     }
 
     status.setMessage('Downloading installation, please wait...');
-    await this.installation.load(app.version[0].meta.id);
-    Wapp.saveApplication(this.application);
+    await this.installation.fetchById(app.version[0].meta.id);
+    this.saveApplication();
 
     status.stop();
     tui.showMessage(`Downloaded Wapp ${app.version[0].name}`);
   }
 
-  static saveApplication(app: any): any {
-    let data = app;
-
-    if (app.data) {
-      app.save();
-      data = app.data;
-    } else {
-      saveJsonFile(`${Config.cacheFolder()}application`, data);
-    }
-    return Wapp.saveManifest(data.version[0]);
+  saveApplication(): any {
+    this.application.save();
+    return this.saveManifest(this.application.getVersion());
   }
 
-  static saveManifest(version: any): any {
-    const newVersion = JSON.parse(JSON.stringify(version));
-    delete newVersion.session_user;
-    delete newVersion.native;
-    delete newVersion.application;
-    delete newVersion.uninstallable;
-    delete newVersion.object_requested;
-    delete newVersion.file;
-    delete newVersion.meta;
-    delete newVersion.owner;
-    delete newVersion.name_folder;
+  saveManifest(version: Version): any {
+    const newVersion = pick(version.toJSON(), [
+      'name',
+      'author',
+      'version_app',
+      'max_number_installation',
+      'supported_features',
+      'description',
+      'permission',
+    ]);
     saveJsonFile('manifest.json', newVersion);
     return newVersion;
   }
@@ -557,7 +547,7 @@ export default class Wapp {
     }
 
     status.setMessage('Loading version, please wait...');
-    await this.installation.load(this.versionID);
+    await this.installation.fetchById(this.versionID);
 
     if (reinstall) {
       results.push(this.installation.reinstall());
@@ -583,9 +573,10 @@ export default class Wapp {
                 }
               }
             }
-            Wapp.saveApplication(newApp);
+            this.application.parse(newApp);
+            this.saveApplication();
           } else {
-            Wapp.saveApplication(this.application);
+            this.saveApplication();
           }
           resolve();
         } catch (err) {
@@ -613,9 +604,9 @@ export default class Wapp {
     if (answer.extsync) {
       this.installation.setExtSync(answer.extsync);
     } else if (answer.api_site) {
-      this.application.oauth_external(answer, app.oauth_external);
+      this.application.createOauthExternal(answer, app.oauth_external);
     } else if (answer.redirect_uri) {
-      this.application.oauth_client(answer);
+      this.application.createOauthClient(answer);
     }
   }
 
@@ -639,7 +630,7 @@ export default class Wapp {
         this.application.version.forEach((v: any) => {
           if (v.id) {
             results.push(v.delete());
-            results.push(this.installation.delete(v.id));
+            results.push(this.installation.deleteById(v.id));
           }
         });
 
@@ -665,7 +656,7 @@ export default class Wapp {
   }
 
   async getInstallationSession(): Promise<string | null> {
-    const ret = await this.installation.load(this.versionID);
+    const ret = await this.installation.fetchById(this.versionID);
     if (!ret) {
       return null;
     }

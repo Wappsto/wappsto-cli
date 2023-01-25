@@ -2,31 +2,63 @@ import HTTP from './http';
 import Config from './config';
 import tui from './tui';
 import { getFilePath } from './util';
+import Model from './model';
+import File from './file';
+import { Version21 } from './types/application.d';
 
-export default class Version {
-  HOST: string;
-  data: any;
-  file: any[];
-  application: any;
-  id: string = '';
-  revision: string = '';
+export default class Version extends Model implements Version21 {
+  name: string = '';
+  author?: string;
+  version_app?: string;
+  supported_features?: ('foreground' | 'background' | 'widget')[];
+  max_number_installation?: number;
+  description?: {
+    general?: string;
+    foreground?: string;
+    background?: string;
+    widget?: string;
+    version?: string;
+  };
+  status:
+    | 'idle'
+    | 'commit'
+    | 'revision'
+    | 'publish'
+    | 'uncommit'
+    | 'unpublish'
+    | 'republish'
+    | 'disable'
+    | 'reenable'
+    | 'duplicate'
+    | 'pending'
+    | 'uncommitted'
+    | 'published'
+    | 'not updated'
+    | 'unpublished'
+    | 'disabled' = 'idle';
+  used_files: {
+    [k: string]: unknown;
+  } = {};
 
-  constructor(data?: any, parent?: any) {
-    this.HOST = `${Config.host()}/services/2.0/version`;
-    this.data = data;
+  file: any[] = [];
+  parent?: Model;
+
+  constructor(data?: any, parent?: Model) {
+    super('version');
+    this.parse(data);
     this.file = [];
-    this.application = parent;
-    if (data && data.meta) {
-      this.id = data.meta.id;
-      this.revision = data.meta.revision;
-      if (data.file) {
-        this.file = data.file.filter((el: any) => el != null);
-      }
-    }
+    this.parent = parent;
   }
 
-  getJSON(): any {
-    return this.data;
+  getAttributes(): string[] {
+    return [
+      'name',
+      'author',
+      'version_app',
+      'supported_features',
+      'max_number_installation',
+      'description',
+    ];
   }
 
   async get(): Promise<any> {
@@ -67,24 +99,8 @@ export default class Version {
         filePath === `${getFilePath(this.file[i].use)}/${this.file[i].name}`
       ) {
         this.file[i] = newFile;
-        this.data.file[i] = newFile;
-        this.application.save();
+        this.parent?.save();
         return;
-      }
-    }
-  }
-
-  async delete(): Promise<void> {
-    try {
-      await HTTP.delete(`${this.HOST}/${this.id}`);
-    } catch (err: any) {
-      /* istanbul ignore next */
-      switch (err.response.data.code) {
-        case 9900067:
-          // Version already deleted
-          break;
-        default:
-          tui.showError(`Failed to delete version: ${this.id}`, err);
       }
     }
   }
