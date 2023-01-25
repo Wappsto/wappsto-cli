@@ -1,20 +1,9 @@
-import {
-  yellow,
-  magenta,
-  green,
-  blue,
-  red,
-  white as whiteBright,
-  bold,
-} from 'kleur/colors';
+import { yellow, magenta, green, blue, red, white, bold } from 'kleur/colors';
 import figlet from 'figlet';
 import { clearLine, cursorTo } from 'readline';
 import updateNotifier from 'simple-update-notifier';
 import config from '../config';
 import packageJson from '../../package.json';
-/*import { createRequire } from 'module';
-const require = createRequire(import.meta.url || '');
-const packageJson = require('../package.json');*/
 
 class Tui {
   traceEnabled: boolean = false;
@@ -122,7 +111,7 @@ class Tui {
 
   showMessage(msg: string, str?: string, end?: string): void {
     this.clear();
-    this.write(`${green('*')} ${bold(whiteBright(msg))}`);
+    this.write(`${green('*')} ${bold(white(msg))}`);
     if (str) {
       this.write(str);
     }
