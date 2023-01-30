@@ -33,7 +33,7 @@ const optionDefinitions = [
 const sections = [
   {
     header: 'Update Wapp',
-    content: 'Script to sync your local files with wappsto.',
+    content: 'Script to sync your local wapp files with wappsto.',
   },
   {
     header: 'Synopsis',
@@ -53,11 +53,18 @@ const sections = [
 ];
 
 export default async function update(argv: string[]) {
-  const options = commandLineArgs(optionDefinitions, { argv });
+  let options;
+  try {
+    options = commandLineArgs(optionDefinitions, { argv });
+  } catch (err: any) {
+    tui.showError(err.message);
+    console.log(commandLineUsage(sections));
+    return;
+  }
 
   if (options.help) {
-    process.stdout.write(commandLineUsage(sections));
-    process.exit();
+    console.log(commandLineUsage(sections));
+    return;
   }
 
   if (!options.quiet) {

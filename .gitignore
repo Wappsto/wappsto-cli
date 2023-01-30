@@ -6,6 +6,9 @@ dist/*
 
 .wappsto-cli-cache/
 manifest.json
+foreground
+background
+icon
 coverage
 old_ava
 *~

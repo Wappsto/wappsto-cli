@@ -1,5 +1,4 @@
 import HTTP from './util/http';
-import Config from './config';
 import tui from './util/tui';
 import { getFilePath } from './util/helpers';
 import Model from './model';
@@ -37,16 +36,19 @@ export default class Version extends Model implements Version21 {
     | 'unpublished'
     | 'disabled' = 'idle';
   used_files: {
-    [k: string]: unknown;
+    foreground?: string[];
+    background?: string[];
+    icon?: string[];
+    widget?: string[];
+    [k: string]: string[] | undefined;
   } = {};
 
-  file: any[] = [];
-  parent?: Model;
+  file: (File | string)[] = [];
+  parent: Model;
 
-  constructor(data?: any, parent?: Model) {
+  constructor(data: any, parent: Model) {
     super('version');
     this.parse(data);
-    this.file = [];
     this.parent = parent;
   }
 
@@ -58,7 +60,32 @@ export default class Version extends Model implements Version21 {
       'supported_features',
       'max_number_installation',
       'description',
+      'status',
+      'used_files',
+      'file',
     ];
+  }
+
+  parse(data: any): void {
+    this.trace('parse', data);
+    super.parse(data);
+    const files = this.file || [];
+    this.file = [];
+    files.forEach((f: any) => {
+      this.file.push(new File(f, this));
+    });
+  }
+
+  toJSON(): any {
+    this.trace('toJSON', this);
+    const data = super.toJSON();
+    data.file = [];
+    this.file.forEach((file: File | string) => {
+      if (typeof file !== 'string') {
+        data.file.push(file.toJSON());
+      }
+    });
+    return data;
   }
 
   async get(): Promise<any> {
@@ -66,17 +93,18 @@ export default class Version extends Model implements Version21 {
       const response = await HTTP.get(
         `${this.HOST}/${this.id}?expand=2&verbose=true`
       );
-      return new Version(response.data);
+      return new Version(response.data, this.parent);
     } catch (err) {
       tui.showError(`Failed to get version: ${this.id}`, err);
     }
     return null;
   }
 
-  findFile(filePath: string): any {
-    return this.file.find(
-      (file) => filePath === `${getFilePath(file.use)}/${file.name}`
-    );
+  findFile(filePath: string): File | undefined {
+    const files = this.getFiles();
+    return files.find((f) => {
+      return filePath === f.path;
+    });
   }
 
   async update(version: any): Promise<boolean> {
@@ -93,8 +121,12 @@ export default class Version extends Model implements Version21 {
     return result;
   }
 
+  async createFile(filePath: string) {
+    return await File.create(filePath, this);
+  }
+
   updateFile(filePath: string, newFile: string): void {
-    for (let i = 0; i < this.file.length; i += 1) {
+    /*for (let i = 0; i < this.file.length; i += 1) {
       if (
         filePath === `${getFilePath(this.file[i].use)}/${this.file[i].name}`
       ) {
@@ -102,6 +134,16 @@ export default class Version extends Model implements Version21 {
         this.parent?.save();
         return;
       }
-    }
+    }*/
+  }
+
+  getFiles(): File[] {
+    const files: File[] = [];
+    this.file.forEach((file) => {
+      if (typeof file !== 'string') {
+        files.push(file);
+      }
+    });
+    return files;
   }
 }

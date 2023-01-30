@@ -1,6 +1,4 @@
-import isEqual from 'lodash.isequal';
 import pick from 'lodash.pick';
-import omit from 'lodash.omit';
 import Config from './config';
 import HTTP from './util/http';
 import { deleteFile, saveFile, loadFile } from './util/files';
@@ -42,19 +40,17 @@ export default class Model {
       {},
       pick(this.meta, ['id', 'type', 'version', 'revision'])
     );
-    tui.trace('model', 'toJSON 2', this);
     const json = Object.assign(
       { meta: meta },
       this.removeUndefined(pick(this, this.getAttributes()))
     );
-    tui.trace('model', 'toJSON 3', this);
     return json;
   }
 
   parse(data: any): void {
     tui.trace('model', 'parse', data);
     try {
-      Object.assign(this, pick(data, this.getAttributes().concat(['meta'])));
+        Object.assign(this, pick(data, this.getAttributes().concat(['meta'])));
     } catch (e: any) {
       console.log(e);
     }
@@ -63,19 +59,20 @@ export default class Model {
   save(): void {
     tui.trace('model', 'save', this);
     let data = this.toJSON();
-    tui.trace('model', 'save 2', this);
     if (typeof data !== 'string') {
       data = JSON.stringify(data);
     }
-    tui.trace('model', 'save 3', this);
     saveFile(`${this.cacheFolder}${this.meta.type}`, data);
-    tui.trace('model', 'save done', this);
   }
 
   load(): void {
     tui.trace('model', 'load');
-    const data = loadFile(`${this.cacheFolder}${this.meta.type}`);
-    if (data) {
+      let data = loadFile(`${this.cacheFolder}${this.meta.type}`);
+      if (data) {
+          try {
+              data = JSON.parse(data);
+          } catch(e) {
+          }
       this.parse(data);
     }
   }
@@ -88,7 +85,9 @@ export default class Model {
   async fetch(): Promise<boolean> {
     tui.trace('model', 'fetch');
     try {
-      const response = await HTTP.get(`${this.HOST}/${this.id}`);
+      const response = await HTTP.get(
+        `${this.HOST}/${this.id}?expand=2&verbose=true`
+      );
       this.parse(response.data);
       return true;
     } catch (err: any) {

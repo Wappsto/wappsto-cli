@@ -73,7 +73,7 @@ describe('Session', () => {
 
     expect(mockedAxios.get).toHaveBeenCalledTimes(1);
     expect(mockedAxios.get).toHaveBeenCalledWith(
-      'https://wappsto.com/services/2.1/session/session',
+      'https://wappsto.com/services/2.1/session/session?expand=2&verbose=true',
       {}
     );
   });
@@ -107,7 +107,7 @@ describe('Session', () => {
 
     expect(mockedAxios.get).toHaveBeenCalledTimes(1);
     expect(mockedAxios.get).toHaveBeenCalledWith(
-      'https://wappsto.com/services/2.1/session/invalid',
+      'https://wappsto.com/services/2.1/session/invalid?expand=2&verbose=true',
       {}
     );
     expect(mockedAxios.post).toHaveBeenCalledTimes(1);

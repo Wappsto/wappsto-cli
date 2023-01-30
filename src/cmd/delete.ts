@@ -47,10 +47,17 @@ const sections = [
 ];
 
 export default async function Delete(argv: string[]) {
-  const options = commandLineArgs(optionDefinitions, { argv });
+  let options;
+  try {
+    options = commandLineArgs(optionDefinitions, { argv });
+  } catch (err: any) {
+    tui.showError(err.message);
+    console.log(commandLineUsage(sections));
+    return;
+  }
 
   if (options.help) {
-    process.stdout.write(commandLineUsage(sections));
+    console.log(commandLineUsage(sections));
     return;
   }
 

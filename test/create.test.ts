@@ -6,7 +6,7 @@ import {
   installationResponse,
   allApplicationsResponse,
 } from './util/response';
-import { loadJsonFile, saveFile, createFolders } from '../src/util/files';
+import { loadJsonFile } from '../src/util/files';
 import Config from '../src/config';
 import create from '../src/cmd/create';
 
@@ -69,8 +69,6 @@ describe('Create', () => {
     const application_file = loadJsonFile(
       `${Config.cacheFolder()}/application`
     );
-    const version_file = loadJsonFile(`${Config.cacheFolder()}/version`);
-    const manifest_file = loadJsonFile('./manifest.json');
 
     expect(mockedAxios.get).toHaveBeenCalledTimes(2);
     expect(mockedAxios.get).toHaveBeenNthCalledWith(
@@ -132,6 +130,7 @@ describe('Create', () => {
             version: '2.1',
           },
           author: 'Wapp Author',
+          status: 'idle',
           description: {
             foreground: 'Wapp Foreground',
             general: 'Wapp description',
@@ -142,10 +141,13 @@ describe('Create', () => {
           supported_features: ['foreground'],
           version_app: '1.2.3',
           name: 'Wapp name',
+          file: [],
+          used_files: {},
         },
       ],
     });
 
+    const manifest_file = loadJsonFile('./manifest.json');
     expect(manifest_file).toEqual({
       name: 'Wapp name',
       author: 'Wapp Author',
@@ -168,6 +170,15 @@ describe('Create', () => {
       })
       .mockResolvedValueOnce({
         data: {},
+      })
+      .mockResolvedValueOnce({
+        data: 'File 1',
+      })
+      .mockResolvedValueOnce({
+        data: 'File 2',
+      })
+      .mockResolvedValueOnce({
+        data: 'File 3',
       });
 
     prompts.inject(['download', '866ee500-6c8d-4ccb-a41e-ace97c7b2243']);
@@ -203,7 +214,41 @@ describe('Create', () => {
           max_number_installation: 1,
           supported_features: ['foreground'],
           version_app: '1.2.3',
+          status: 'idle',
           name: 'Wapp name',
+          file: [
+            {
+              meta: {
+                id: 'e3bd2eeb-c8cd-47f4-bd3a-825cd62fbcd4',
+                revision: 7,
+                type: 'file',
+                version: '2.1',
+              },
+              name: 'index.html',
+              type: 'text/html',
+            },
+            {
+              meta: {
+                id: '0cb9cb4f-73ec-468c-a8e5-b88a8bd13fe9',
+                revision: 6,
+                type: 'file',
+                version: '2.1',
+              },
+              name: 'main.js',
+              type: 'application/javascript',
+            },
+            {
+              meta: {
+                id: 'cbfcd17f-7690-4670-8567-241d00c01c61',
+                revision: 6,
+                type: 'file',
+                version: '2.1',
+              },
+              name: 'package.json',
+              type: 'text/json',
+            },
+          ],
+          used_files: {},
         },
       ],
     });
@@ -224,7 +269,7 @@ describe('Create', () => {
     });
 
     expect(mockedAxios.post).toHaveBeenCalledTimes(0);
-    expect(mockedAxios.get).toHaveBeenCalledTimes(3);
+    expect(mockedAxios.get).toHaveBeenCalledTimes(6);
     expect(mockedAxios.get).toHaveBeenNthCalledWith(
       2,
       'https://wappsto.com/services/2.1/application?expand=2&verbose=true',
@@ -232,6 +277,27 @@ describe('Create', () => {
     );
     expect(mockedAxios.get).toHaveBeenNthCalledWith(
       3,
+      'https://wappsto.com/services/2.1/file/e3bd2eeb-c8cd-47f4-bd3a-825cd62fbcd4',
+      {
+        responseType: 'stream',
+      }
+    );
+    expect(mockedAxios.get).toHaveBeenNthCalledWith(
+      4,
+      'https://wappsto.com/services/2.1/file/0cb9cb4f-73ec-468c-a8e5-b88a8bd13fe9',
+      {
+        responseType: 'stream',
+      }
+    );
+    expect(mockedAxios.get).toHaveBeenNthCalledWith(
+      5,
+      'https://wappsto.com/services/2.1/file/cbfcd17f-7690-4670-8567-241d00c01c61',
+      {
+        responseType: 'stream',
+      }
+    );
+    expect(mockedAxios.get).toHaveBeenNthCalledWith(
+      6,
       'https://wappsto.com/services/2.1/installation?expand=2&this_version_id=98e68cd8-74a6-4841-bdd4-70c29f068056',
       {}
     );

@@ -1,24 +1,63 @@
 import HTTP from './util/http';
-import { loadJsonFile, saveJsonFile } from './util/files';
-import Config from './config';
 import tui from './util/tui';
 import Model from './model';
+import {
+  Installation21,
+  Oauth21,
+  OauthConnect21,
+} from './types/installation.d';
 
-export default class Installation extends Model {
+export default class Installation extends Model implements Installation21 {
+  application: string = '';
+  version_id: string = '';
+  session_user: boolean = false;
+  extsync: boolean = false;
+  status: {
+    background?:
+      | 'no_background'
+      | 'pending'
+      | 'not_paid'
+      | 'running'
+      | 'crashed'
+      | 'restarting'
+      | 'error'
+      | 'failed'
+      | 'stopped'
+      | 'completed'
+      | 'no_more_points';
+    version?: 'uninstalled' | 'not updated' | 'disabled' | 'updated' | 'editor';
+    payment?: 'free' | 'owned' | 'pending' | 'paid' | 'not_paid';
+  } = {};
+  payment: {
+    free?: boolean;
+    status?: string;
+    application_product_id?: string;
+    created?: string;
+    current_period_end?: string;
+    current_period_start?: string;
+    pending?: {
+      [k: string]: unknown;
+    };
+    [k: string]: unknown;
+  } = {};
+  oauth: (Oauth21 | string)[] = [];
+  oauth_connect: (OauthConnect21 | string)[] = [];
+  session?: string;
   token_installation: string = '';
   supported_features: string[] = [];
 
   constructor() {
     super('installation');
-    this.load();
+      this.load();
   }
 
   getAttributes() {
-    return ['token_installation', 'supported_features'];
-  }
-
-  get session(): string {
-    return this.session;
+    return [
+      'token_installation',
+      'supported_features',
+      'application',
+      'version_id',
+    ];
   }
 
   get token(): string {
@@ -68,7 +107,7 @@ export default class Installation extends Model {
     return ret;
   }
 
-  async restart(): Promise<void> {
+    async restart(): Promise<void> {
     try {
       await HTTP.patch(`${this.HOST}/${this.id}`, {
         restart: {

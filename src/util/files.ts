@@ -108,3 +108,19 @@ export function getAllFiles(
   }
   return files;
 }
+
+export function getFileTime(file: string) {
+  let fileTime;
+  if (fileExists(file)) {
+    fileTime = statSync(file).mtime;
+  }
+  return fileTime;
+}
+
+export function getFileTimeISO(file: string) {
+  let fileTime = getFileTime(file);
+  if (fileTime) {
+    return fileTime.toISOString();
+  }
+  return '';
+}

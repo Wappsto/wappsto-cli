@@ -1,9 +1,8 @@
 import HTTP from './util/http';
-import Config from './config';
 import tui from './util/tui';
 import Version from './version';
-import { saveJsonFile } from './util/files';
 import Model from './model';
+import File from './file';
 import {
   Application21,
   OauthClient21,
@@ -51,7 +50,7 @@ export default class Application extends Model implements Application21 {
       }
     }
     /* istanbul ignore next */
-    return new Version();
+    return new Version({}, this);
   }
 
   parse(data: any): void {
@@ -185,5 +184,12 @@ export default class Application extends Model implements Application21 {
         tui.showError('Failed to create OAuth Client', err);
       }
     }
+  }
+
+  syncFiles(): void {
+    const files = this.getVersion().getFiles();
+    files.forEach((file: File) => {
+      file.syncModified();
+    });
   }
 }

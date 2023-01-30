@@ -137,7 +137,11 @@ export interface Version21 {
     | 'unpublished'
     | 'disabled';
   used_files: {
-    [k: string]: unknown;
+    foreground?: string[];
+    background?: string[];
+    icon?: string[];
+    widget?: string[];
+    [k: string]: string[] | undefined;
   };
   installed?: {
     last_update?: string;

@@ -1,4 +1,3 @@
-import fs from 'fs';
 import { Mutex } from 'async-mutex';
 import pick from 'lodash.pick';
 import Stream from './stream';
@@ -14,24 +13,18 @@ import {
   saveFile,
   loadFile,
   copyFile,
-  moveFile,
   deleteFile,
   deleteFolder,
   getAllFiles,
   saveJsonFile,
+  getFileTimeISO,
 } from './util/files';
 import tui from './util/tui';
 import questions from './util/questions';
 import Wappsto from './wappsto';
 import Config from './config';
-import {
-  getFilePath,
-  compareVersions,
-  validateFile,
-  getFileType,
-  getFileName,
-  getFileUse,
-} from './util/helpers';
+import File from './file';
+import { compareVersions, validateFile } from './util/helpers';
 
 export default class Wapp {
   mutex: Mutex;
@@ -128,13 +121,12 @@ export default class Wapp {
         if (w.version && typeof w.version[0] !== 'string') {
           const { name } = w.version[0];
           listWapps.push({
-            name: `${name} (${w.id})`,
+            title: `${name} (${w.id})`,
             value: w.id,
           });
         }
       });
     }
-
     status.stop();
 
     const newWapp = await questions.askForNewWapp(listWapps, this.present());
@@ -173,14 +165,14 @@ export default class Wapp {
         status.stop();
 
         updateFiles = await this.update();
-        updateFiles.forEach(async (f: any) => {
+        updateFiles.forEach(async (f: File) => {
           if (validate) {
-            await this.wappsto.downloadFile(
-              `file/${f.id}`,
-              `${this.cacheFolder}file/${f.name}`
-            );
-            const localFile = loadFile(f.name);
-            const remoteFile = loadFile(`${this.cacheFolder}file/${f.name}`);
+            const tmpFile = `${this.cacheFolder}file/${f.name}`;
+            await f.download(tmpFile);
+
+            const localFile = loadFile(f.path);
+            const remoteFile = loadFile(tmpFile);
+
             if (localFile && remoteFile) {
               const localBuff = Buffer.from(localFile);
               const remoteBuff = Buffer.from(remoteFile);
@@ -293,24 +285,22 @@ export default class Wapp {
     const status = new Spinner(`Downloading Wapp ${app.getVersion().name}`);
     status.start();
 
-    this.application = new Application(app);
+    this.application = app;
     await this.createFolders();
 
-    /*
-    for (let i = 0; i < app.version[0].file.length; i += 1) {
-      const file = app.version[0].file[i];
-      const filePath = `${getFilePath(file.use)}/${file.name}`;
+    const files = app.getVersion().getFiles();
+
+    for (let i = 0; i < files.length; i += 1) {
+      const file = files[i];
+
       try {
-        status.setMessage(`Downloading ${filePath}, please wait...`);
-        // eslint-disable-next-line no-await-in-loop
-        await this.wappsto.downloadFile(`file/${file.meta.id}`, filePath);
-        const stats = fs.statSync(filePath);
-        file.meta.modified = stats.mtime;
+        status.setMessage(`Downloading ${file.name}, please wait...`);
+        await file.download();
       } catch (err) {
-        deleteFile(filePath);
+        file.deleteLocal();
       }
     }
-*/
+
     status.setMessage('Downloading installation, please wait...');
     await this.installation.fetchById(app.getVersion().id);
     this.saveApplication();
@@ -343,12 +333,7 @@ export default class Wapp {
     const localFile = localVersion.findFile(filePath);
 
     if (localFile) {
-      const newFile = await this.wappsto.updateFile(
-        this.versionID,
-        localFile.meta.id,
-        filePath
-      );
-      localVersion.updateFile(filePath, newFile);
+      await localFile.update();
 
       await this.installation.restart();
 
@@ -359,6 +344,16 @@ export default class Wapp {
         `${filePath} was changed but is not part of the version`
       );
     }
+  }
+
+  getAllLocalFiles(): string[] {
+    let localFiles: string[] = [];
+    this.wapp_folders.forEach((folder: string) => {
+      localFiles = localFiles.concat(
+        getAllFiles(folder, validateFile, this.ignoreFolders)
+      );
+    });
+    return localFiles;
   }
 
   async update(reinstall?: boolean): Promise<any[]> {
@@ -402,51 +397,47 @@ export default class Wapp {
     }
 
     // Find all files on disk
-    this.wapp_folders.forEach((f) => {
-      localFiles = localFiles.concat(
-        getAllFiles(f, validateFile, this.ignoreFolders)
-      );
-    });
+    localFiles = this.getAllLocalFiles();
 
     // Get both remote and local files into a single array
-    const cmp = (item: any, file: any) =>
-      item.use === file.use && item.name === file.name;
+    const cmp = (item: File, file: File) => item.path === file.path;
+
+    const localVersionFiles = localVersion.getFiles();
+    const remoteVersionFiles = remoteVersion.getFiles();
+
     const allFiles = !remoteVersion
-      ? localVersion.file
-      : remoteVersion.file.concat(
-          localVersion.file.filter(
+      ? localVersionFiles
+      : remoteVersionFiles.concat(
+          localVersionFiles.filter(
             (item: any) =>
-              !remoteVersion.file.find((file: any) => cmp(item, file))
+              !remoteVersionFiles.find((file: File) => cmp(item, file))
           )
         );
 
     for (let i = 0; i < allFiles.length; i += 1) {
-      const f = allFiles[i];
-      if (!f) {
+      const file = allFiles[i];
+      if (!file) {
         continue;
       }
       let remoteUpdated = false;
       let locallyUpdated = false;
       let fileTime = null;
-      const filePath = `${getFilePath(f.use)}/${f.name}`;
 
-      const rf = !remoteVersion ? null : remoteVersion.findFile(filePath);
-      const lf = localVersion.findFile(filePath);
+      const rf = !remoteVersion ? null : remoteVersion.findFile(file.path);
+      const lf = localVersion.findFile(file.path);
 
-      const localIndex = localFiles.indexOf(filePath);
+      const localIndex = localFiles.indexOf(file.path);
       if (localIndex !== -1) {
-        localFiles.splice(localFiles.indexOf(filePath), 1);
+        localFiles.splice(localFiles.indexOf(file.path), 1);
       }
 
-      if (fileExists(filePath)) {
-        fileTime = fs.statSync(filePath).mtime.toISOString();
-      }
+      fileTime = getFileTimeISO(file.path);
 
       if (lf && rf) {
         if (rf.meta.updated !== lf.meta.updated) {
           remoteUpdated = true;
         }
-        if (fileTime && lf.meta.modified !== fileTime) {
+        if (fileTime && lf.modified !== fileTime) {
           locallyUpdated = true;
         }
       }
@@ -463,7 +454,7 @@ export default class Wapp {
         while (run) {
           run = false;
           // eslint-disable-next-line no-await-in-loop
-          const answer = await questions.fileConflict(filePath);
+          const answer = await questions.fileConflict(file.path);
           switch (answer.conflict) {
             case 'override_all':
               overrideAll = true;
@@ -479,73 +470,58 @@ export default class Wapp {
               break;
             case 'abort':
               process.exit();
-              break;
+            // eslint-disable-next-line no-fallthrough
             default:
           }
         }
         status.start();
       }
 
-      const fileStatus = {
-        id: f.meta.id,
-        name: filePath,
-        status: 'unknown',
-      };
+      file.status = 'unknown';
+
       if ((rf && !lf) || (remoteUpdated && !locallyUpdated)) {
         try {
-          status.setMessage(`Downloading ${filePath}, please wait...`);
-          results.push(
-            this.wappsto.downloadFile(`file/${f.meta.id}`, filePath)
-          );
-          fileStatus.status = 'downloaded';
+          status.setMessage(`Downloading ${file.path}, please wait...`);
+          results.push(file.download());
+          file.status = 'downloaded';
         } catch (err) {
-          fileStatus.status = 'not downloaded';
+          file.status = 'not downloaded';
         }
       } else if (!remoteUpdated && locallyUpdated) {
-        status.setMessage(`Uploading ${filePath}, please wait...`);
-        fileStatus.status = 'updated';
-        results.push(
-          this.wappsto.updateFile(this.versionID, f.meta.id, filePath)
-        );
+        status.setMessage(`Uploading ${file.path}, please wait...`);
+        file.status = 'updated';
+        results.push(file.upload());
       } else if (lf && !fileTime) {
-        fileStatus.status = 'deleted';
+        file.status = 'deleted';
         if (rf) {
-          status.setMessage(`Deleting ${filePath}, please wait...`);
-          results.push(this.wappsto.deleteFile(f.meta.id));
+          status.setMessage(`Deleting ${file.path}, please wait...`);
+          results.push(file.delete());
         }
       } else if (!rf && lf && !locallyUpdated) {
         status.stop();
         // eslint-disable-next-line no-await-in-loop
-        const answer = await questions.askDeleteLocalFile(filePath);
+        const answer = await questions.askDeleteLocalFile(file.path);
         status.start();
         if (answer.delete) {
-          fileStatus.status = 'deleted';
-          deleteFile(filePath);
+          file.status = 'deleted';
+          file.deleteLocal();
         }
       }
-      if (fileStatus.status) {
-        updateFiles.push(fileStatus);
+      if (file.status) {
+        updateFiles.push(file);
       }
     }
 
     for (let i = 0; i < localFiles.length; i += 1) {
-      const f = localFiles[i];
-      status.setMessage(`Creating ${f}, please wait...`);
-
-      const file = {
-        type: getFileType(f),
-        name: getFileName(f),
-        use: getFileUse(f),
-      };
+      const filePath = localFiles[i];
+      status.setMessage(`Creating ${filePath}, please wait...`);
 
       // eslint-disable-next-line no-await-in-loop
-      const newFile = await this.wappsto.createFile(this.versionID, file, f);
+      const newFile = await this.application.getVersion().createFile(filePath);
+
       if (newFile) {
-        updateFiles.push({
-          id: newFile.meta.id,
-          name: f,
-          status: 'created',
-        });
+        newFile.status = 'created';
+        updateFiles.push(newFile);
       }
     }
 
@@ -562,26 +538,13 @@ export default class Wapp {
     status.setMessage('Loading application, please wait...');
 
     await new Promise<void>((resolve) => {
-      setTimeout(async () => {
+      setTimeout(() => {
         try {
-          const newApp = await this.application.get();
-          if (newApp) {
-            if (newApp.version && newApp.version[0] && newApp.version[0].file) {
-              for (let i = 0; i < newApp.version[0].file.length; i += 1) {
-                const f = newApp.version[0].file[i];
-                const filePath = `${getFilePath(f.use)}/${f.name}`;
-                if (fileExists(filePath)) {
-                  const stats = fs.statSync(filePath);
-                  f.meta.modified = stats.mtime;
-                }
-              }
-            }
-            this.application.parse(newApp);
+          this.application.fetch().then(() => {
+            this.application.syncFiles();
             this.saveApplication();
-          } else {
-            this.saveApplication();
-          }
-          resolve();
+            resolve();
+          });
         } catch (err) {
           /* istanbul ignore next */
           resolve();
@@ -621,6 +584,11 @@ export default class Wapp {
     const answer = await questions.deleteWapp();
 
     if (answer.del) {
+      if (!answer.local && !answer.remote) {
+        tui.showWarning('Nothing deleted');
+        return;
+      }
+
       const status = new Spinner('Deleting Wapp, please wait...');
       status.start();
 
@@ -650,18 +618,14 @@ export default class Wapp {
       }
 
       status.stop();
-      if (answer.local || answer.remote) {
-        tui.showMessage('Wapp deleted');
-      } else {
-        tui.showWarning('Nothing deleted');
-      }
+      tui.showMessage('Wapp deleted');
     }
   }
 
-  async getInstallationSession(): Promise<string | null> {
+  async getInstallationSession(): Promise<string | undefined> {
     const ret = await this.installation.fetchById(this.versionID);
     if (!ret) {
-      return null;
+      return;
     }
     if (this.sessionCallback) {
       this.sessionCallback(this.installation.session);
