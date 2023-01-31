@@ -69,7 +69,7 @@ describe('Delete', () => {
         data: installationResponse,
       });
 
-      createWapp();
+    createWapp();
 
     prompts.inject([true, true, true]);
 
@@ -90,17 +90,17 @@ describe('Delete', () => {
     expect(mockedAxios.delete).toHaveBeenCalledTimes(3);
     expect(mockedAxios.delete).toHaveBeenNthCalledWith(
       1,
-      "https://wappsto.com/services/2.1/version/98e68cd8-74a6-4841-bdd4-70c29f068056",
+      'https://wappsto.com/services/2.1/version/98e68cd8-74a6-4841-bdd4-70c29f068056',
       {}
     );
     expect(mockedAxios.delete).toHaveBeenNthCalledWith(
-        2,
-        "https://wappsto.com/services/2.1/installation?this_version_id=98e68cd8-74a6-4841-bdd4-70c29f068056",
+      2,
+      'https://wappsto.com/services/2.1/installation?this_version_id=98e68cd8-74a6-4841-bdd4-70c29f068056',
       {}
     );
     expect(mockedAxios.delete).toHaveBeenNthCalledWith(
       3,
-        "https://wappsto.com/services/2.1/application/4c8ebb21-524b-4fc0-bbc5-015da2e5ca60",
+      'https://wappsto.com/services/2.1/application/4c8ebb21-524b-4fc0-bbc5-015da2e5ca60',
       {}
     );
   });

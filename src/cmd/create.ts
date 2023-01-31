@@ -23,6 +23,12 @@ const optionDefinitions = [
     type: Boolean,
   },
   {
+    name: 'debug',
+    description: 'Enable debug output.',
+    alias: 'd',
+    type: Boolean,
+  },
+  {
     name: 'quiet',
     description: 'Do not print the header.',
     alias: 'q',
@@ -67,12 +73,15 @@ export default async function create(argv: string[]) {
     return;
   }
 
+  tui.debug = options.debug;
+  tui.verbose = options.verbose;
+
   if (!options.quiet) {
     await tui.header('Create Wapp');
   }
 
   try {
-    const wapp = new Wapp(options.verbose);
+    const wapp = new Wapp();
     await wapp.init();
     await wapp.create(options.validate);
   } catch (err: any) {

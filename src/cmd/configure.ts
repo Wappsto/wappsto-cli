@@ -17,6 +17,12 @@ const optionDefinitions = [
     type: Boolean,
   },
   {
+    name: 'debug',
+    description: 'Enable debug output.',
+    alias: 'd',
+    type: Boolean,
+  },
+  {
     name: 'quiet',
     description: 'Do not print the header.',
     alias: 'q',
@@ -54,12 +60,15 @@ export default async function configure(argv: string[]) {
     return 0;
   }
 
+  tui.debug = options.debug;
+  tui.verbose = options.verbose;
+
   if (!options.quiet) {
     tui.header('Configure Wapp');
   }
 
   try {
-    const wapp = new Wapp(options.verbose);
+    const wapp = new Wapp();
     await wapp.init();
 
     await wapp.configure();

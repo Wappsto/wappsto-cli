@@ -48,7 +48,7 @@ export default class Installation extends Model implements Installation21 {
 
   constructor() {
     super('installation');
-      this.load();
+    this.load();
   }
 
   getAttributes() {
@@ -107,7 +107,7 @@ export default class Installation extends Model implements Installation21 {
     return ret;
   }
 
-    async restart(): Promise<void> {
+  async restart(): Promise<void> {
     try {
       await HTTP.patch(`${this.HOST}/${this.id}`, {
         restart: {

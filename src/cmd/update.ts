@@ -23,6 +23,12 @@ const optionDefinitions = [
     type: Boolean,
   },
   {
+    name: 'debug',
+    description: 'Enable debug output.',
+    alias: 'd',
+    type: Boolean,
+  },
+  {
     name: 'quiet',
     description: 'Do not print the header.',
     alias: 'q',
@@ -67,17 +73,20 @@ export default async function update(argv: string[]) {
     return;
   }
 
+  tui.debug = options.debug;
+  tui.verbose = options.verbose;
+
   if (!options.quiet) {
     await tui.header('Update Wapp');
   }
 
   try {
-    const wapp = new Wapp(options.verbose);
+    const wapp = new Wapp();
     await wapp.init();
 
     const files = await wapp.update(options.reinstall);
     files.forEach((f) => {
-      tui.showMessage(`${f.name} was ${f.status}`);
+      tui.showMessage(`${f.path} was ${f.status}`);
     });
   } catch (err: any) {
     tui.showError('Run error', err);

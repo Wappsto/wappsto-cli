@@ -11,6 +11,7 @@ export default class Spinner {
   }
 
   setMessage(message: string): void {
+    tui.showVerbose('STATUS', message);
     this.title = message;
   }
 

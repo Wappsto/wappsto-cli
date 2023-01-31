@@ -43,8 +43,7 @@ export default class Wapp {
   appStream: any;
   sessionCallback: any;
 
-  constructor(verbose: boolean = false, remote: boolean = true) {
-    tui.verbose = verbose;
+  constructor(remote: boolean = true) {
     this.mutex = new Mutex();
     this.cacheFolder = Config.cacheFolder();
     this.initCacheFolder();
@@ -436,9 +435,14 @@ export default class Wapp {
       if (lf && rf) {
         if (rf.meta.updated !== lf.meta.updated) {
           remoteUpdated = true;
+          tui.showVerbose('FILE', `${file.path} is changed on the server`, {
+            remote: rf.meta.updated,
+            local: lf.meta.updated,
+          });
         }
         if (fileTime && lf.modified !== fileTime) {
           locallyUpdated = true;
+          tui.showVerbose('FILE', `${file.path} is changed on disk`);
         }
       }
 
@@ -490,7 +494,7 @@ export default class Wapp {
       } else if (!remoteUpdated && locallyUpdated) {
         status.setMessage(`Uploading ${file.path}, please wait...`);
         file.status = 'updated';
-        results.push(file.upload());
+        results.push(file.update());
       } else if (lf && !fileTime) {
         file.status = 'deleted';
         if (rf) {
@@ -507,7 +511,7 @@ export default class Wapp {
           file.deleteLocal();
         }
       }
-      if (file.status) {
+      if (file.status !== 'unknown') {
         updateFiles.push(file);
       }
     }

@@ -1,6 +1,5 @@
 import HTTP from './util/http';
 import tui from './util/tui';
-import { getFilePath } from './util/helpers';
 import Model from './model';
 import File from './file';
 import { Version21 } from './types/application.d';

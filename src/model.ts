@@ -6,7 +6,7 @@ import tui from './util/tui';
 import { Meta21 } from './types/application.d';
 
 export default class Model {
-  meta: Meta21 = { id: '', type: '', version: '2.1', revision: 1 };
+  meta: Meta21 = { id: '', type: '', version: '2.1', revision: 1, updated: '' };
   HOST: string;
   cacheFolder: string;
 
@@ -38,7 +38,7 @@ export default class Model {
     tui.trace('model', 'toJSON', this);
     const meta = Object.assign(
       {},
-      pick(this.meta, ['id', 'type', 'version', 'revision'])
+      pick(this.meta, ['id', 'type', 'version', 'revision', 'updated'])
     );
     const json = Object.assign(
       { meta: meta },
@@ -50,7 +50,7 @@ export default class Model {
   parse(data: any): void {
     tui.trace('model', 'parse', data);
     try {
-        Object.assign(this, pick(data, this.getAttributes().concat(['meta'])));
+      Object.assign(this, pick(data, this.getAttributes().concat(['meta'])));
     } catch (e: any) {
       console.log(e);
     }
@@ -67,12 +67,11 @@ export default class Model {
 
   load(): void {
     tui.trace('model', 'load');
-      let data = loadFile(`${this.cacheFolder}${this.meta.type}`);
-      if (data) {
-          try {
-              data = JSON.parse(data);
-          } catch(e) {
-          }
+    let data = loadFile(`${this.cacheFolder}${this.meta.type}`);
+    if (data) {
+      try {
+        data = JSON.parse(data);
+      } catch (e) {}
       this.parse(data);
     }
   }

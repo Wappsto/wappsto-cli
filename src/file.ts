@@ -36,7 +36,7 @@ export default class File extends Model implements File21 {
   }
 
   get use(): string {
-    let use = '';
+    let use = '/tmp';
     ['foreground', 'background', 'icon', 'widget'].forEach((type) => {
       if (this.parent.used_files[type]?.includes(this.id)) {
         use = type;

@@ -17,6 +17,12 @@ const optionDefinitions = [
     type: Boolean,
   },
   {
+    name: 'debug',
+    description: 'Enable debug output.',
+    alias: 'd',
+    type: Boolean,
+  },
+  {
     name: 'quiet',
     description: 'Do not print the header.',
     alias: 'q',
@@ -61,12 +67,15 @@ export default async function Delete(argv: string[]) {
     return;
   }
 
+  tui.debug = options.debug;
+  tui.verbose = options.verbose;
+
   try {
     if (!options.quiet) {
       await tui.header('Delete Wapp');
     }
 
-    const wapp = new Wapp(options.verbose);
+    const wapp = new Wapp();
     if (wapp.present()) {
       await wapp.init();
       await wapp.delete();

@@ -7,6 +7,7 @@ import packageJson from '../../package.json';
 
 class Tui {
   traceEnabled: boolean = false;
+  debug: boolean = false;
   verbose: boolean = false;
   blocked?: string[];
 
@@ -82,7 +83,7 @@ class Tui {
   }
 
   showTraffic(method: string, url: string, input: any, output: any): void {
-    if (this.verbose) {
+    if (this.debug) {
       this.clear();
 
       if (input.password) {
@@ -91,8 +92,20 @@ class Tui {
       this.write(
         `${yellow('T')} ${yellow('HTTP')} - ${green(method)} ${blue(url)}`
       );
-      this.write(`: ${JSON.stringify(input)}`);
-      this.write(` ${yellow('=>')} ${JSON.stringify(output)}`);
+      this.write(': ');
+      try {
+        this.write(JSON.stringify(input));
+      } catch (e) {
+        console.log(input);
+        this.write(red('Circular Structure'));
+      }
+      this.write(` ${yellow('=>')} `);
+      try {
+        this.write(JSON.stringify(output));
+      } catch (e) {
+        console.log(output);
+        this.write(red('Circular Structure'));
+      }
       this.write('\n');
     }
   }
@@ -102,6 +115,18 @@ class Tui {
       this.clear();
 
       this.write(`${yellow('I')} ${yellow(type)} - ${green(msg)}`);
+      if (data) {
+        this.write(` => ${JSON.stringify(data)}`);
+      }
+      this.write('\n');
+    }
+  }
+
+  showDebug(type: string, msg: string, data?: any): void {
+    if (this.debug) {
+      this.clear();
+
+      this.write(`${yellow('D')} ${blue(type)} - ${green(msg)}`);
       if (data) {
         this.write(` => ${JSON.stringify(data)}`);
       }

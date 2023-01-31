@@ -66,9 +66,7 @@ describe('Create', () => {
 
     await create([]);
 
-    const application_file = loadJsonFile(
-      `${Config.cacheFolder()}/application`
-    );
+    const application_file = loadJsonFile(`${Config.cacheFolder()}application`);
 
     expect(mockedAxios.get).toHaveBeenCalledTimes(2);
     expect(mockedAxios.get).toHaveBeenNthCalledWith(
@@ -119,6 +117,7 @@ describe('Create', () => {
         revision: 1,
         type: 'application',
         version: '2.1',
+        updated: '2023-01-24T09:53:15.128304Z',
       },
       name: 'Wapp name',
       version: [
@@ -128,6 +127,7 @@ describe('Create', () => {
             revision: 1,
             type: 'version',
             version: '2.1',
+            updated: '2023-01-24T09:53:15.128304Z',
           },
           author: 'Wapp Author',
           status: 'idle',
@@ -185,15 +185,14 @@ describe('Create', () => {
 
     await create([]);
 
-    const application_file = loadJsonFile(
-      `${Config.cacheFolder()}/application`
-    );
+    const application_file = loadJsonFile(`${Config.cacheFolder()}application`);
     expect(application_file).toEqual({
       meta: {
         id: '866ee500-6c8d-4ccb-a41e-ace97c7b2243',
         revision: 1,
         type: 'application',
         version: '2.1',
+        updated: '2021-05-07T09:43:01.527582Z',
       },
       name: 'Wapp name',
       version: [
@@ -203,6 +202,7 @@ describe('Create', () => {
             revision: 1,
             type: 'version',
             version: '2.1',
+            updated: '2021-05-07T09:45:19.194614Z',
           },
           author: 'Wapp Author',
           description: {
@@ -217,36 +217,39 @@ describe('Create', () => {
           status: 'idle',
           name: 'Wapp name',
           file: [
-            {
+            expect.objectContaining({
               meta: {
                 id: 'e3bd2eeb-c8cd-47f4-bd3a-825cd62fbcd4',
                 revision: 7,
                 type: 'file',
                 version: '2.1',
+                updated: '2021-05-11T08:08:57.524593Z',
               },
               name: 'index.html',
               type: 'text/html',
-            },
-            {
+            }),
+            expect.objectContaining({
               meta: {
                 id: '0cb9cb4f-73ec-468c-a8e5-b88a8bd13fe9',
                 revision: 6,
                 type: 'file',
                 version: '2.1',
+                updated: '2021-05-07T09:45:19.355056Z',
               },
               name: 'main.js',
               type: 'application/javascript',
-            },
-            {
+            }),
+            expect.objectContaining({
               meta: {
                 id: 'cbfcd17f-7690-4670-8567-241d00c01c61',
                 revision: 6,
                 type: 'file',
                 version: '2.1',
+                updated: '2021-05-07T09:45:19.350774Z',
               },
               name: 'package.json',
               type: 'text/json',
-            },
+            }),
           ],
           used_files: {},
         },

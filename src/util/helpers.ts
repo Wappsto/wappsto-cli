@@ -74,7 +74,13 @@ export function getFilePath(use: string): string {
   }
 }
 
-export function compareVersions(oldVersion: any, newVersion: any): boolean {
+export function compareVersions(
+  oldVersion: Record<string, any>,
+  newVersion: Record<string, any>
+): boolean {
+  if (!oldVersion || !newVersion) {
+    return false;
+  }
   const keys = Object.keys(oldVersion);
   for (let i = 0; i < keys.length; i += 1) {
     const key = keys[i];

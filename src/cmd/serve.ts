@@ -40,6 +40,12 @@ const optionDefinitions = [
     type: Boolean,
   },
   {
+    name: 'debug',
+    description: 'Enable debug output.',
+    alias: 'd',
+    type: Boolean,
+  },
+  {
     name: 'remote',
     description: 'Run the background wapp on the server',
     alias: 'r',
@@ -95,6 +101,13 @@ export default async function serve(argv: string[]) {
   if (options.help) {
     process.stdout.write(commandLineUsage(sections));
     return;
+  }
+
+  tui.debug = options.debug;
+  tui.verbose = options.verbose;
+
+  if (!options.quiet) {
+    await tui.header('Serve Wapp');
   }
 
   let wapp: Wapp;
@@ -346,11 +359,7 @@ export default async function serve(argv: string[]) {
     });
   }
 
-  if (!options.quiet) {
-    await tui.header('Serve Wapp');
-  }
-
-  wapp = new Wapp(options.verbose, options.remote || false);
+  wapp = new Wapp(options.remote || false);
 
   if (!wapp.present()) {
     tui.showError('No Wapp found in current folder');

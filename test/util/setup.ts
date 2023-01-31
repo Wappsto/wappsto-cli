@@ -46,19 +46,19 @@ export function teardown() {
 }
 
 export function createWapp() {
-    saveJsonFile('manifest.json', {
-      name: 'Wapp name',
-      author: 'Wapp Author',
-      version_app: '1.2.3',
-      supported_features: ['foreground'],
-      max_number_installation: 1,
-      description: {
-        general: 'Wapp description',
-        foreground: 'Wapp Foreground',
-        version: '',
-        widget: '',
-      },
-    });
+  saveJsonFile('manifest.json', {
+    name: 'Wapp name',
+    author: 'Wapp Author',
+    version_app: '1.2.3',
+    supported_features: ['foreground'],
+    max_number_installation: 1,
+    description: {
+      general: 'Wapp description',
+      foreground: 'Wapp Foreground',
+      version: '',
+      widget: '',
+    },
+  });
 
   saveJsonFile(`${Config.cacheFolder()}application`, {
     meta: {
