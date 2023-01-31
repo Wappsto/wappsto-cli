@@ -1,13 +1,9 @@
-import { createWriteStream, createReadStream } from 'fs';
-import FormData from 'form-data';
 import HTTP from './util/http';
 import Spinner from './util/spinner';
 import tui from './util/tui';
 import questions from './util/questions';
-import { createFolders, saveFile } from './util/files';
 import Config from './config';
 import Session from './session';
-import { getFileName, getFileUse, snooze } from './util/helpers';
 
 export default class Wappsto {
   HOST: string;
@@ -41,138 +37,6 @@ export default class Wappsto {
     } catch (err) {
       status.stop();
       throw new Error('LoginError');
-    }
-  }
-
-  async downloadFile(url: string, path: string): Promise<void> {
-    createFolders(path);
-
-    const response = await HTTP.get(`${this.HOST}/files/${url}`, {
-      responseType: 'stream',
-    });
-
-    if (response && response.data) {
-      /* istanbul ignore if */
-      if (response.data.pipe) {
-        const writer = createWriteStream(path);
-        response.data.pipe(writer);
-        return new Promise((resolve, reject) => {
-          writer.on('finish', resolve);
-          writer.on('error', reject);
-        });
-      }
-      saveFile(path, response.data);
-
-      return;
-    }
-
-    throw new Error('Failed to download file');
-  }
-
-  async createFile(
-    version: string,
-    file: any,
-    path: string,
-    count: number = 3
-  ): Promise<false | any> {
-    let result = false;
-    try {
-      const response = await HTTP.patch(
-        `${this.HOST}/services/version/${version}`,
-        {
-          meta: {
-            id: version,
-          },
-          file: [file],
-        }
-      );
-      try {
-        let id = '';
-        response.data.file.forEach((newFile: any) => {
-          if (newFile.meta && newFile.meta.id) {
-            if (
-              newFile.name === getFileName(path) &&
-              newFile.use === getFileUse(path)
-            ) {
-              id = newFile.meta.id;
-            }
-          }
-        });
-        if (id === '') {
-          /* istanbul ignore next */
-          tui.showError(`Failed to find id in new file: ${path}`);
-        } else {
-          result = await this.updateFile(version, id, path);
-        }
-      } catch (err) {
-        /* istanbul ignore next */
-        tui.showError(`Failed to create File: ${path}`, err);
-        /* istanbul ignore next */
-        tui.showError(JSON.stringify(response.data.file));
-      }
-    } catch (err: any) {
-      /* istanbul ignore next */
-      if (err && err.response && err.response.data) {
-        /* istanbul ignore next */
-        switch (err.response.data.code) {
-          case 500235:
-            // File already created
-            break;
-          case 9900071:
-            if (count) {
-              await snooze(500);
-              return this.createFile(version, file, path, count - 1);
-            }
-          // fall through
-          default:
-            /* istanbul ignore next */
-            tui.showError(`Failed to create File: ${path}`, err);
-        }
-      } else {
-        /* istanbul ignore next */
-        tui.showError(`Failed to create File: ${path}`, err);
-      }
-    }
-    return result;
-  }
-
-  async updateFile(
-    version: string,
-    id: string,
-    fileName: string
-  ): Promise<any> {
-    let result = null;
-    try {
-      const data = new FormData();
-      data.append(id, createReadStream(fileName));
-      const response = await HTTP.put(
-        `${this.HOST}/files/version/${version}?verbose=true`,
-        data,
-        {
-          headers: data.getHeaders(),
-        }
-      );
-      result = response.data;
-    } catch (err) {
-      /* istanbul ignore next */
-      tui.showError(`Failed to update File: ${fileName}`, err);
-    }
-    return result;
-  }
-
-  async deleteFile(id: string): Promise<void> {
-    try {
-      await HTTP.delete(`${this.HOST}/services/2.0/file/${id}`);
-    } catch (err: any) {
-      /* istanbul ignore next */
-      switch (err.response.data.code) {
-        case 9900147:
-          // File already deleted
-          break;
-        default:
-          /* istanbul ignore next */
-          tui.showError(`Failed to delete File: ${id}`, err);
-      }
     }
   }
 

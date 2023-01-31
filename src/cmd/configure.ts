@@ -53,11 +53,18 @@ const sections = [
 ];
 
 export default async function configure(argv: string[]) {
-  const options = commandLineArgs(optionDefinitions, { argv });
+      let options;
+  try {
+    options = commandLineArgs(optionDefinitions, { argv });
+  } catch (err: any) {
+    tui.showError(err.message);
+    console.log(commandLineUsage(sections));
+    return;
+  }
 
   if (options.help) {
-    process.stdout.write(commandLineUsage(sections));
-    return 0;
+    console.log(commandLineUsage(sections));
+    return;
   }
 
   tui.debug = options.debug;
