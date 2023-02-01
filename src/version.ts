@@ -41,6 +41,12 @@ export default class Version extends Model implements Version21 {
     widget?: string[];
     [k: string]: string[] | undefined;
   } = {};
+  permission?: {
+    create?: string[];
+    permit_to_send_email?: boolean;
+    permit_to_send_sms?: boolean;
+    [k: string]: unknown;
+  };
 
   file: (File | string)[] = [];
   parent: Model;
@@ -62,6 +68,7 @@ export default class Version extends Model implements Version21 {
       'status',
       'used_files',
       'file',
+      'permission',
     ];
   }
 

@@ -1,5 +1,6 @@
 import prompt from 'prompts';
 import tui from './tui';
+import { Permission } from '../types/custom.d';
 
 class Questions {
   private async ask(questions: any): Promise<any | false> {
@@ -172,7 +173,11 @@ class Questions {
     ]);
   }
 
-  async configureWapp(oauthExternal: any[], oauthClient: any[]): Promise<any> {
+  async configureWapp(
+    oauthExternal: any[],
+    oauthClient: any[],
+    permissions: Permission
+  ): Promise<any> {
     const external = oauthExternal[0] || {};
     const client = oauthClient[0] || {};
 
@@ -184,13 +189,14 @@ class Questions {
         choices: [
           {
             title: 'ExtSync',
+            value: 'extsync',
           },
           {
             title: 'External OAuth',
+            value: 'external_oauth',
           },
-          { title: 'OAuth Client' },
-          // new Inquirer.Separator(),
-          // 'Publish Wapp',
+          { title: 'OAuth Client', value: 'oauth_client' },
+          { title: 'Permissions', value: 'permissions' },
         ],
       },
     ]);
@@ -297,16 +303,45 @@ class Questions {
       },
     ];
 
-    //const publishQuestions = [];
+    const permissionQuestions = [
+      {
+        name: 'create',
+        type: 'multiselect' as const,
+        message: 'What permissions do your wapp need?',
+        choices: [
+          {
+            title: 'Network',
+            value: 'network',
+            selected: true,
+          },
+          { title: 'Data', value: 'data', selected: true },
+          { title: 'stream', value: 'stream', selected: true },
+          { title: 'Analytic', value: 'analytic' },
+          { title: 'Notification', value: 'notification' },
+        ],
+      },
+      {
+        type: 'confirm' as const,
+        name: 'permit_to_send_email',
+        message: 'Do your Wapp need to send email?',
+        initial: false,
+      },
+      {
+        type: 'confirm' as const,
+        name: 'permit_to_send_sms',
+        message: 'Do your Wapp need to send SMS?',
+        initial: false,
+      },
+    ];
 
     switch (type.config) {
-      case 'External OAuth':
+      case 'external_oauth':
         return prompt(oauthExtQuestions);
-      case 'OAuth Client':
+      case 'oauth_client':
         return prompt(oauthClientQuestions);
-      case 'Publish Wapp':
-        return {}; // prompt(publishQuestions);
-      case 'ExtSync':
+      case 'permissions':
+        return prompt(permissionQuestions);
+      case 'extsync':
       default:
         return prompt(extSyncQuestions);
     }

@@ -53,7 +53,7 @@ const sections = [
 ];
 
 export default async function configure(argv: string[]) {
-      let options;
+  let options;
   try {
     options = commandLineArgs(optionDefinitions, { argv });
   } catch (err: any) {

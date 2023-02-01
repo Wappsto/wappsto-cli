@@ -1820,11 +1820,6 @@ function compareVersions(oldVersion, newVersion) {
   }
   return false;
 }
-function snooze(ms) {
-  return new Promise(function (resolve) {
-    setTimeout(resolve, ms);
-  });
-}
 
 var File = /*#__PURE__*/function (_Model) {
   _inheritsLoose(File, _Model);
@@ -2006,6 +2001,7 @@ var Version = /*#__PURE__*/function (_Model) {
     _this.description = void 0;
     _this.status = 'idle';
     _this.used_files = {};
+    _this.permission = void 0;
     _this.file = [];
     _this.parent = void 0;
     _this.parse(data);
@@ -2014,7 +2010,7 @@ var Version = /*#__PURE__*/function (_Model) {
   }
   var _proto = Version.prototype;
   _proto.getAttributes = function getAttributes() {
-    return ['name', 'author', 'version_app', 'supported_features', 'max_number_installation', 'description', 'status', 'used_files', 'file'];
+    return ['name', 'author', 'version_app', 'supported_features', 'max_number_installation', 'description', 'status', 'used_files', 'file', 'permission'];
   };
   _proto.parse = function parse(data) {
     var _this2 = this;
@@ -2333,36 +2329,37 @@ var Application = /*#__PURE__*/function (_Model) {
     return getAll;
   }();
   _proto.createOauthExternal = /*#__PURE__*/function () {
-    var _createOauthExternal = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(oauth, externals) {
+    var _createOauthExternal = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(oauth) {
       return _regeneratorRuntime().wrap(function _callee4$(_context4) {
         while (1) switch (_context4.prev = _context4.next) {
           case 0:
-            if (externals === void 0) {
-              externals = [];
-            }
             this.trace('createOauthExternal', oauth);
-            if (!(externals.length === 0)) {
-              _context4.next = 14;
+            if (!(this.oauth_external.length === 0)) {
+              _context4.next = 13;
               break;
             }
-            _context4.prev = 3;
-            _context4.next = 6;
+            _context4.prev = 2;
+            _context4.next = 5;
             return HTTP.post(this.HOST + "/" + this.id + "/oauth_external", oauth);
-          case 6:
+          case 5:
             tui.showMessage('External OAuth created');
-            _context4.next = 12;
+            _context4.next = 11;
             break;
-          case 9:
-            _context4.prev = 9;
-            _context4.t0 = _context4["catch"](3);
+          case 8:
+            _context4.prev = 8;
+            _context4.t0 = _context4["catch"](2);
             tui.showError('Failed to create OAuth External', _context4.t0);
-          case 12:
-            _context4.next = 23;
+          case 11:
+            _context4.next = 26;
             break;
-          case 14:
+          case 13:
+            if (!(typeof this.oauth_external[0] !== 'string')) {
+              _context4.next = 25;
+              break;
+            }
             _context4.prev = 14;
             _context4.next = 17;
-            return HTTP.patch(this.HOST + "/" + this.id + "/oauth_external/" + externals[0].meta.id, oauth);
+            return HTTP.patch(this.HOST + "/" + this.id + "/oauth_external/" + this.oauth_external[0].meta.id, oauth);
           case 17:
             tui.showMessage('External OAuth updated');
             _context4.next = 23;
@@ -2372,12 +2369,17 @@ var Application = /*#__PURE__*/function (_Model) {
             _context4.t1 = _context4["catch"](14);
             tui.showError('Failed to update OAuth External', _context4.t1);
           case 23:
+            _context4.next = 26;
+            break;
+          case 25:
+            tui.showError('Failed to update OAuth External, because old OAuth was not loaded correctly');
+          case 26:
           case "end":
             return _context4.stop();
         }
-      }, _callee4, this, [[3, 9], [14, 20]]);
+      }, _callee4, this, [[2, 8], [14, 20]]);
     }));
-    function createOauthExternal(_x2, _x3) {
+    function createOauthExternal(_x2) {
       return _createOauthExternal.apply(this, arguments);
     }
     return createOauthExternal;
@@ -2432,7 +2434,7 @@ var Application = /*#__PURE__*/function (_Model) {
         }
       }, _callee5, this, [[4, 10], [13, 19]]);
     }));
-    function createOauthClient(_x4) {
+    function createOauthClient(_x3) {
       return _createOauthClient.apply(this, arguments);
     }
     return createOauthClient;
@@ -2443,6 +2445,23 @@ var Application = /*#__PURE__*/function (_Model) {
       file.syncModified();
     });
   };
+  _proto.updatePermissions = /*#__PURE__*/function () {
+    var _updatePermissions = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6(permissions) {
+      return _regeneratorRuntime().wrap(function _callee6$(_context6) {
+        while (1) switch (_context6.prev = _context6.next) {
+          case 0:
+            this.getVersion();
+          case 1:
+          case "end":
+            return _context6.stop();
+        }
+      }, _callee6, this);
+    }));
+    function updatePermissions(_x4) {
+      return _updatePermissions.apply(this, arguments);
+    }
+    return updatePermissions;
+  }();
   return Application;
 }(Model);
 
@@ -2681,8 +2700,8 @@ var Questions = /*#__PURE__*/function () {
     return askForNewWapp;
   }();
   _proto.configureWapp = /*#__PURE__*/function () {
-    var _configureWapp = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(oauthExternal, oauthClient) {
-      var external, client, type, extSyncQuestions, validateEmptyString, oauthExtQuestions, oauthClientQuestions;
+    var _configureWapp = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(oauthExternal, oauthClient, permissions) {
+      var external, client, type, extSyncQuestions, validateEmptyString, oauthExtQuestions, oauthClientQuestions, permissionQuestions;
       return _regeneratorRuntime().wrap(function _callee3$(_context3) {
         while (1) switch (_context3.prev = _context3.next) {
           case 0:
@@ -2697,15 +2716,18 @@ var Questions = /*#__PURE__*/function () {
               type: 'select',
               message: 'What do you want to configure?',
               choices: [{
-                title: 'ExtSync'
+                title: 'ExtSync',
+                value: 'extsync'
               }, {
-                title: 'External OAuth'
+                title: 'External OAuth',
+                value: 'external_oauth'
               }, {
-                title: 'OAuth Client'
-              }
-              // new Inquirer.Separator(),
-              // 'Publish Wapp',
-              ]
+                title: 'OAuth Client',
+                value: 'oauth_client'
+              }, {
+                title: 'Permissions',
+                value: 'permissions'
+              }]
             }]);
           case 5:
             type = _context3.sent;
@@ -2791,25 +2813,59 @@ var Questions = /*#__PURE__*/function () {
               validate: validateEmptyString,
               initial: client.redirect_uri,
               message: 'Redirect Uri:'
-            }]; //const publishQuestions = [];
+            }];
+            permissionQuestions = [{
+              name: 'create',
+              type: 'multiselect',
+              message: 'What permissions do your wapp need?',
+              choices: [{
+                title: 'Network',
+                value: 'network',
+                selected: true
+              }, {
+                title: 'Data',
+                value: 'data',
+                selected: true
+              }, {
+                title: 'stream',
+                value: 'stream',
+                selected: true
+              }, {
+                title: 'Analytic',
+                value: 'analytic'
+              }, {
+                title: 'Notification',
+                value: 'notification'
+              }]
+            }, {
+              type: 'confirm',
+              name: 'permit_to_send_email',
+              message: 'Do your Wapp need to send email?',
+              initial: false
+            }, {
+              type: 'confirm',
+              name: 'permit_to_send_sms',
+              message: 'Do your Wapp need to send SMS?',
+              initial: false
+            }];
             _context3.t0 = type.config;
-            _context3.next = _context3.t0 === 'External OAuth' ? 12 : _context3.t0 === 'OAuth Client' ? 13 : _context3.t0 === 'Publish Wapp' ? 14 : _context3.t0 === 'ExtSync' ? 15 : 15;
+            _context3.next = _context3.t0 === 'external_oauth' ? 13 : _context3.t0 === 'oauth_client' ? 14 : _context3.t0 === 'permissions' ? 15 : _context3.t0 === 'extsync' ? 16 : 16;
             break;
-          case 12:
-            return _context3.abrupt("return", prompt(oauthExtQuestions));
           case 13:
-            return _context3.abrupt("return", prompt(oauthClientQuestions));
+            return _context3.abrupt("return", prompt(oauthExtQuestions));
           case 14:
-            return _context3.abrupt("return", {});
+            return _context3.abrupt("return", prompt(oauthClientQuestions));
           case 15:
-            return _context3.abrupt("return", prompt(extSyncQuestions));
+            return _context3.abrupt("return", prompt(permissionQuestions));
           case 16:
+            return _context3.abrupt("return", prompt(extSyncQuestions));
+          case 17:
           case "end":
             return _context3.stop();
         }
       }, _callee3);
     }));
-    function configureWapp(_x4, _x5) {
+    function configureWapp(_x4, _x5, _x6) {
       return _configureWapp.apply(this, arguments);
     }
     return configureWapp;
@@ -3063,230 +3119,19 @@ var Wappsto = /*#__PURE__*/function () {
     }
     return login;
   }();
-  _proto.downloadFile = /*#__PURE__*/function () {
-    var _downloadFile = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(url, path) {
-      var response, writer;
-      return _regeneratorRuntime().wrap(function _callee2$(_context2) {
-        while (1) switch (_context2.prev = _context2.next) {
-          case 0:
-            createFolders(path);
-            _context2.next = 3;
-            return HTTP.get(this.HOST + "/files/" + url, {
-              responseType: 'stream'
-            });
-          case 3:
-            response = _context2.sent;
-            if (!(response && response.data)) {
-              _context2.next = 11;
-              break;
-            }
-            if (!response.data.pipe) {
-              _context2.next = 9;
-              break;
-            }
-            writer = createWriteStream(path);
-            response.data.pipe(writer);
-            return _context2.abrupt("return", new Promise(function (resolve, reject) {
-              writer.on('finish', resolve);
-              writer.on('error', reject);
-            }));
-          case 9:
-            saveFile(path, response.data);
-            return _context2.abrupt("return");
-          case 11:
-            throw new Error('Failed to download file');
-          case 12:
-          case "end":
-            return _context2.stop();
-        }
-      }, _callee2, this);
-    }));
-    function downloadFile(_x, _x2) {
-      return _downloadFile.apply(this, arguments);
-    }
-    return downloadFile;
-  }();
-  _proto.createFile = /*#__PURE__*/function () {
-    var _createFile = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(version, file, path, count) {
-      var result, response, id;
+  _proto.updateACL = /*#__PURE__*/function () {
+    var _updateACL = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(id, addID, create, method) {
+      var _this = this;
+      var methods;
       return _regeneratorRuntime().wrap(function _callee3$(_context3) {
         while (1) switch (_context3.prev = _context3.next) {
           case 0:
-            if (count === void 0) {
-              count = 3;
-            }
-            result = false;
-            _context3.prev = 2;
-            _context3.next = 5;
-            return HTTP.patch(this.HOST + "/services/version/" + version, {
-              meta: {
-                id: version
-              },
-              file: [file]
-            });
-          case 5:
-            response = _context3.sent;
-            _context3.prev = 6;
-            id = '';
-            response.data.file.forEach(function (newFile) {
-              if (newFile.meta && newFile.meta.id) {
-                if (newFile.name === getFileName(path) && newFile.use === getFileUse(path)) {
-                  id = newFile.meta.id;
-                }
-              }
-            });
-            if (!(id === '')) {
-              _context3.next = 13;
-              break;
-            }
-            /* istanbul ignore next */
-            tui.showError("Failed to find id in new file: " + path);
-            _context3.next = 16;
-            break;
-          case 13:
-            _context3.next = 15;
-            return this.updateFile(version, id, path);
-          case 15:
-            result = _context3.sent;
-          case 16:
-            _context3.next = 22;
-            break;
-          case 18:
-            _context3.prev = 18;
-            _context3.t0 = _context3["catch"](6);
-            /* istanbul ignore next */
-            tui.showError("Failed to create File: " + path, _context3.t0);
-            /* istanbul ignore next */
-            tui.showError(JSON.stringify(response.data.file));
-          case 22:
-            _context3.next = 39;
-            break;
-          case 24:
-            _context3.prev = 24;
-            _context3.t1 = _context3["catch"](2);
-            if (!(_context3.t1 && _context3.t1.response && _context3.t1.response.data)) {
-              _context3.next = 38;
-              break;
-            }
-            _context3.t2 = _context3.t1.response.data.code;
-            _context3.next = _context3.t2 === 500235 ? 30 : _context3.t2 === 9900071 ? 31 : 35;
-            break;
-          case 30:
-            return _context3.abrupt("break", 36);
-          case 31:
-            if (!count) {
-              _context3.next = 35;
-              break;
-            }
-            _context3.next = 34;
-            return snooze(500);
-          case 34:
-            return _context3.abrupt("return", this.createFile(version, file, path, count - 1));
-          case 35:
-            /* istanbul ignore next */
-            tui.showError("Failed to create File: " + path, _context3.t1);
-          case 36:
-            _context3.next = 39;
-            break;
-          case 38:
-            /* istanbul ignore next */
-            tui.showError("Failed to create File: " + path, _context3.t1);
-          case 39:
-            return _context3.abrupt("return", result);
-          case 40:
-          case "end":
-            return _context3.stop();
-        }
-      }, _callee3, this, [[2, 24], [6, 18]]);
-    }));
-    function createFile(_x3, _x4, _x5, _x6) {
-      return _createFile.apply(this, arguments);
-    }
-    return createFile;
-  }();
-  _proto.updateFile = /*#__PURE__*/function () {
-    var _updateFile = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(version, id, fileName) {
-      var result, data, response;
-      return _regeneratorRuntime().wrap(function _callee4$(_context4) {
-        while (1) switch (_context4.prev = _context4.next) {
-          case 0:
-            result = null;
-            _context4.prev = 1;
-            data = new FormData();
-            data.append(id, createReadStream(fileName));
-            _context4.next = 6;
-            return HTTP.put(this.HOST + "/files/version/" + version + "?verbose=true", data, {
-              headers: data.getHeaders()
-            });
-          case 6:
-            response = _context4.sent;
-            result = response.data;
-            _context4.next = 13;
-            break;
-          case 10:
-            _context4.prev = 10;
-            _context4.t0 = _context4["catch"](1);
-            /* istanbul ignore next */
-            tui.showError("Failed to update File: " + fileName, _context4.t0);
-          case 13:
-            return _context4.abrupt("return", result);
-          case 14:
-          case "end":
-            return _context4.stop();
-        }
-      }, _callee4, this, [[1, 10]]);
-    }));
-    function updateFile(_x7, _x8, _x9) {
-      return _updateFile.apply(this, arguments);
-    }
-    return updateFile;
-  }();
-  _proto.deleteFile = /*#__PURE__*/function () {
-    var _deleteFile = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(id) {
-      return _regeneratorRuntime().wrap(function _callee5$(_context5) {
-        while (1) switch (_context5.prev = _context5.next) {
-          case 0:
-            _context5.prev = 0;
-            _context5.next = 3;
-            return HTTP["delete"](this.HOST + "/services/2.0/file/" + id);
-          case 3:
-            _context5.next = 12;
-            break;
-          case 5:
-            _context5.prev = 5;
-            _context5.t0 = _context5["catch"](0);
-            _context5.t1 = _context5.t0.response.data.code;
-            _context5.next = _context5.t1 === 9900147 ? 10 : 11;
-            break;
-          case 10:
-            return _context5.abrupt("break", 12);
-          case 11:
-            /* istanbul ignore next */
-            tui.showError("Failed to delete File: " + id, _context5.t0);
-          case 12:
-          case "end":
-            return _context5.stop();
-        }
-      }, _callee5, this, [[0, 5]]);
-    }));
-    function deleteFile(_x10) {
-      return _deleteFile.apply(this, arguments);
-    }
-    return deleteFile;
-  }();
-  _proto.updateACL = /*#__PURE__*/function () {
-    var _updateACL = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee7(id, addID, create, method) {
-      var _this = this;
-      var methods;
-      return _regeneratorRuntime().wrap(function _callee7$(_context7) {
-        while (1) switch (_context7.prev = _context7.next) {
-          case 0:
-            _context7.prev = 0;
+            _context3.prev = 0;
             methods = {};
             method.forEach(function (m) {
               methods[m] = true;
             });
-            _context7.next = 5;
+            _context3.next = 5;
             return HTTP.patch(this.HOST + "/services/2.0/acl?propagate=true&id=[" + id + "]", {
               permission: [{
                 meta: {
@@ -3299,130 +3144,130 @@ var Wappsto = /*#__PURE__*/function () {
               }]
             });
           case 5:
-            _context7.next = 15;
+            _context3.next = 15;
             break;
           case 7:
-            _context7.prev = 7;
-            _context7.t0 = _context7["catch"](0);
-            _context7.t1 = _context7.t0.response.data.code;
-            _context7.next = _context7.t1 === 9900071 ? 12 : 14;
+            _context3.prev = 7;
+            _context3.t0 = _context3["catch"](0);
+            _context3.t1 = _context3.t0.response.data.code;
+            _context3.next = _context3.t1 === 9900071 ? 12 : 14;
             break;
           case 12:
             /* istanbul ignore next */
-            setTimeout( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6() {
-              return _regeneratorRuntime().wrap(function _callee6$(_context6) {
-                while (1) switch (_context6.prev = _context6.next) {
+            setTimeout( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
+              return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+                while (1) switch (_context2.prev = _context2.next) {
                   case 0:
-                    _context6.next = 2;
+                    _context2.next = 2;
                     return _this.updateACL(id, addID, create, method);
                   case 2:
                   case "end":
-                    return _context6.stop();
+                    return _context2.stop();
                 }
-              }, _callee6);
+              }, _callee2);
             })), 100);
-            return _context7.abrupt("break", 15);
+            return _context3.abrupt("break", 15);
           case 14:
             /* istanbul ignore next */
-            tui.showError('Failed to update ACL', _context7.t0);
+            tui.showError('Failed to update ACL', _context3.t0);
           case 15:
           case "end":
-            return _context7.stop();
+            return _context3.stop();
         }
-      }, _callee7, this, [[0, 7]]);
+      }, _callee3, this, [[0, 7]]);
     }));
-    function updateACL(_x11, _x12, _x13, _x14) {
+    function updateACL(_x, _x2, _x3, _x4) {
       return _updateACL.apply(this, arguments);
     }
     return updateACL;
   }();
   _proto.updateACLRestriction = /*#__PURE__*/function () {
-    var _updateACLRestriction = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee8(id, collection) {
+    var _updateACLRestriction = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(id, collection) {
       var aclResponse, aclRestriction;
-      return _regeneratorRuntime().wrap(function _callee8$(_context8) {
-        while (1) switch (_context8.prev = _context8.next) {
+      return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+        while (1) switch (_context4.prev = _context4.next) {
           case 0:
-            _context8.prev = 0;
-            _context8.next = 3;
+            _context4.prev = 0;
+            _context4.next = 3;
             return HTTP.get(this.HOST + "/services/2.0/acl/" + id + "/permission/" + id);
           case 3:
-            aclResponse = _context8.sent;
+            aclResponse = _context4.sent;
             aclRestriction = aclResponse.data.installation;
             if (!aclRestriction[0].create.includes(collection)) {
-              _context8.next = 7;
+              _context4.next = 7;
               break;
             }
-            return _context8.abrupt("return");
+            return _context4.abrupt("return");
           case 7:
             // Append the new service to the acl restriction for the installation
             aclRestriction[0].create.push(collection);
-            _context8.next = 10;
+            _context4.next = 10;
             return HTTP.patch(this.HOST + "/services/2.0/acl/" + id + "/permission/" + id + "?propagate=true", {
               restriction: aclRestriction
             });
           case 10:
-            _context8.next = 15;
+            _context4.next = 15;
             break;
           case 12:
-            _context8.prev = 12;
-            _context8.t0 = _context8["catch"](0);
+            _context4.prev = 12;
+            _context4.t0 = _context4["catch"](0);
             /* istanbul ignore next */
-            tui.showError('Failed to update ACL Restriction', _context8.t0);
+            tui.showError('Failed to update ACL Restriction', _context4.t0);
           case 15:
           case "end":
-            return _context8.stop();
+            return _context4.stop();
         }
-      }, _callee8, this, [[0, 12]]);
+      }, _callee4, this, [[0, 12]]);
     }));
-    function updateACLRestriction(_x15, _x16) {
+    function updateACLRestriction(_x5, _x6) {
       return _updateACLRestriction.apply(this, arguments);
     }
     return updateACLRestriction;
   }();
   _proto.find = /*#__PURE__*/function () {
-    var _find = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee9(type, search, method, quantity, notShared) {
+    var _find = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(type, search, method, quantity, notShared) {
       var result, url, response;
-      return _regeneratorRuntime().wrap(function _callee9$(_context9) {
-        while (1) switch (_context9.prev = _context9.next) {
+      return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+        while (1) switch (_context5.prev = _context5.next) {
           case 0:
             result = {};
-            _context9.prev = 1;
+            _context5.prev = 1;
             url = type + "?expand=0&" + search + "&method=[" + method + "]&quantity=" + quantity + "&not_shared_with=" + notShared;
-            _context9.next = 5;
+            _context5.next = 5;
             return HTTP.get(this.HOST + "/services/" + url);
           case 5:
-            response = _context9.sent;
+            response = _context5.sent;
             result = response.data;
-            _context9.next = 12;
+            _context5.next = 12;
             break;
           case 9:
-            _context9.prev = 9;
-            _context9.t0 = _context9["catch"](1);
+            _context5.prev = 9;
+            _context5.t0 = _context5["catch"](1);
             /* istanbul ignore next */
-            tui.showError('Failed to find', _context9.t0);
+            tui.showError('Failed to find', _context5.t0);
           case 12:
-            return _context9.abrupt("return", result);
+            return _context5.abrupt("return", result);
           case 13:
           case "end":
-            return _context9.stop();
+            return _context5.stop();
         }
-      }, _callee9, this, [[1, 9]]);
+      }, _callee5, this, [[1, 9]]);
     }));
-    function find(_x17, _x18, _x19, _x20, _x21) {
+    function find(_x7, _x8, _x9, _x10, _x11) {
       return _find.apply(this, arguments);
     }
     return find;
   }();
   _proto.readNotification = /*#__PURE__*/function () {
-    var _readNotification = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee10(id, status) {
-      return _regeneratorRuntime().wrap(function _callee10$(_context10) {
-        while (1) switch (_context10.prev = _context10.next) {
+    var _readNotification = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6(id, status) {
+      return _regeneratorRuntime().wrap(function _callee6$(_context6) {
+        while (1) switch (_context6.prev = _context6.next) {
           case 0:
             if (status === void 0) {
               status = 'read';
             }
-            _context10.prev = 1;
-            _context10.next = 4;
+            _context6.prev = 1;
+            _context6.next = 4;
             return HTTP.patch(this.HOST + "/services/2.0/notification/" + id, {
               meta: {
                 id: id
@@ -3430,23 +3275,23 @@ var Wappsto = /*#__PURE__*/function () {
               read: status
             });
           case 4:
-            _context10.next = 9;
+            _context6.next = 9;
             break;
           case 6:
-            _context10.prev = 6;
-            _context10.t0 = _context10["catch"](1);
+            _context6.prev = 6;
+            _context6.t0 = _context6["catch"](1);
             /* istanbul ignore next */
-            if (!_context10.t0.response || !_context10.t0.response.data || _context10.t0.response.data.code !== 9900147) {
+            if (!_context6.t0.response || !_context6.t0.response.data || _context6.t0.response.data.code !== 9900147) {
               /* istanbul ignore next */
-              tui.showError('Failed to read notification', _context10.t0);
+              tui.showError('Failed to read notification', _context6.t0);
             }
           case 9:
           case "end":
-            return _context10.stop();
+            return _context6.stop();
         }
-      }, _callee10, this, [[1, 6]]);
+      }, _callee6, this, [[1, 6]]);
     }));
-    function readNotification(_x22, _x23) {
+    function readNotification(_x12, _x13) {
       return _readNotification.apply(this, arguments);
     }
     return readNotification;
@@ -3586,7 +3431,7 @@ var Wapp = /*#__PURE__*/function () {
             status.setMessage('Creating Wapp, please wait...');
             status.start();
             if (this.manifest.meta) {
-              this.manifest = this.saveManifest(this.manifest);
+              this.saveManifest();
             }
             _context3.next = 29;
             return Application.create(this.manifest);
@@ -3603,7 +3448,7 @@ var Wapp = /*#__PURE__*/function () {
             _context3.next = 36;
             return this.installation.create(this.versionID);
           case 36:
-            this.manifest = this.saveApplication();
+            this.saveApplication();
             status.stop();
             _context3.next = 40;
             return this.update();
@@ -3841,12 +3686,18 @@ var Wapp = /*#__PURE__*/function () {
   }();
   _proto.saveApplication = function saveApplication() {
     this.application.save();
-    return this.saveManifest(this.application.getVersion());
+    this.saveManifest(this.application.getVersion());
   };
   _proto.saveManifest = function saveManifest(version) {
-    var newVersion = pick(version.toJSON(), ['name', 'author', 'version_app', 'max_number_installation', 'supported_features', 'description', 'permission']);
+    var data;
+    if (version) {
+      data = version.toJSON();
+    } else {
+      data = this.manifest;
+    }
+    var newVersion = pick(data, ['name', 'author', 'version_app', 'max_number_installation', 'supported_features', 'description', 'permission']);
     saveJsonFile('manifest.json', newVersion);
-    return newVersion;
+    this.manifest = newVersion;
   };
   _proto.uploadFile = /*#__PURE__*/function () {
     var _uploadFile = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6(filePath) {
@@ -4165,7 +4016,7 @@ var Wapp = /*#__PURE__*/function () {
   }();
   _proto.configure = /*#__PURE__*/function () {
     var _configure = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee8() {
-      var app, answer;
+      var answer;
       return _regeneratorRuntime().wrap(function _callee8$(_context8) {
         while (1) switch (_context8.prev = _context8.next) {
           case 0:
@@ -4176,21 +4027,24 @@ var Wapp = /*#__PURE__*/function () {
             return _context8.abrupt("return");
           case 2:
             _context8.next = 4;
-            return this.application.get();
+            return this.application.fetch();
           case 4:
-            app = _context8.sent;
-            _context8.next = 7;
-            return questions.configureWapp(app.oauth_external, app.oauth_client);
-          case 7:
+            _context8.next = 6;
+            return questions.configureWapp(this.application.oauth_external, this.application.oauth_client, this.manifest.permission);
+          case 6:
             answer = _context8.sent;
             if (answer.extsync) {
               this.installation.setExtSync(answer.extsync);
             } else if (answer.api_site) {
-              this.application.createOauthExternal(answer, app.oauth_external);
+              this.application.createOauthExternal(answer);
             } else if (answer.redirect_uri) {
               this.application.createOauthClient(answer);
+            } else if (answer.create) {
+              this.manifest.permission = answer;
+              this.saveManifest();
+              this.application.getVersion().permission = answer;
             }
-          case 9:
+          case 8:
           case "end":
             return _context8.stop();
         }
@@ -4345,7 +4199,9 @@ var Wapp = /*#__PURE__*/function () {
             _context12.next = 14;
             return this.openStream();
           case 14:
-            setTimeout(tmp.close.bind(tmp), 2000);
+            if (tmp) {
+              setTimeout(tmp.close.bind(tmp), 2000);
+            }
           case 15:
             if (data.log) {
               tui.showStatus(data.log);
@@ -4875,7 +4731,7 @@ function _update() {
         case 23:
           files = _context.sent;
           files.forEach(function (f) {
-            tui.showMessage(f.name + " was " + f.status);
+            tui.showMessage(f.path + " was " + f.status);
           });
           _context.next = 30;
           break;
@@ -5037,40 +4893,50 @@ function _configure() {
     return _regeneratorRuntime().wrap(function _callee$(_context) {
       while (1) switch (_context.prev = _context.next) {
         case 0:
+          _context.prev = 0;
           options = commandLineArgs(optionDefinitions$1, {
             argv: argv
           });
+          _context.next = 9;
+          break;
+        case 4:
+          _context.prev = 4;
+          _context.t0 = _context["catch"](0);
+          tui.showError(_context.t0.message);
+          console.log(commandLineUsage(sections$2));
+          return _context.abrupt("return");
+        case 9:
           if (!options.help) {
-            _context.next = 4;
+            _context.next = 12;
             break;
           }
-          process.stdout.write(commandLineUsage(sections$2));
-          return _context.abrupt("return", 0);
-        case 4:
+          console.log(commandLineUsage(sections$2));
+          return _context.abrupt("return");
+        case 12:
           tui.debug = options.debug;
           tui.verbose = options.verbose;
           if (!options.quiet) {
             tui.header('Configure Wapp');
           }
-          _context.prev = 7;
-          wapp = new Wapp();
-          _context.next = 11;
-          return wapp.init();
-        case 11:
-          _context.next = 13;
-          return wapp.configure();
-        case 13:
-          _context.next = 18;
-          break;
-        case 15:
           _context.prev = 15;
-          _context.t0 = _context["catch"](7);
-          tui.showError('Run error', _context.t0);
-        case 18:
+          wapp = new Wapp();
+          _context.next = 19;
+          return wapp.init();
+        case 19:
+          _context.next = 21;
+          return wapp.configure();
+        case 21:
+          _context.next = 26;
+          break;
+        case 23:
+          _context.prev = 23;
+          _context.t1 = _context["catch"](15);
+          tui.showError('Run error', _context.t1);
+        case 26:
         case "end":
           return _context.stop();
       }
-    }, _callee, null, [[7, 15]]);
+    }, _callee, null, [[0, 4], [15, 23]]);
   }));
   return _configure.apply(this, arguments);
 }
@@ -5419,58 +5285,68 @@ function _serve() {
             }
             return true;
           };
+          _context7.prev = 9;
           options = commandLineArgs(optionDefinitions, {
             argv: argv
           });
+          _context7.next = 18;
+          break;
+        case 13:
+          _context7.prev = 13;
+          _context7.t0 = _context7["catch"](9);
+          tui.showError(_context7.t0.message);
+          console.log(commandLineUsage(sections$1));
+          return _context7.abrupt("return");
+        case 18:
           if (!options.help) {
-            _context7.next = 13;
+            _context7.next = 21;
             break;
           }
-          process.stdout.write(commandLineUsage(sections$1));
+          console.log(commandLineUsage(sections$1));
           return _context7.abrupt("return");
-        case 13:
+        case 21:
           tui.debug = options.debug;
           tui.verbose = options.verbose;
           if (options.quiet) {
-            _context7.next = 18;
+            _context7.next = 26;
             break;
           }
-          _context7.next = 18;
+          _context7.next = 26;
           return tui.header('Serve Wapp');
-        case 18:
+        case 26:
           wapp = new Wapp(options.remote || false);
           if (wapp.present()) {
-            _context7.next = 22;
+            _context7.next = 30;
             break;
           }
           tui.showError('No Wapp found in current folder');
           return _context7.abrupt("return");
-        case 22:
-          _context7.prev = 22;
-          _context7.next = 25;
+        case 30:
+          _context7.prev = 30;
+          _context7.next = 33;
           return wapp.init();
-        case 25:
+        case 33:
           if (!(wapp.hasBackground && options.reinstall)) {
-            _context7.next = 28;
+            _context7.next = 36;
             break;
           }
-          _context7.next = 28;
+          _context7.next = 36;
           return wapp.installation.reinstall();
-        case 28:
-          _context7.next = 30;
+        case 36:
+          _context7.next = 38;
           return wapp.getInstallationSession();
-        case 30:
+        case 38:
           sessionID = _context7.sent;
           if (sessionID) {
-            _context7.next = 33;
+            _context7.next = 41;
             break;
           }
           return _context7.abrupt("return");
-        case 33:
+        case 41:
           tokenID = wapp.getInstallationToken();
-          _context7.next = 36;
+          _context7.next = 44;
           return wapp.openStream();
-        case 36:
+        case 44:
           if (wapp.hasForeground) {
             if (isForegroundPresent()) {
               startForegroundServer(sessionID, tokenID);
@@ -5479,62 +5355,62 @@ function _serve() {
             }
           }
           if (!wapp.hasBackground) {
-            _context7.next = 57;
+            _context7.next = 65;
             break;
           }
           if (!isBackgroundPresent()) {
-            _context7.next = 56;
+            _context7.next = 64;
             break;
           }
           if (!options.remote) {
-            _context7.next = 47;
+            _context7.next = 55;
             break;
           }
-          _context7.next = 42;
+          _context7.next = 50;
           return wapp.update();
-        case 42:
+        case 50:
           backgroundFiles = _context7.sent;
           backgroundFiles.forEach(function (f) {
             tui.showMessage(f.name + " was " + f.status);
           });
           startRemoteBackgroundRunner();
-          _context7.next = 54;
+          _context7.next = 62;
           break;
-        case 47:
-          _context7.next = 49;
+        case 55:
+          _context7.next = 57;
           return wapp.installation.stop();
-        case 49:
+        case 57:
           if (!_context7.sent) {
-            _context7.next = 53;
+            _context7.next = 61;
             break;
           }
           startLocalBackgroundRunner(sessionID, tokenID);
-          _context7.next = 54;
+          _context7.next = 62;
           break;
-        case 53:
+        case 61:
           tui.showError('Failed to stop the background runner on the server. Not starting background runner');
-        case 54:
-          _context7.next = 57;
+        case 62:
+          _context7.next = 65;
           break;
-        case 56:
+        case 64:
           tui.showWarning('No background files found, local background runner is not started');
-        case 57:
-          _context7.next = 63;
+        case 65:
+          _context7.next = 71;
           break;
-        case 59:
-          _context7.prev = 59;
-          _context7.t0 = _context7["catch"](22);
-          if (_context7.t0.message === 'LoginError') {
+        case 67:
+          _context7.prev = 67;
+          _context7.t1 = _context7["catch"](30);
+          if (_context7.t1.message === 'LoginError') {
             tui.showError('Failed to Login, please try again.');
           } else {
-            tui.showError('Run error', _context7.t0);
+            tui.showError('Run error', _context7.t1);
           }
           return _context7.abrupt("return");
-        case 63:
+        case 71:
         case "end":
           return _context7.stop();
       }
-    }, _callee7, null, [[22, 59]]);
+    }, _callee7, null, [[9, 13], [30, 67]]);
   }));
   return _serve.apply(this, arguments);
 }

@@ -138,9 +138,9 @@ export default class Application extends Model implements Application21 {
     return result;
   }
 
-  async createOauthExternal(oauth: any, externals: any[] = []): Promise<void> {
+  async createOauthExternal(oauth: any): Promise<void> {
     this.trace('createOauthExternal', oauth);
-    if (externals.length === 0) {
+    if (this.oauth_external.length === 0) {
       try {
         await HTTP.post(`${this.HOST}/${this.id}/oauth_external`, oauth);
         tui.showMessage('External OAuth created');
@@ -148,14 +148,20 @@ export default class Application extends Model implements Application21 {
         tui.showError('Failed to create OAuth External', err);
       }
     } else {
-      try {
-        await HTTP.patch(
-          `${this.HOST}/${this.id}/oauth_external/${externals[0].meta.id}`,
-          oauth
+      if (typeof this.oauth_external[0] !== 'string') {
+        try {
+          await HTTP.patch(
+            `${this.HOST}/${this.id}/oauth_external/${this.oauth_external[0].meta.id}`,
+            oauth
+          );
+          tui.showMessage('External OAuth updated');
+        } catch (err) {
+          tui.showError('Failed to update OAuth External', err);
+        }
+      } else {
+        tui.showError(
+          'Failed to update OAuth External, because old OAuth was not loaded correctly'
         );
-        tui.showMessage('External OAuth updated');
-      } catch (err) {
-        tui.showError('Failed to update OAuth External', err);
       }
     }
   }
@@ -191,5 +197,9 @@ export default class Application extends Model implements Application21 {
     files.forEach((file: File) => {
       file.syncModified();
     });
+  }
+
+  async updatePermissions(permissions: any) {
+    const version = this.getVersion();
   }
 }

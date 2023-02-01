@@ -143,6 +143,11 @@ describe('Create', () => {
           name: 'Wapp name',
           file: [],
           used_files: {},
+          permission: {
+            create: ['data', 'stream'],
+            permit_to_send_email: false,
+            permit_to_send_sms: false,
+          },
         },
       ],
     });
@@ -159,6 +164,11 @@ describe('Create', () => {
         foreground: 'Wapp Foreground',
         version: '',
         widget: '',
+      },
+      permission: {
+        create: ['data', 'stream'],
+        permit_to_send_email: false,
+        permit_to_send_sms: false,
       },
     });
   });
@@ -252,6 +262,11 @@ describe('Create', () => {
             }),
           ],
           used_files: {},
+          permission: {
+            create: ['data', 'stream'],
+            permit_to_send_email: false,
+            permit_to_send_sms: false,
+          },
         },
       ],
     });
@@ -268,6 +283,11 @@ describe('Create', () => {
         foreground: 'Wapp Foreground',
         version: '',
         widget: '',
+      },
+      permission: {
+        create: ['data', 'stream'],
+        permit_to_send_email: false,
+        permit_to_send_sms: false,
       },
     });
 

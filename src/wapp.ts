@@ -37,10 +37,10 @@ export default class Wapp {
   application: Application;
   installation: Installation;
   stream: Stream;
-  manifest: any;
+  manifest: Record<string, any>;
   ignore_file: string;
-  lightStream: any;
-  appStream: any;
+  lightStream?: any;
+  appStream?: any;
   sessionCallback: any;
 
   constructor(remote: boolean = true) {
@@ -149,7 +149,7 @@ export default class Wapp {
         status.start();
 
         if (this.manifest.meta) {
-          this.manifest = this.saveManifest(this.manifest);
+          this.saveManifest();
         }
 
         new_app = await Application.create(this.manifest);
@@ -160,7 +160,7 @@ export default class Wapp {
         this.application = new_app;
 
         await this.installation.create(this.versionID);
-        this.manifest = this.saveApplication();
+        this.saveApplication();
         status.stop();
 
         updateFiles = await this.update();
@@ -310,11 +310,17 @@ export default class Wapp {
 
   saveApplication(): any {
     this.application.save();
-    return this.saveManifest(this.application.getVersion());
+    this.saveManifest(this.application.getVersion());
   }
 
-  saveManifest(version: Version): any {
-    const newVersion = pick(version.toJSON(), [
+  saveManifest(version?: Version): void {
+    let data;
+    if (version) {
+      data = version.toJSON();
+    } else {
+      data = this.manifest;
+    }
+    const newVersion = pick(data, [
       'name',
       'author',
       'version_app',
@@ -324,7 +330,7 @@ export default class Wapp {
       'permission',
     ]);
     saveJsonFile('manifest.json', newVersion);
-    return newVersion;
+    this.manifest = newVersion;
   }
 
   async uploadFile(filePath: string): Promise<void> {
@@ -565,18 +571,23 @@ export default class Wapp {
     if (!this.present()) {
       return;
     }
-    const app = await this.application.get();
+    await this.application.fetch();
     const answer = await questions.configureWapp(
-      app.oauth_external,
-      app.oauth_client
+      this.application.oauth_external,
+      this.application.oauth_client,
+      this.manifest.permission
     );
 
     if (answer.extsync) {
       this.installation.setExtSync(answer.extsync);
     } else if (answer.api_site) {
-      this.application.createOauthExternal(answer, app.oauth_external);
+      this.application.createOauthExternal(answer);
     } else if (answer.redirect_uri) {
       this.application.createOauthClient(answer);
+    } else if (answer.create) {
+      this.manifest.permission = answer;
+      this.saveManifest();
+      this.application.getVersion().permission = answer;
     }
   }
 
@@ -657,7 +668,9 @@ export default class Wapp {
         const tmp = this.lightStream;
         this.lightStream = undefined;
         await this.openStream();
-        setTimeout(tmp.close.bind(tmp), 2000);
+        if (tmp) {
+          setTimeout(tmp.close.bind(tmp), 2000);
+        }
       }
       if (data.log) {
         tui.showStatus(data.log);

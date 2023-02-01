@@ -96,7 +96,7 @@ const sections = [
 ];
 
 export default async function serve(argv: string[]) {
-    let options: any;
+  let options: any;
   try {
     options = commandLineArgs(optionDefinitions, { argv });
   } catch (err: any) {
