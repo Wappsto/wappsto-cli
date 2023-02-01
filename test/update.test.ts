@@ -98,7 +98,6 @@ describe('Update', () => {
     expect(mockedAxios.patch).toHaveBeenNthCalledWith(
       1,
       'https://wappsto.com/services/2.1/version/98e68cd8-74a6-4841-bdd4-70c29f068056',
-
       {
         author: 'Wapp Author',
         description: {
@@ -111,6 +110,15 @@ describe('Update', () => {
         name: 'Wapp name',
         supported_features: ['foreground'],
         version_app: '1.2.3',
+        file: [],
+        meta: {
+          id: '98e68cd8-74a6-4841-bdd4-70c29f068056',
+          revision: 1,
+          type: 'version',
+          version: '2.1',
+        },
+        status: 'idle',
+        used_files: {},
       },
       {}
     );

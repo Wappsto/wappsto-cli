@@ -395,7 +395,9 @@ export default class Wapp {
     }
     if (upload) {
       status.setMessage('Updating version, please wait...');
-      if (!(await this.application.getVersion().update(this.manifest))) {
+      const version = this.application.getVersion();
+      version.parse(this.manifest);
+      if (!(await version.update())) {
         status.stop();
         return [];
       }
@@ -588,6 +590,7 @@ export default class Wapp {
       this.manifest.permission = answer;
       this.saveManifest();
       this.application.getVersion().permission = answer;
+      await this.application.getVersion().update();
     }
   }
 

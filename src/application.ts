@@ -198,8 +198,4 @@ export default class Application extends Model implements Application21 {
       file.syncModified();
     });
   }
-
-  async updatePermissions(permissions: any) {
-    const version = this.getVersion();
-  }
 }

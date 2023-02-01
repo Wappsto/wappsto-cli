@@ -96,6 +96,21 @@ export default class Model {
     return false;
   }
 
+  async update(): Promise<boolean> {
+    let result = true;
+    try {
+      const response = await HTTP.patch(
+        `${this.HOST}/${this.id}`,
+        this.toJSON()
+      );
+      this.parse(response.data);
+    } catch (err) {
+      tui.showError(`Failed to update ${this.meta.type}: ${this.id}`, err);
+      result = false;
+    }
+    return result;
+  }
+
   async delete(): Promise<void> {
     tui.trace('model', 'delete');
     try {

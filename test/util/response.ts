@@ -71,6 +71,51 @@ const applicationResponse = {
   },
 };
 
+const versionResponse = {
+  file: [],
+  name: 'Wapp name',
+  application: '4c8ebb21-524b-4fc0-bbc5-015da2e5ca60',
+  author: 'Wapp Author',
+  version_app: '1.2.3',
+  session_user: false,
+  native: false,
+  installation: [],
+  uninstallable: true,
+  published: false,
+  max_number_installation: 1,
+  supported_features: ['foreground'],
+  description: {
+    general: 'Wapp description',
+    version: '',
+    foreground: 'Wapp Foreground',
+    widget: '',
+  },
+  status: 'idle',
+  used_files: {},
+  permission: {
+    create: ['data', 'stream'],
+    permit_to_send_email: false,
+    permit_to_send_sms: false,
+  },
+  meta: {
+    type: 'version',
+    version: '2.1',
+    manufacturer: 'f23b3a6e-391f-4efd-a690-49173d4c675a',
+    owner: 'f23b3a6e-391f-4efd-a690-49173d4c675a',
+    id: '98e68cd8-74a6-4841-bdd4-70c29f068056',
+    created: '2023-01-24T09:53:15.128304Z',
+    updated: '2023-01-24T09:53:15.128304Z',
+    revision: 1,
+    changed: '2023-01-24T09:53:15.128304Z',
+    size: 1593,
+    path: '/application/4c8ebb21-524b-4fc0-bbc5-015da2e5ca60/version/98e68cd8-74a6-4841-bdd4-70c29f068056',
+    parent: '4c8ebb21-524b-4fc0-bbc5-015da2e5ca60',
+    name_by_user: 'Wapp name',
+    tag_by_user: [],
+    tag: [],
+  },
+};
+
 const allApplicationsResponse = [
   {
     version: [
@@ -340,6 +385,7 @@ const downloadInstallationResponse = [
 
 export {
   applicationResponse,
+  versionResponse,
   installationResponse,
   downloadInstallationResponse,
   allApplicationsResponse,

@@ -312,12 +312,28 @@ class Questions {
           {
             title: 'Network',
             value: 'network',
-            selected: true,
+            selected: permissions?.create?.includes('network'),
           },
-          { title: 'Data', value: 'data', selected: true },
-          { title: 'stream', value: 'stream', selected: true },
-          { title: 'Analytic', value: 'analytic' },
-          { title: 'Notification', value: 'notification' },
+          {
+            title: 'Data',
+            value: 'data',
+            selected: permissions?.create?.includes('data'),
+          },
+          {
+            title: 'stream',
+            value: 'stream',
+            selected: permissions?.create?.includes('stream'),
+          },
+          {
+            title: 'Analytic',
+            value: 'analytic',
+            selected: permissions?.create?.includes('analytic'),
+          },
+          {
+            title: 'Notification',
+            value: 'notification',
+            selected: permissions?.create?.includes('notification'),
+          },
         ],
       },
       {

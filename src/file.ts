@@ -128,8 +128,10 @@ export default class File extends Model implements File21 {
         }
       );
       this.parse(response.data);
+      return true;
     } catch (err: any) {
       tui.showError(`Failed to update File: ${this.name}`, err);
     }
+    return false;
   }
 }

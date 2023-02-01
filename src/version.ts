@@ -113,20 +113,6 @@ export default class Version extends Model implements Version21 {
     });
   }
 
-  async update(version: any): Promise<boolean> {
-    let result = true;
-    try {
-      const tmp = version;
-      delete tmp.barebone;
-      delete tmp.barebone_version;
-      await HTTP.patch(`${this.HOST}/${this.id}`, tmp);
-    } catch (err) {
-      tui.showError(`Failed to update version: ${this.id}`, err);
-      result = false;
-    }
-    return result;
-  }
-
   async createFile(filePath: string) {
     return await File.create(filePath, this);
   }
