@@ -78,10 +78,10 @@ describe('Configure', () => {
     });
 
     expect(mockedAxios.put).toHaveBeenCalledTimes(0);
-    expect(mockedAxios.patch).toHaveBeenCalledTimes(1);
     expect(mockedAxios.post).toHaveBeenCalledTimes(0);
     expect(mockedAxios.delete).toHaveBeenCalledTimes(0);
     expect(mockedAxios.get).toHaveBeenCalledTimes(2);
+    expect(mockedAxios.patch).toHaveBeenCalledTimes(1);
 
     expect(mockedAxios.patch).toHaveBeenNthCalledWith(
       1,

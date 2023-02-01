@@ -609,9 +609,8 @@ var engines = {
 	node: ">=16"
 };
 var devDependencies = {
-	"@jest/globals": "^29.4.0",
+	"@jest/globals": "^29.4.1",
 	"@tsconfig/recommended": "^1.0.2",
-	"@types/axios": "^0.14.0",
 	"@types/browser-sync": "^2.26.3",
 	"@types/command-line-args": "^5.2.0",
 	"@types/command-line-usage": "^5.0.2",
@@ -627,16 +626,16 @@ var devDependencies = {
 	"axios-mock-adapter": "^1.21.2",
 	"dts-cli": "^1.6.3",
 	husky: "^8.0.3",
-	jest: "^29.4.0",
+	jest: "^29.4.1",
 	"json-schema-to-typescript": "^11.0.3",
 	"ts-jest": "^29.0.5",
 	"ts-node": "^10.9.1",
-	tslib: "^2.4.1",
-	typescript: "^4.9.4"
+	tslib: "^2.5.0",
+	typescript: "^4.9.5"
 };
 var dependencies = {
 	"async-mutex": "^0.4.0",
-	axios: "^1.2.4",
+	axios: "^1.3.0",
 	"browser-sync": "^2.27.11",
 	"command-line-args": "^5.2.1",
 	"command-line-usage": "^6.1.3",
@@ -1406,38 +1405,71 @@ var Model = /*#__PURE__*/function () {
     }
     return fetch;
   }();
-  _proto["delete"] = /*#__PURE__*/function () {
-    var _delete2 = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
+  _proto.update = /*#__PURE__*/function () {
+    var _update = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
+      var result, response;
       return _regeneratorRuntime().wrap(function _callee2$(_context2) {
         while (1) switch (_context2.prev = _context2.next) {
           case 0:
-            tui.trace('model', 'delete');
+            result = true;
             _context2.prev = 1;
             _context2.next = 4;
+            return HTTP.patch(this.HOST + "/" + this.id, this.toJSON());
+          case 4:
+            response = _context2.sent;
+            this.parse(response.data);
+            _context2.next = 12;
+            break;
+          case 8:
+            _context2.prev = 8;
+            _context2.t0 = _context2["catch"](1);
+            tui.showError("Failed to update " + this.meta.type + ": " + this.id, _context2.t0);
+            result = false;
+          case 12:
+            return _context2.abrupt("return", result);
+          case 13:
+          case "end":
+            return _context2.stop();
+        }
+      }, _callee2, this, [[1, 8]]);
+    }));
+    function update() {
+      return _update.apply(this, arguments);
+    }
+    return update;
+  }();
+  _proto["delete"] = /*#__PURE__*/function () {
+    var _delete2 = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
+      return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+        while (1) switch (_context3.prev = _context3.next) {
+          case 0:
+            tui.trace('model', 'delete');
+            _context3.prev = 1;
+            _context3.next = 4;
             return HTTP["delete"](this.HOST + "/" + this.id);
           case 4:
-            _context2.next = 15;
+            _context3.next = 15;
             break;
           case 6:
-            _context2.prev = 6;
-            _context2.t0 = _context2["catch"](1);
-            _context2.t1 = _context2.t0.response.data.code;
-            _context2.next = _context2.t1 === 300020 ? 11 : _context2.t1 === 9900067 ? 12 : _context2.t1 === 300024 ? 13 : 14;
+            _context3.prev = 6;
+            _context3.t0 = _context3["catch"](1);
+            _context3.t1 = _context3.t0.response.data.code;
+            _context3.next = _context3.t1 === 300020 ? 11 : _context3.t1 === 9900067 ? 12 : _context3.t1 === 300024 ? 13 : 14;
             break;
           case 11:
-            return _context2.abrupt("break", 15);
+            return _context3.abrupt("break", 15);
           case 12:
-            return _context2.abrupt("break", 15);
+            return _context3.abrupt("break", 15);
           case 13:
             throw Error('Can not delete application that is published!');
           case 14:
             /* istanbul ignore next */
-            tui.showError("Failed to delete " + this.meta.type + ": " + this.id, _context2.t0);
+            tui.showError("Failed to delete " + this.meta.type + ": " + this.id, _context3.t0);
           case 15:
           case "end":
-            return _context2.stop();
+            return _context3.stop();
         }
-      }, _callee2, this, [[1, 6]]);
+      }, _callee3, this, [[1, 6]]);
     }));
     function _delete() {
       return _delete2.apply(this, arguments);
@@ -1914,17 +1946,18 @@ var File = /*#__PURE__*/function (_Model) {
           case 5:
             response = _context2.sent;
             this.parse(response.data);
-            _context2.next = 12;
-            break;
-          case 9:
-            _context2.prev = 9;
+            return _context2.abrupt("return", true);
+          case 10:
+            _context2.prev = 10;
             _context2.t0 = _context2["catch"](2);
             tui.showError("Failed to update File: " + this.name, _context2.t0);
-          case 12:
+          case 13:
+            return _context2.abrupt("return", false);
+          case 14:
           case "end":
             return _context2.stop();
         }
-      }, _callee2, this, [[2, 9]]);
+      }, _callee2, this, [[2, 10]]);
     }));
     function update() {
       return _update.apply(this, arguments);
@@ -2068,56 +2101,22 @@ var Version = /*#__PURE__*/function (_Model) {
       return filePath === f.path;
     });
   };
-  _proto.update = /*#__PURE__*/function () {
-    var _update = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(version) {
-      var result, tmp;
+  _proto.createFile = /*#__PURE__*/function () {
+    var _createFile = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(filePath) {
       return _regeneratorRuntime().wrap(function _callee2$(_context2) {
         while (1) switch (_context2.prev = _context2.next) {
           case 0:
-            result = true;
-            _context2.prev = 1;
-            tmp = version;
-            delete tmp.barebone;
-            delete tmp.barebone_version;
-            _context2.next = 7;
-            return HTTP.patch(this.HOST + "/" + this.id, tmp);
-          case 7:
-            _context2.next = 13;
-            break;
-          case 9:
-            _context2.prev = 9;
-            _context2.t0 = _context2["catch"](1);
-            tui.showError("Failed to update version: " + this.id, _context2.t0);
-            result = false;
-          case 13:
-            return _context2.abrupt("return", result);
-          case 14:
+            _context2.next = 2;
+            return File.create(filePath, this);
+          case 2:
+            return _context2.abrupt("return", _context2.sent);
+          case 3:
           case "end":
             return _context2.stop();
         }
-      }, _callee2, this, [[1, 9]]);
+      }, _callee2, this);
     }));
-    function update(_x) {
-      return _update.apply(this, arguments);
-    }
-    return update;
-  }();
-  _proto.createFile = /*#__PURE__*/function () {
-    var _createFile = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(filePath) {
-      return _regeneratorRuntime().wrap(function _callee3$(_context3) {
-        while (1) switch (_context3.prev = _context3.next) {
-          case 0:
-            _context3.next = 2;
-            return File.create(filePath, this);
-          case 2:
-            return _context3.abrupt("return", _context3.sent);
-          case 3:
-          case "end":
-            return _context3.stop();
-        }
-      }, _callee3, this);
-    }));
-    function createFile(_x2) {
+    function createFile(_x) {
       return _createFile.apply(this, arguments);
     }
     return createFile;
@@ -2186,6 +2185,24 @@ var Application = /*#__PURE__*/function (_Model) {
     }
     /* istanbul ignore next */
     return new Version({}, this);
+  };
+  _proto.getOAuthExternal = function getOAuthExternal() {
+    var oauth = [];
+    this.oauth_external.forEach(function (o) {
+      if (typeof o !== 'string') {
+        oauth.push(o);
+      }
+    });
+    return oauth;
+  };
+  _proto.getOAuthClient = function getOAuthClient() {
+    var oauth = [];
+    this.oauth_client.forEach(function (o) {
+      if (typeof o !== 'string') {
+        oauth.push(o);
+      }
+    });
+    return oauth;
   };
   _proto.parse = function parse(data) {
     var _this2 = this;
@@ -2445,23 +2462,6 @@ var Application = /*#__PURE__*/function (_Model) {
       file.syncModified();
     });
   };
-  _proto.updatePermissions = /*#__PURE__*/function () {
-    var _updatePermissions = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6(permissions) {
-      return _regeneratorRuntime().wrap(function _callee6$(_context6) {
-        while (1) switch (_context6.prev = _context6.next) {
-          case 0:
-            this.getVersion();
-          case 1:
-          case "end":
-            return _context6.stop();
-        }
-      }, _callee6, this);
-    }));
-    function updatePermissions(_x4) {
-      return _updatePermissions.apply(this, arguments);
-    }
-    return updatePermissions;
-  }();
   return Application;
 }(Model);
 
@@ -2701,6 +2701,7 @@ var Questions = /*#__PURE__*/function () {
   }();
   _proto.configureWapp = /*#__PURE__*/function () {
     var _configureWapp = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(oauthExternal, oauthClient, permissions) {
+      var _permissions$create, _permissions$create2, _permissions$create3, _permissions$create4, _permissions$create5;
       var external, client, type, extSyncQuestions, validateEmptyString, oauthExtQuestions, oauthClientQuestions, permissionQuestions;
       return _regeneratorRuntime().wrap(function _callee3$(_context3) {
         while (1) switch (_context3.prev = _context3.next) {
@@ -2711,7 +2712,7 @@ var Questions = /*#__PURE__*/function () {
             external = oauthExternal[0] || {};
             client = oauthClient[0] || {};
             _context3.next = 5;
-            return prompt([{
+            return this.ask([{
               name: 'config',
               type: 'select',
               message: 'What do you want to configure?',
@@ -2821,49 +2822,51 @@ var Questions = /*#__PURE__*/function () {
               choices: [{
                 title: 'Network',
                 value: 'network',
-                selected: true
+                selected: permissions == null ? void 0 : (_permissions$create = permissions.create) == null ? void 0 : _permissions$create.includes('network')
               }, {
                 title: 'Data',
                 value: 'data',
-                selected: true
+                selected: permissions == null ? void 0 : (_permissions$create2 = permissions.create) == null ? void 0 : _permissions$create2.includes('data')
               }, {
                 title: 'stream',
                 value: 'stream',
-                selected: true
+                selected: permissions == null ? void 0 : (_permissions$create3 = permissions.create) == null ? void 0 : _permissions$create3.includes('stream')
               }, {
                 title: 'Analytic',
-                value: 'analytic'
+                value: 'analytic',
+                selected: permissions == null ? void 0 : (_permissions$create4 = permissions.create) == null ? void 0 : _permissions$create4.includes('analytic')
               }, {
                 title: 'Notification',
-                value: 'notification'
+                value: 'notification',
+                selected: permissions == null ? void 0 : (_permissions$create5 = permissions.create) == null ? void 0 : _permissions$create5.includes('notification')
               }]
             }, {
               type: 'confirm',
               name: 'permit_to_send_email',
               message: 'Do your Wapp need to send email?',
-              initial: false
+              initial: permissions == null ? void 0 : permissions.permit_to_send_email
             }, {
               type: 'confirm',
               name: 'permit_to_send_sms',
               message: 'Do your Wapp need to send SMS?',
-              initial: false
+              initial: permissions == null ? void 0 : permissions.permit_to_send_sms
             }];
             _context3.t0 = type.config;
             _context3.next = _context3.t0 === 'external_oauth' ? 13 : _context3.t0 === 'oauth_client' ? 14 : _context3.t0 === 'permissions' ? 15 : _context3.t0 === 'extsync' ? 16 : 16;
             break;
           case 13:
-            return _context3.abrupt("return", prompt(oauthExtQuestions));
+            return _context3.abrupt("return", this.ask(oauthExtQuestions));
           case 14:
-            return _context3.abrupt("return", prompt(oauthClientQuestions));
+            return _context3.abrupt("return", this.ask(oauthClientQuestions));
           case 15:
-            return _context3.abrupt("return", prompt(permissionQuestions));
+            return _context3.abrupt("return", this.ask(permissionQuestions));
           case 16:
-            return _context3.abrupt("return", prompt(extSyncQuestions));
+            return _context3.abrupt("return", this.ask(extSyncQuestions));
           case 17:
           case "end":
             return _context3.stop();
         }
-      }, _callee3);
+      }, _callee3, this);
     }));
     function configureWapp(_x4, _x5, _x6) {
       return _configureWapp.apply(this, arguments);
@@ -2871,7 +2874,7 @@ var Questions = /*#__PURE__*/function () {
     return configureWapp;
   }();
   _proto.deleteWapp = function deleteWapp() {
-    var questions = [{
+    return this.ask([{
       name: 'del',
       type: 'confirm',
       message: 'Do you want to delete the Wapp?',
@@ -2888,8 +2891,7 @@ var Questions = /*#__PURE__*/function () {
         return values.del ? 'confirm' : null;
       },
       message: 'Do you want to delete the Wapp on Wappsto?'
-    }];
-    return prompt(questions);
+    }]);
   };
   _proto.precisePermissionRequest = function precisePermissionRequest(request) {
     var msg = '';
@@ -2902,12 +2904,11 @@ var Questions = /*#__PURE__*/function () {
     } else {
       msg = request.name_installation + " would like to save " + type + " under your account. Allow?";
     }
-    var questions = [{
+    return this.ask([{
       name: 'accept',
       type: 'confirm',
       message: msg
-    }];
-    return prompt(questions);
+    }]);
   };
   _proto.permissionRequest = function permissionRequest(request, data) {
     var msg = '';
@@ -2916,28 +2917,26 @@ var Questions = /*#__PURE__*/function () {
     } else {
       msg = "Please choose the " + request.type + " to share with " + request.name_installation + ":";
     }
-    var questions = [{
+    return this.ask([{
       name: 'permission',
       type: 'multiselect',
       message: msg,
       choices: data
-    }];
-    return prompt(questions);
+    }]);
   };
   _proto.remoteVersionUpdated = function remoteVersionUpdated() {
-    var questions = [{
+    return this.ask([{
       name: 'local',
       type: 'confirm',
       initial: true,
       message: 'Do you want to override local version information with remote information?'
-    }];
-    return prompt(questions);
+    }]);
   };
   _proto.fileConflict = function fileConflict(file) {
-    var questions = [{
+    return this.ask([{
       message: "Conflict on file \xB4" + file,
       name: 'conflict',
-      type: 'multiselect',
+      type: 'select',
       choices: [{
         title: 'Overwrite local file with remote file',
         value: 'overwrite'
@@ -2954,26 +2953,23 @@ var Questions = /*#__PURE__*/function () {
         title: 'Abort',
         value: 'abort'
       }]
-    }];
-    return prompt(questions);
+    }]);
   };
   _proto.askDeleteLocalFile = function askDeleteLocalFile(file) {
-    var questions = [{
+    return this.ask([{
       name: 'delete',
       type: 'confirm',
       "default": true,
       message: file + " was deleted on the server, do you want to delete the local file?"
-    }];
-    return prompt(questions);
+    }]);
   };
   _proto.askOverwriteFiles = function askOverwriteFiles() {
-    var questions = [{
+    return this.ask([{
       name: 'overwrite',
       type: 'confirm',
       "default": false,
       message: 'Do you want to overwrite your local files with example files?'
-    }];
-    return prompt(questions);
+    }]);
   };
   return Questions;
 }();
@@ -3095,24 +3091,30 @@ var Wappsto = /*#__PURE__*/function () {
             return questions.askWappstoCredentials(config.isCustomHost() ? this.HOST : 'Wappsto');
           case 10:
             creds = _context.sent;
+            if (!(creds === false)) {
+              _context.next = 13;
+              break;
+            }
+            return _context.abrupt("return");
+          case 13:
             status.start();
-            _context.prev = 12;
-            _context.next = 15;
+            _context.prev = 14;
+            _context.next = 17;
             return this.session.login(creds.username, creds.password);
-          case 15:
+          case 17:
             status.stop();
-            _context.next = 22;
+            _context.next = 24;
             break;
-          case 18:
-            _context.prev = 18;
-            _context.t0 = _context["catch"](12);
+          case 20:
+            _context.prev = 20;
+            _context.t0 = _context["catch"](14);
             status.stop();
             throw new Error('LoginError');
-          case 22:
+          case 24:
           case "end":
             return _context.stop();
         }
-      }, _callee, this, [[12, 18]]);
+      }, _callee, this, [[14, 20]]);
     }));
     function login() {
       return _login.apply(this, arguments);
@@ -3560,7 +3562,7 @@ var Wapp = /*#__PURE__*/function () {
   }();
   _proto.createFolders = /*#__PURE__*/function () {
     var _createFolders = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(folders, createExamples, folderMapping) {
-      var dirs, exampleFiles, allDirs, overwrite, i, f, path, exPath, j, answer, _j, file;
+      var dirs, exampleFiles, allDirs, overwrite, i, f, path, exPath, j, answers, _j, file;
       return _regeneratorRuntime().wrap(function _callee4$(_context4) {
         while (1) switch (_context4.prev = _context4.next) {
           case 0:
@@ -3573,53 +3575,59 @@ var Wapp = /*#__PURE__*/function () {
             i = 0;
           case 4:
             if (!(i < allDirs.length)) {
-              _context4.next = 26;
+              _context4.next = 28;
               break;
             }
             f = allDirs[i];
             path = folderMapping ? folderMapping[f] || f : f;
             createFolders(path + "/.");
             if (!(createExamples && exampleFiles[f])) {
-              _context4.next = 23;
+              _context4.next = 25;
               break;
             }
             exPath = __dirname + "/../examples/simple/" + f;
             if (!(overwrite === undefined)) {
-              _context4.next = 22;
+              _context4.next = 24;
               break;
             }
             j = 0;
           case 12:
             if (!(j < exampleFiles[f].length)) {
-              _context4.next = 22;
+              _context4.next = 24;
               break;
             }
             if (!fileExists(path + "/" + exampleFiles[f][j])) {
-              _context4.next = 19;
+              _context4.next = 21;
               break;
             }
             _context4.next = 16;
             return questions.askOverwriteFiles();
           case 16:
-            answer = _context4.sent;
-            overwrite = answer.overwrite;
-            return _context4.abrupt("break", 22);
+            answers = _context4.sent;
+            if (!(answers === false)) {
+              _context4.next = 19;
+              break;
+            }
+            return _context4.abrupt("return");
           case 19:
+            overwrite = answers.overwrite;
+            return _context4.abrupt("break", 24);
+          case 21:
             j += 1;
             _context4.next = 12;
             break;
-          case 22:
+          case 24:
             for (_j = 0; _j < exampleFiles[f].length; _j += 1) {
               file = exampleFiles[f][_j];
               if (!fileExists(path + "/" + file) || overwrite === true) {
                 copyFile(exPath + "/" + file, path + "/" + file);
               }
             }
-          case 23:
+          case 25:
             i += 1;
             _context4.next = 4;
             break;
-          case 26:
+          case 28:
           case "end":
             return _context4.stop();
         }
@@ -3744,7 +3752,7 @@ var Wapp = /*#__PURE__*/function () {
   _proto.update = /*#__PURE__*/function () {
     var _update = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee7(reinstall) {
       var _this3 = this;
-      var results, localFiles, updateFiles, upload, overrideAll, uploadAll, localVersion, status, remoteVersion, overide, cmp, localVersionFiles, remoteVersionFiles, allFiles, i, file, remoteUpdated, locallyUpdated, fileTime, rf, lf, localIndex, run, answer, _answer, _i, filePath, newFile;
+      var results, localFiles, updateFiles, upload, overrideAll, uploadAll, localVersion, status, remoteVersion, overide, version, cmp, localVersionFiles, remoteVersionFiles, allFiles, i, file, remoteUpdated, locallyUpdated, fileTime, rf, lf, localIndex, run, answers, _answers, _i, filePath, newFile;
       return _regeneratorRuntime().wrap(function _callee7$(_context7) {
         while (1) switch (_context7.prev = _context7.next) {
           case 0:
@@ -3769,7 +3777,7 @@ var Wapp = /*#__PURE__*/function () {
           case 14:
             remoteVersion = _context7.sent;
             if (!(remoteVersion && remoteVersion.revision !== localVersion.revision && !compareVersions(this.manifest, remoteVersion.data))) {
-              _context7.next = 22;
+              _context7.next = 24;
               break;
             }
             status.stop();
@@ -3778,25 +3786,33 @@ var Wapp = /*#__PURE__*/function () {
           case 19:
             overide = _context7.sent;
             status.start();
+            if (!(overide === false)) {
+              _context7.next = 23;
+              break;
+            }
+            return _context7.abrupt("return", []);
+          case 23:
             if (overide.local) {
               upload = false;
             }
-          case 22:
+          case 24:
             if (!upload) {
-              _context7.next = 29;
+              _context7.next = 33;
               break;
             }
             status.setMessage('Updating version, please wait...');
-            _context7.next = 26;
-            return this.application.getVersion().update(this.manifest);
-          case 26:
+            version = this.application.getVersion();
+            version.parse(this.manifest);
+            _context7.next = 30;
+            return version.update();
+          case 30:
             if (_context7.sent) {
-              _context7.next = 29;
+              _context7.next = 33;
               break;
             }
             status.stop();
             return _context7.abrupt("return", []);
-          case 29:
+          case 33:
             // Find all files on disk
             localFiles = this.getAllLocalFiles();
             // Get both remote and local files into a single array
@@ -3811,18 +3827,18 @@ var Wapp = /*#__PURE__*/function () {
               });
             }));
             i = 0;
-          case 35:
+          case 39:
             if (!(i < allFiles.length)) {
-              _context7.next = 97;
+              _context7.next = 105;
               break;
             }
             file = allFiles[i];
             if (file) {
-              _context7.next = 39;
+              _context7.next = 43;
               break;
             }
-            return _context7.abrupt("continue", 94);
-          case 39:
+            return _context7.abrupt("continue", 102);
+          case 43:
             remoteUpdated = false;
             locallyUpdated = false;
             fileTime = null;
@@ -3852,46 +3868,52 @@ var Wapp = /*#__PURE__*/function () {
               remoteUpdated = false;
             }
             if (!(remoteUpdated && locallyUpdated)) {
-              _context7.next = 70;
+              _context7.next = 76;
               break;
             }
             status.stop();
             run = true;
-          case 52:
+          case 56:
             if (!run) {
-              _context7.next = 69;
+              _context7.next = 75;
               break;
             }
             run = false;
             // eslint-disable-next-line no-await-in-loop
-            _context7.next = 56;
+            _context7.next = 60;
             return questions.fileConflict(file.path);
-          case 56:
-            answer = _context7.sent;
-            _context7.t0 = answer.conflict;
-            _context7.next = _context7.t0 === 'override_all' ? 60 : _context7.t0 === 'overwrite' ? 61 : _context7.t0 === 'upload_all' ? 63 : _context7.t0 === 'upload' ? 64 : _context7.t0 === 'abort' ? 66 : 67;
-            break;
           case 60:
-            overrideAll = true;
-          case 61:
-            locallyUpdated = false;
-            return _context7.abrupt("break", 67);
+            answers = _context7.sent;
+            if (!(answers === false)) {
+              _context7.next = 63;
+              break;
+            }
+            return _context7.abrupt("return", []);
           case 63:
-            uploadAll = true;
-          case 64:
-            remoteUpdated = false;
-            return _context7.abrupt("break", 67);
-          case 66:
-            process.exit();
-          case 67:
-            _context7.next = 52;
+            _context7.t0 = answers.conflict;
+            _context7.next = _context7.t0 === 'override_all' ? 66 : _context7.t0 === 'overwrite' ? 67 : _context7.t0 === 'upload_all' ? 69 : _context7.t0 === 'upload' ? 70 : _context7.t0 === 'abort' ? 72 : 73;
             break;
+          case 66:
+            overrideAll = true;
+          case 67:
+            locallyUpdated = false;
+            return _context7.abrupt("break", 73);
           case 69:
-            status.start();
+            uploadAll = true;
           case 70:
+            remoteUpdated = false;
+            return _context7.abrupt("break", 73);
+          case 72:
+            process.exit();
+          case 73:
+            _context7.next = 56;
+            break;
+          case 75:
+            status.start();
+          case 76:
             file.status = 'unknown';
             if (!(rf && !lf || remoteUpdated && !locallyUpdated)) {
-              _context7.next = 75;
+              _context7.next = 81;
               break;
             }
             try {
@@ -3901,21 +3923,21 @@ var Wapp = /*#__PURE__*/function () {
             } catch (err) {
               file.status = 'not downloaded';
             }
-            _context7.next = 93;
+            _context7.next = 101;
             break;
-          case 75:
+          case 81:
             if (!(!remoteUpdated && locallyUpdated)) {
-              _context7.next = 81;
+              _context7.next = 87;
               break;
             }
             status.setMessage("Uploading " + file.path + ", please wait...");
             file.status = 'updated';
             results.push(file.update());
-            _context7.next = 93;
+            _context7.next = 101;
             break;
-          case 81:
+          case 87:
             if (!(lf && !fileTime)) {
-              _context7.next = 86;
+              _context7.next = 92;
               break;
             }
             file.status = 'deleted';
@@ -3923,69 +3945,75 @@ var Wapp = /*#__PURE__*/function () {
               status.setMessage("Deleting " + file.path + ", please wait...");
               results.push(file["delete"]());
             }
-            _context7.next = 93;
+            _context7.next = 101;
             break;
-          case 86:
+          case 92:
             if (!(!rf && lf && !locallyUpdated)) {
-              _context7.next = 93;
+              _context7.next = 101;
               break;
             }
             status.stop();
             // eslint-disable-next-line no-await-in-loop
-            _context7.next = 90;
+            _context7.next = 96;
             return questions.askDeleteLocalFile(file.path);
-          case 90:
-            _answer = _context7.sent;
+          case 96:
+            _answers = _context7.sent;
             status.start();
-            if (_answer["delete"]) {
+            if (!(_answers === false)) {
+              _context7.next = 100;
+              break;
+            }
+            return _context7.abrupt("return", []);
+          case 100:
+            if (_answers["delete"]) {
               file.status = 'deleted';
               file.deleteLocal();
             }
-          case 93:
+          case 101:
             if (file.status !== 'unknown') {
               updateFiles.push(file);
             }
-          case 94:
+          case 102:
             i += 1;
-            _context7.next = 35;
+            _context7.next = 39;
             break;
-          case 97:
+          case 105:
             _i = 0;
-          case 98:
+          case 106:
             if (!(_i < localFiles.length)) {
-              _context7.next = 108;
+              _context7.next = 116;
               break;
             }
             filePath = localFiles[_i];
             status.setMessage("Creating " + filePath + ", please wait...");
             // eslint-disable-next-line no-await-in-loop
-            _context7.next = 103;
+            _context7.next = 111;
             return this.application.getVersion().createFile(filePath);
-          case 103:
+          case 111:
             newFile = _context7.sent;
             if (newFile) {
               newFile.status = 'created';
               updateFiles.push(newFile);
             }
-          case 105:
+          case 113:
             _i += 1;
-            _context7.next = 98;
+            _context7.next = 106;
             break;
-          case 108:
+          case 116:
             status.setMessage('Loading version, please wait...');
-            _context7.next = 111;
+            _context7.next = 119;
             return this.installation.fetchById(this.versionID);
-          case 111:
+          case 119:
             if (reinstall) {
               results.push(this.installation.reinstall());
             } else {
               results.push(this.installation.restart());
             }
-            _context7.next = 114;
+            _context7.next = 122;
             return Promise.all(results);
-          case 114:
+          case 122:
             status.setMessage('Loading application, please wait...');
-            _context7.next = 117;
+            _context7.next = 125;
             return new Promise(function (resolve) {
               setTimeout(function () {
                 try {
@@ -4000,10 +4028,10 @@ var Wapp = /*#__PURE__*/function () {
                 }
               }, 500);
             });
-          case 117:
+          case 125:
             status.stop();
             return _context7.abrupt("return", updateFiles);
-          case 119:
+          case 127:
           case "end":
             return _context7.stop();
         }
@@ -4030,21 +4058,49 @@ var Wapp = /*#__PURE__*/function () {
             return this.application.fetch();
           case 4:
             _context8.next = 6;
-            return questions.configureWapp(this.application.oauth_external, this.application.oauth_client, this.manifest.permission);
+            return questions.configureWapp(this.application.getOAuthExternal(), this.application.getOAuthClient(), this.manifest.permission);
           case 6:
             answer = _context8.sent;
-            if (answer.extsync) {
-              this.installation.setExtSync(answer.extsync);
-            } else if (answer.api_site) {
-              this.application.createOauthExternal(answer);
-            } else if (answer.redirect_uri) {
-              this.application.createOauthClient(answer);
-            } else if (answer.create) {
-              this.manifest.permission = answer;
-              this.saveManifest();
-              this.application.getVersion().permission = answer;
+            if (!(answer === false)) {
+              _context8.next = 9;
+              break;
             }
-          case 8:
+            return _context8.abrupt("return");
+          case 9:
+            if (!answer.extsync) {
+              _context8.next = 13;
+              break;
+            }
+            this.installation.setExtSync(answer.extsync);
+            _context8.next = 27;
+            break;
+          case 13:
+            if (!answer.api_site) {
+              _context8.next = 17;
+              break;
+            }
+            this.application.createOauthExternal(answer);
+            _context8.next = 27;
+            break;
+          case 17:
+            if (!answer.redirect_uri) {
+              _context8.next = 21;
+              break;
+            }
+            this.application.createOauthClient(answer);
+            _context8.next = 27;
+            break;
+          case 21:
+            if (!answer.create) {
+              _context8.next = 27;
+              break;
+            }
+            this.manifest.permission = answer;
+            this.saveManifest();
+            this.application.getVersion().permission = answer;
+            _context8.next = 27;
+            return this.application.getVersion().update();
+          case 27:
           case "end":
             return _context8.stop();
         }
@@ -4072,24 +4128,30 @@ var Wapp = /*#__PURE__*/function () {
             return questions.deleteWapp();
           case 4:
             answer = _context9.sent;
+            if (!(answer === false)) {
+              _context9.next = 7;
+              break;
+            }
+            return _context9.abrupt("return");
+          case 7:
             if (!answer.del) {
-              _context9.next = 28;
+              _context9.next = 30;
               break;
             }
             if (!(!answer.local && !answer.remote)) {
-              _context9.next = 9;
+              _context9.next = 11;
               break;
             }
             tui.showWarning('Nothing deleted');
             return _context9.abrupt("return");
-          case 9:
+          case 11:
             status = new Spinner('Deleting Wapp, please wait...');
             status.start();
             if (answer.local) {
               this.deleteLocal();
             }
             if (!answer.remote) {
-              _context9.next = 26;
+              _context9.next = 28;
               break;
             }
             results = [];
@@ -4102,26 +4164,26 @@ var Wapp = /*#__PURE__*/function () {
             if (this.application.id) {
               results.push(this.application["delete"]());
             }
-            _context9.prev = 16;
-            _context9.next = 19;
+            _context9.prev = 18;
+            _context9.next = 21;
             return Promise.all(results);
-          case 19:
-            _context9.next = 26;
-            break;
           case 21:
-            _context9.prev = 21;
-            _context9.t0 = _context9["catch"](16);
+            _context9.next = 28;
+            break;
+          case 23:
+            _context9.prev = 23;
+            _context9.t0 = _context9["catch"](18);
             status.stop();
             tui.showError("Failed to delete application: " + _context9.t0);
             return _context9.abrupt("return");
-          case 26:
+          case 28:
             status.stop();
             tui.showMessage('Wapp deleted');
-          case 28:
+          case 30:
           case "end":
             return _context9.stop();
         }
-      }, _callee9, this, [[16, 21]]);
+      }, _callee9, this, [[18, 23]]);
     }));
     function _delete() {
       return _delete2.apply(this, arguments);
@@ -4262,7 +4324,7 @@ var Wapp = /*#__PURE__*/function () {
             }
             _context12.next = 40;
             return this.mutex.runExclusive( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee11() {
-              var opts, search, items, results, answers, status, _answers, _answers2;
+              var opts, search, items, results, answers, status, _answers2, _answers3;
               return _regeneratorRuntime().wrap(function _callee11$(_context11) {
                 while (1) switch (_context11.prev = _context11.next) {
                   case 0:
@@ -4270,7 +4332,7 @@ var Wapp = /*#__PURE__*/function () {
                     opts = [];
                     search = [];
                     if (!data.req.limitation) {
-                      _context11.next = 25;
+                      _context11.next = 27;
                       break;
                     }
                     Object.keys(data.req.limitation).forEach(function (key) {
@@ -4284,7 +4346,7 @@ var Wapp = /*#__PURE__*/function () {
                   case 7:
                     items = _context11.sent;
                     if (!items.length) {
-                      _context11.next = 22;
+                      _context11.next = 24;
                       break;
                     }
                     items.forEach(function (item) {
@@ -4298,6 +4360,12 @@ var Wapp = /*#__PURE__*/function () {
                     return questions.permissionRequest(data.req, opts);
                   case 13:
                     answers = _context11.sent;
+                    if (!(answers === false)) {
+                      _context11.next = 16;
+                      break;
+                    }
+                    return _context11.abrupt("return");
+                  case 16:
                     answers.permission.forEach(function (per) {
                       results.push(_this5.wappsto.updateACL(per, data.installation, [], data.req.method));
                     });
@@ -4306,84 +4374,96 @@ var Wapp = /*#__PURE__*/function () {
                       status = 'accepted';
                     }
                     results.push(_this5.wappsto.readNotification(data.id, status));
-                    _context11.next = 20;
+                    _context11.next = 22;
                     return Promise.all(results);
-                  case 20:
-                    _context11.next = 23;
-                    break;
                   case 22:
-                    tui.showWarning("Failed to find anything matching the permission request from " + data.req.name_installation);
-                  case 23:
-                    _context11.next = 60;
+                    _context11.next = 25;
                     break;
+                  case 24:
+                    tui.showWarning("Failed to find anything matching the permission request from " + data.req.name_installation);
                   case 25:
+                    _context11.next = 66;
+                    break;
+                  case 27:
                     if (!data.req.collection) {
+                      _context11.next = 48;
+                      break;
+                    }
+                    _context11.next = 30;
+                    return questions.precisePermissionRequest(data.req);
+                  case 30:
+                    _answers2 = _context11.sent;
+                    if (!(_answers2 === false)) {
+                      _context11.next = 33;
+                      break;
+                    }
+                    return _context11.abrupt("return");
+                  case 33:
+                    if (!_answers2.accept) {
                       _context11.next = 44;
                       break;
                     }
-                    _context11.next = 28;
-                    return questions.precisePermissionRequest(data.req);
-                  case 28:
-                    _answers = _context11.sent;
-                    if (!_answers.accept) {
-                      _context11.next = 40;
-                      break;
-                    }
                     if (!(data.req.method[0] === 'add')) {
-                      _context11.next = 35;
+                      _context11.next = 39;
                       break;
                     }
-                    _context11.next = 33;
+                    _context11.next = 37;
                     return _this5.wappsto.updateACLRestriction(data.installation, data.req.collection);
-                  case 33:
-                    _context11.next = 36;
+                  case 37:
+                    _context11.next = 40;
                     break;
-                  case 35:
+                  case 39:
                     tui.showWarning("Unknown '" + data.req.method[0] + "' permission request");
-                  case 36:
-                    _context11.next = 38;
-                    return _this5.wappsto.readNotification(data.id, 'accepted');
-                  case 38:
-                    _context11.next = 42;
-                    break;
                   case 40:
                     _context11.next = 42;
-                    return _this5.wappsto.readNotification(data.id, 'denied');
+                    return _this5.wappsto.readNotification(data.id, 'accepted');
                   case 42:
-                    _context11.next = 60;
+                    _context11.next = 46;
                     break;
                   case 44:
+                    _context11.next = 46;
+                    return _this5.wappsto.readNotification(data.id, 'denied');
+                  case 46:
+                    _context11.next = 66;
+                    break;
+                  case 48:
                     if (!data.req.name_installation) {
-                      _context11.next = 59;
-                      break;
-                    }
-                    _context11.next = 47;
-                    return questions.precisePermissionRequest(data.req);
-                  case 47:
-                    _answers2 = _context11.sent;
-                    if (!_answers2.accept) {
-                      _context11.next = 55;
+                      _context11.next = 65;
                       break;
                     }
                     _context11.next = 51;
-                    return _this5.installation.setExtSync(true);
+                    return questions.precisePermissionRequest(data.req);
                   case 51:
-                    _context11.next = 53;
-                    return _this5.wappsto.readNotification(data.id, 'accepted');
-                  case 53:
+                    _answers3 = _context11.sent;
+                    if (!(_answers3 === false)) {
+                      _context11.next = 54;
+                      break;
+                    }
+                    return _context11.abrupt("return");
+                  case 54:
+                    if (!_answers3.accept) {
+                      _context11.next = 61;
+                      break;
+                    }
                     _context11.next = 57;
-                    break;
-                  case 55:
-                    _context11.next = 57;
-                    return _this5.wappsto.readNotification(data.id, 'denied');
+                    return _this5.installation.setExtSync(true);
                   case 57:
-                    _context11.next = 60;
-                    break;
+                    _context11.next = 59;
+                    return _this5.wappsto.readNotification(data.id, 'accepted');
                   case 59:
-                    tui.showError('Failed to handle request', data.req);
-                  case 60:
-                    tui.unblock();
+                    _context11.next = 63;
+                    break;
                   case 61:
+                    _context11.next = 63;
+                    return _this5.wappsto.readNotification(data.id, 'denied');
+                  case 63:
+                    _context11.next = 66;
+                    break;
+                  case 65:
+                    tui.showError('Failed to handle request', data.req);
+                  case 66:
+                    tui.unblock();
+                  case 67:
                   case "end":
                     return _context11.stop();
                 }

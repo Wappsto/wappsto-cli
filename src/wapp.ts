@@ -264,8 +264,11 @@ export default class Wapp {
           for (let j = 0; j < exampleFiles[f].length; j += 1) {
             if (fileExists(`${path}/${exampleFiles[f][j]}`)) {
               /* eslint-disable-next-line no-await-in-loop */
-              const answer = await questions.askOverwriteFiles();
-              overwrite = answer.overwrite;
+              const answers = await questions.askOverwriteFiles();
+              if (answers === false) {
+                return;
+              }
+              overwrite = answers.overwrite;
               break;
             }
           }
@@ -361,7 +364,7 @@ export default class Wapp {
     return localFiles;
   }
 
-  async update(reinstall?: boolean): Promise<any[]> {
+  async update(reinstall?: boolean): Promise<File[]> {
     if (!this.present()) {
       return [];
     }
@@ -389,6 +392,9 @@ export default class Wapp {
       status.stop();
       const overide = await questions.remoteVersionUpdated();
       status.start();
+      if (overide === false) {
+        return [];
+      }
       if (overide.local) {
         upload = false;
       }
@@ -466,8 +472,11 @@ export default class Wapp {
         while (run) {
           run = false;
           // eslint-disable-next-line no-await-in-loop
-          const answer = await questions.fileConflict(file.path);
-          switch (answer.conflict) {
+          const answers = await questions.fileConflict(file.path);
+          if (answers === false) {
+            return [];
+          }
+          switch (answers.conflict) {
             case 'override_all':
               overrideAll = true;
             // eslint-disable-next-line no-fallthrough
@@ -512,9 +521,13 @@ export default class Wapp {
       } else if (!rf && lf && !locallyUpdated) {
         status.stop();
         // eslint-disable-next-line no-await-in-loop
-        const answer = await questions.askDeleteLocalFile(file.path);
+        const answers = await questions.askDeleteLocalFile(file.path);
         status.start();
-        if (answer.delete) {
+        if (answers === false) {
+          return [];
+        }
+
+        if (answers.delete) {
           file.status = 'deleted';
           file.deleteLocal();
         }
@@ -575,10 +588,14 @@ export default class Wapp {
     }
     await this.application.fetch();
     const answer = await questions.configureWapp(
-      this.application.oauth_external,
-      this.application.oauth_client,
+      this.application.getOAuthExternal(),
+      this.application.getOAuthClient(),
       this.manifest.permission
     );
+
+    if (answer === false) {
+      return;
+    }
 
     if (answer.extsync) {
       this.installation.setExtSync(answer.extsync);
@@ -600,7 +617,9 @@ export default class Wapp {
     }
 
     const answer = await questions.deleteWapp();
-
+    if (answer === false) {
+      return;
+    }
     if (answer.del) {
       if (!answer.local && !answer.remote) {
         tui.showWarning('Nothing deleted');
@@ -725,6 +744,9 @@ export default class Wapp {
             });
             const results = [];
             const answers = await questions.permissionRequest(data.req, opts);
+            if (answers === false) {
+              return;
+            }
 
             answers.permission.forEach((per: string) => {
               results.push(
@@ -750,6 +772,9 @@ export default class Wapp {
           }
         } else if (data.req.collection) {
           const answers = await questions.precisePermissionRequest(data.req);
+          if (answers === false) {
+            return;
+          }
 
           if (answers.accept) {
             if (data.req.method[0] === 'add') {
@@ -768,6 +793,9 @@ export default class Wapp {
           }
         } else if (data.req.name_installation) {
           const answers = await questions.precisePermissionRequest(data.req);
+          if (answers === false) {
+            return;
+          }
           if (answers.accept) {
             await this.installation.setExtSync(true);
             await this.wappsto.readNotification(data.id, 'accepted');

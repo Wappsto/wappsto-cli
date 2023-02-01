@@ -53,6 +53,26 @@ export default class Application extends Model implements Application21 {
     return new Version({}, this);
   }
 
+  getOAuthExternal(): OauthExternal21[] {
+    const oauth: OauthExternal21[] = [];
+    this.oauth_external.forEach((o) => {
+      if (typeof o !== 'string') {
+        oauth.push(o);
+      }
+    });
+    return oauth;
+  }
+
+  getOAuthClient(): OauthClient21[] {
+    const oauth: OauthClient21[] = [];
+    this.oauth_client.forEach((o) => {
+      if (typeof o !== 'string') {
+        oauth.push(o);
+      }
+    });
+    return oauth;
+  }
+
   parse(data: any): void {
     this.trace('parse', data);
     super.parse(data);

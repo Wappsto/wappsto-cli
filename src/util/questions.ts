@@ -1,6 +1,14 @@
 import prompt from 'prompts';
 import tui from './tui';
 import { Permission } from '../types/custom.d';
+import { OauthExternal21, OauthClient21 } from '../types/application.d';
+
+type Request = {
+  collection: string;
+  message: string;
+  name_installation: string;
+  type: string;
+};
 
 class Questions {
   private async ask(questions: any): Promise<any | false> {
@@ -11,7 +19,9 @@ class Questions {
     return answers;
   }
 
-  askWappstoCredentials(host: string): Promise<any | false> {
+  askWappstoCredentials(
+    host: string
+  ): Promise<{ username: string; password: string } | false> {
     return this.ask([
       {
         name: 'username',
@@ -38,7 +48,10 @@ class Questions {
     ]);
   }
 
-  async askForNewWapp(wapps: any[], present: boolean): Promise<any | false> {
+  async askForNewWapp(
+    wapps: any[],
+    present: boolean
+  ): Promise<Record<string, any> | false> {
     const choices = [
       {
         title: 'Create new Wapp',
@@ -174,14 +187,14 @@ class Questions {
   }
 
   async configureWapp(
-    oauthExternal: any[],
-    oauthClient: any[],
+    oauthExternal: OauthExternal21[],
+    oauthClient: OauthClient21[],
     permissions: Permission
-  ): Promise<any> {
+  ): Promise<Record<string, any> | false> {
     const external = oauthExternal[0] || {};
     const client = oauthClient[0] || {};
 
-    const type = await prompt([
+    const type = await this.ask([
       {
         name: 'config',
         type: 'select' as const,
@@ -340,31 +353,33 @@ class Questions {
         type: 'confirm' as const,
         name: 'permit_to_send_email',
         message: 'Do your Wapp need to send email?',
-        initial: false,
+        initial: permissions?.permit_to_send_email,
       },
       {
         type: 'confirm' as const,
         name: 'permit_to_send_sms',
         message: 'Do your Wapp need to send SMS?',
-        initial: false,
+        initial: permissions?.permit_to_send_sms,
       },
     ];
 
     switch (type.config) {
       case 'external_oauth':
-        return prompt(oauthExtQuestions);
+        return this.ask(oauthExtQuestions);
       case 'oauth_client':
-        return prompt(oauthClientQuestions);
+        return this.ask(oauthClientQuestions);
       case 'permissions':
-        return prompt(permissionQuestions);
+        return this.ask(permissionQuestions);
       case 'extsync':
       default:
-        return prompt(extSyncQuestions);
+        return this.ask(extSyncQuestions);
     }
   }
 
-  deleteWapp(): any {
-    const questions = [
+  deleteWapp(): Promise<
+    { del: boolean; local?: boolean; remote?: boolean } | false
+  > {
+    return this.ask([
       {
         name: 'del',
         type: 'confirm' as const,
@@ -381,11 +396,12 @@ class Questions {
         type: (prev: any, values: any) => (values.del ? 'confirm' : null),
         message: 'Do you want to delete the Wapp on Wappsto?',
       },
-    ];
-    return prompt(questions);
+    ]);
   }
 
-  precisePermissionRequest(request: any): any {
+  precisePermissionRequest(
+    request: Request
+  ): Promise<{ accept: boolean } | false> {
     let msg = '';
     let type = 'data';
 
@@ -399,17 +415,19 @@ class Questions {
       msg = `${request.name_installation} would like to save ${type} under your account. Allow?`;
     }
 
-    const questions = [
+    return this.ask([
       {
         name: 'accept',
         type: 'confirm' as const,
         message: msg,
       },
-    ];
-    return prompt(questions);
+    ]);
   }
 
-  permissionRequest(request: any, data: any[]): any {
+  permissionRequest(
+    request: Request,
+    data: any[]
+  ): Promise<{ permission: string[] } | false> {
     let msg = '';
 
     if (request.message) {
@@ -418,19 +436,18 @@ class Questions {
       msg = `Please choose the ${request.type} to share with ${request.name_installation}:`;
     }
 
-    const questions = [
+    return this.ask([
       {
         name: 'permission',
         type: 'multiselect' as const,
         message: msg,
         choices: data,
       },
-    ];
-    return prompt(questions);
+    ]);
   }
 
-  remoteVersionUpdated(): any {
-    const questions = [
+  remoteVersionUpdated(): Promise<{ local: boolean } | false> {
+    return this.ask([
       {
         name: 'local',
         type: 'confirm' as const,
@@ -438,16 +455,15 @@ class Questions {
         message:
           'Do you want to override local version information with remote information?',
       },
-    ];
-    return prompt(questions);
+    ]);
   }
 
-  fileConflict(file: string): any {
-    const questions = [
+  fileConflict(file: string): Promise<{ conflict: string } | false> {
+    return this.ask([
       {
         message: `Conflict on file ´${file}`,
         name: 'conflict',
-        type: 'multiselect' as const,
+        type: 'select' as const,
         choices: [
           {
             title: 'Overwrite local file with remote file',
@@ -471,24 +487,22 @@ class Questions {
           },
         ],
       },
-    ];
-    return prompt(questions);
+    ]);
   }
 
-  askDeleteLocalFile(file: string): any {
-    const questions = [
+  askDeleteLocalFile(file: string): Promise<{ delete: boolean } | false> {
+    return this.ask([
       {
         name: 'delete',
         type: 'confirm' as const,
         default: true,
         message: `${file} was deleted on the server, do you want to delete the local file?`,
       },
-    ];
-    return prompt(questions);
+    ]);
   }
 
-  askOverwriteFiles(): any {
-    const questions = [
+  askOverwriteFiles(): Promise<{ overwrite: boolean } | false> {
+    return this.ask([
       {
         name: 'overwrite',
         type: 'confirm' as const,
@@ -496,10 +510,9 @@ class Questions {
         message:
           'Do you want to overwrite your local files with example files?',
       },
-    ];
-    return prompt(questions);
+    ]);
   }
 }
 
-const questions: any = new Questions();
+const questions: Questions = new Questions();
 export default questions;

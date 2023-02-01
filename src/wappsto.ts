@@ -29,6 +29,10 @@ export default class Wappsto {
       Config.isCustomHost() ? this.HOST : 'Wappsto'
     );
 
+    if (creds === false) {
+      return;
+    }
+
     status.start();
 
     try {
