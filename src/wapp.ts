@@ -582,6 +582,35 @@ export default class Wapp {
     return updateFiles;
   }
 
+  async publish(): Promise<void> {
+    if (!this.present()) {
+      return;
+    }
+
+    const status = new Spinner('Loading application, please wait...');
+    status.start();
+    await this.application.fetch();
+    status.stop();
+
+    const answers = await questions.askPublishWapp(this.manifest.version_app);
+    if (answers === false) {
+      return;
+    }
+
+    status.setMessage('Publishing new version, please wait...');
+    status.start();
+
+    const res = await this.application.publish(answers.version);
+    if (res) {
+      this.saveApplication();
+      status.stop();
+
+      tui.showMessage(`Wapp published with version ${answers.version}`);
+    } else {
+      status.stop();
+    }
+  }
+
   async configure(): Promise<void> {
     if (!this.present()) {
       return;

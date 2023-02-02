@@ -9,6 +9,7 @@ import update from './cmd/update';
 import Delete from './cmd/delete';
 import configure from './cmd/configure';
 import serve from './cmd/serve';
+import publish from './cmd/publish';
 
 const mainDefinitions = [{ name: 'command', defaultOption: true }];
 
@@ -36,6 +37,10 @@ const sections = [
         name: 'configure',
         summary: 'Change settings for your wapp on wappsto.',
       },
+      {
+        name: 'publish',
+        summary: 'Publish a new version of your wapp to wappsto.',
+      },
       { name: 'delete', summary: 'Delete the Wapp on Wappsto.' },
     ],
   },
@@ -60,6 +65,9 @@ try {
       break;
     case 'configure':
       configure(argv);
+      break;
+    case 'publish':
+      publish(argv);
       break;
     case 'delete':
       Delete(argv);

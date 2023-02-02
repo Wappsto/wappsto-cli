@@ -512,6 +512,23 @@ class Questions {
       },
     ]);
   }
+
+  askPublishWapp(oldVersion: string): Promise<{ version: string } | false> {
+    return this.ask([
+      {
+        name: 'version',
+        type: 'text' as const,
+        initial: oldVersion,
+        message: `The version of the wapp is ${oldVersion}, what is the new version`,
+        validate: (answer: string) => {
+          if (/^\d\.\d\.\d$/.test(answer)) {
+            return true;
+          }
+          return 'Version must be in the format: 1.1.1';
+        },
+      },
+    ]);
+  }
 }
 
 const questions: Questions = new Questions();

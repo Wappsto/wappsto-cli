@@ -138,4 +138,18 @@ export default class Version extends Model implements Version21 {
     });
     return files;
   }
+
+  async publish() {
+    let result = true;
+    try {
+      const response = await HTTP.patch(`${this.HOST}/${this.id}`, {
+        status: 'commit',
+      });
+      this.parse(response.data);
+    } catch (err) {
+      tui.showError(`Failed to update ${this.meta.type}: ${this.id}`, err);
+      result = false;
+    }
+    return result;
+  }
 }

@@ -218,4 +218,14 @@ export default class Application extends Model implements Application21 {
       file.syncModified();
     });
   }
+
+  async publish(newVersion: string): Promise<boolean> {
+    const version = this.getVersion();
+    version.version_app = newVersion;
+    if (await version.update()) {
+      return version.publish();
+    }
+
+    return false;
+  }
 }

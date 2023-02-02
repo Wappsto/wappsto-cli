@@ -859,24 +859,30 @@ var HTTP = /*#__PURE__*/function () {
   };
   HTTP.get = /*#__PURE__*/function () {
     var _get = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(url, options) {
-      var res;
+      var res, _err$response;
       return _regeneratorRuntime().wrap(function _callee$(_context) {
         while (1) switch (_context.prev = _context.next) {
           case 0:
             if (options === void 0) {
               options = {};
             }
-            _context.next = 3;
+            _context.prev = 1;
+            _context.next = 4;
             return axios.get(url, options);
-          case 3:
+          case 4:
             res = _context.sent;
             tui.showTraffic('GET', url, {}, res.data);
             return _context.abrupt("return", res);
-          case 6:
+          case 9:
+            _context.prev = 9;
+            _context.t0 = _context["catch"](1);
+            tui.showTraffic('GET', url, {}, (_err$response = _context.t0.response) == null ? void 0 : _err$response.data);
+            throw _context.t0;
+          case 13:
           case "end":
             return _context.stop();
         }
-      }, _callee);
+      }, _callee, null, [[1, 9]]);
     }));
     function get(_x, _x2) {
       return _get.apply(this, arguments);
@@ -885,24 +891,30 @@ var HTTP = /*#__PURE__*/function () {
   }();
   HTTP.post = /*#__PURE__*/function () {
     var _post = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(url, data, options) {
-      var res;
+      var res, _err$response2;
       return _regeneratorRuntime().wrap(function _callee2$(_context2) {
         while (1) switch (_context2.prev = _context2.next) {
           case 0:
             if (options === void 0) {
               options = {};
             }
-            _context2.next = 3;
+            _context2.prev = 1;
+            _context2.next = 4;
             return axios.post(url, data, options);
-          case 3:
+          case 4:
             res = _context2.sent;
             tui.showTraffic('POST', url, data, res.data);
             return _context2.abrupt("return", res);
-          case 6:
+          case 9:
+            _context2.prev = 9;
+            _context2.t0 = _context2["catch"](1);
+            tui.showTraffic('POST', url, data, (_err$response2 = _context2.t0.response) == null ? void 0 : _err$response2.data);
+            throw _context2.t0;
+          case 13:
           case "end":
             return _context2.stop();
         }
-      }, _callee2);
+      }, _callee2, null, [[1, 9]]);
     }));
     function post(_x3, _x4, _x5) {
       return _post.apply(this, arguments);
@@ -911,24 +923,30 @@ var HTTP = /*#__PURE__*/function () {
   }();
   HTTP.put = /*#__PURE__*/function () {
     var _put = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(url, data, options) {
-      var res;
+      var res, _err$response3;
       return _regeneratorRuntime().wrap(function _callee3$(_context3) {
         while (1) switch (_context3.prev = _context3.next) {
           case 0:
             if (options === void 0) {
               options = {};
             }
-            _context3.next = 3;
+            _context3.prev = 1;
+            _context3.next = 4;
             return axios.put(url, data, options);
-          case 3:
+          case 4:
             res = _context3.sent;
             tui.showTraffic('PUT', url, data, res.data);
             return _context3.abrupt("return", res);
-          case 6:
+          case 9:
+            _context3.prev = 9;
+            _context3.t0 = _context3["catch"](1);
+            tui.showTraffic('PUT', url, data, (_err$response3 = _context3.t0.response) == null ? void 0 : _err$response3.data);
+            throw _context3.t0;
+          case 13:
           case "end":
             return _context3.stop();
         }
-      }, _callee3);
+      }, _callee3, null, [[1, 9]]);
     }));
     function put(_x6, _x7, _x8) {
       return _put.apply(this, arguments);
@@ -937,24 +955,30 @@ var HTTP = /*#__PURE__*/function () {
   }();
   HTTP.patch = /*#__PURE__*/function () {
     var _patch = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(url, data, options) {
-      var res;
+      var res, _err$response4;
       return _regeneratorRuntime().wrap(function _callee4$(_context4) {
         while (1) switch (_context4.prev = _context4.next) {
           case 0:
             if (options === void 0) {
               options = {};
             }
-            _context4.next = 3;
+            _context4.prev = 1;
+            _context4.next = 4;
             return axios.patch(url, data, options);
-          case 3:
+          case 4:
             res = _context4.sent;
             tui.showTraffic('PATCH', url, data, res.data);
             return _context4.abrupt("return", res);
-          case 6:
+          case 9:
+            _context4.prev = 9;
+            _context4.t0 = _context4["catch"](1);
+            tui.showTraffic('PATCH', url, data, (_err$response4 = _context4.t0.response) == null ? void 0 : _err$response4.data);
+            throw _context4.t0;
+          case 13:
           case "end":
             return _context4.stop();
         }
-      }, _callee4);
+      }, _callee4, null, [[1, 9]]);
     }));
     function patch(_x9, _x10, _x11) {
       return _patch.apply(this, arguments);
@@ -963,24 +987,30 @@ var HTTP = /*#__PURE__*/function () {
   }();
   HTTP["delete"] = /*#__PURE__*/function () {
     var _delete2 = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(url, options) {
-      var res;
+      var res, _err$response5;
       return _regeneratorRuntime().wrap(function _callee5$(_context5) {
         while (1) switch (_context5.prev = _context5.next) {
           case 0:
             if (options === void 0) {
               options = {};
             }
-            _context5.next = 3;
+            _context5.prev = 1;
+            _context5.next = 4;
             return axios["delete"](url, options);
-          case 3:
+          case 4:
             res = _context5.sent;
             tui.showTraffic('DELETE', url, {}, res.data);
             return _context5.abrupt("return", res);
-          case 6:
+          case 9:
+            _context5.prev = 9;
+            _context5.t0 = _context5["catch"](1);
+            tui.showTraffic('DELETE', url, {}, (_err$response5 = _context5.t0.response) == null ? void 0 : _err$response5.data);
+            throw _context5.t0;
+          case 13:
           case "end":
             return _context5.stop();
         }
-      }, _callee5);
+      }, _callee5, null, [[1, 9]]);
     }));
     function _delete(_x12, _x13) {
       return _delete2.apply(this, arguments);
@@ -2141,6 +2171,41 @@ var Version = /*#__PURE__*/function (_Model) {
     });
     return files;
   };
+  _proto.publish = /*#__PURE__*/function () {
+    var _publish = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
+      var result, response;
+      return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+        while (1) switch (_context3.prev = _context3.next) {
+          case 0:
+            result = true;
+            _context3.prev = 1;
+            _context3.next = 4;
+            return HTTP.patch(this.HOST + "/" + this.id, {
+              status: 'commit'
+            });
+          case 4:
+            response = _context3.sent;
+            this.parse(response.data);
+            _context3.next = 12;
+            break;
+          case 8:
+            _context3.prev = 8;
+            _context3.t0 = _context3["catch"](1);
+            tui.showError("Failed to update " + this.meta.type + ": " + this.id, _context3.t0);
+            result = false;
+          case 12:
+            return _context3.abrupt("return", result);
+          case 13:
+          case "end":
+            return _context3.stop();
+        }
+      }, _callee3, this, [[1, 8]]);
+    }));
+    function publish() {
+      return _publish.apply(this, arguments);
+    }
+    return publish;
+  }();
   return Version;
 }(Model);
 
@@ -2462,6 +2527,35 @@ var Application = /*#__PURE__*/function (_Model) {
       file.syncModified();
     });
   };
+  _proto.publish = /*#__PURE__*/function () {
+    var _publish = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6(newVersion) {
+      var version;
+      return _regeneratorRuntime().wrap(function _callee6$(_context6) {
+        while (1) switch (_context6.prev = _context6.next) {
+          case 0:
+            version = this.getVersion();
+            version.version_app = newVersion;
+            _context6.next = 4;
+            return version.update();
+          case 4:
+            if (!_context6.sent) {
+              _context6.next = 6;
+              break;
+            }
+            return _context6.abrupt("return", version.publish());
+          case 6:
+            return _context6.abrupt("return", false);
+          case 7:
+          case "end":
+            return _context6.stop();
+        }
+      }, _callee6, this);
+    }));
+    function publish(_x4) {
+      return _publish.apply(this, arguments);
+    }
+    return publish;
+  }();
   return Application;
 }(Model);
 
@@ -2969,6 +3063,21 @@ var Questions = /*#__PURE__*/function () {
       type: 'confirm',
       "default": false,
       message: 'Do you want to overwrite your local files with example files?'
+    }]);
+  };
+  _proto.askPublishWapp = function askPublishWapp(oldVersion) {
+    console.log(oldVersion);
+    return this.ask([{
+      name: 'version',
+      type: 'text',
+      initial: oldVersion,
+      message: "The version of the wapp is " + oldVersion + ", what is the new version",
+      validate: function validate(answer) {
+        if (/^\d\.\d\.\d$/.test(answer)) {
+          return true;
+        }
+        return 'Version must be in the format: 1.1.1';
+      }
     }]);
   };
   return Questions;
@@ -4042,9 +4151,9 @@ var Wapp = /*#__PURE__*/function () {
     }
     return update;
   }();
-  _proto.configure = /*#__PURE__*/function () {
-    var _configure = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee8() {
-      var answer;
+  _proto.publish = /*#__PURE__*/function () {
+    var _publish = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee8() {
+      var status, answers, res;
       return _regeneratorRuntime().wrap(function _callee8$(_context8) {
         while (1) switch (_context8.prev = _context8.next) {
           case 0:
@@ -4054,67 +4163,49 @@ var Wapp = /*#__PURE__*/function () {
             }
             return _context8.abrupt("return");
           case 2:
-            _context8.next = 4;
-            return this.application.fetch();
-          case 4:
+            status = new Spinner('Loading application, please wait...');
+            status.start();
             _context8.next = 6;
-            return questions.configureWapp(this.application.getOAuthExternal(), this.application.getOAuthClient(), this.manifest.permission);
+            return this.application.fetch();
           case 6:
-            answer = _context8.sent;
-            if (!(answer === false)) {
-              _context8.next = 9;
+            status.stop();
+            _context8.next = 9;
+            return questions.askPublishWapp(this.manifest.version_app);
+          case 9:
+            answers = _context8.sent;
+            if (!(answers === false)) {
+              _context8.next = 12;
               break;
             }
             return _context8.abrupt("return");
-          case 9:
-            if (!answer.extsync) {
-              _context8.next = 13;
-              break;
+          case 12:
+            status.setMessage('Publishing new version, please wait...');
+            status.start();
+            _context8.next = 16;
+            return this.application.publish(answers.version);
+          case 16:
+            res = _context8.sent;
+            if (res) {
+              this.saveApplication();
+              status.stop();
+              tui.showMessage("Wapp published with version " + answers.version);
+            } else {
+              status.stop();
             }
-            this.installation.setExtSync(answer.extsync);
-            _context8.next = 27;
-            break;
-          case 13:
-            if (!answer.api_site) {
-              _context8.next = 17;
-              break;
-            }
-            this.application.createOauthExternal(answer);
-            _context8.next = 27;
-            break;
-          case 17:
-            if (!answer.redirect_uri) {
-              _context8.next = 21;
-              break;
-            }
-            this.application.createOauthClient(answer);
-            _context8.next = 27;
-            break;
-          case 21:
-            if (!answer.create) {
-              _context8.next = 27;
-              break;
-            }
-            this.manifest.permission = answer;
-            this.saveManifest();
-            this.application.getVersion().permission = answer;
-            _context8.next = 27;
-            return this.application.getVersion().update();
-          case 27:
+          case 18:
           case "end":
             return _context8.stop();
         }
       }, _callee8, this);
     }));
-    function configure() {
-      return _configure.apply(this, arguments);
+    function publish() {
+      return _publish.apply(this, arguments);
     }
-    return configure;
+    return publish;
   }();
-  _proto["delete"] = /*#__PURE__*/function () {
-    var _delete2 = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee9() {
-      var _this4 = this;
-      var answer, status, results;
+  _proto.configure = /*#__PURE__*/function () {
+    var _configure = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee9() {
+      var answer;
       return _regeneratorRuntime().wrap(function _callee9$(_context9) {
         while (1) switch (_context9.prev = _context9.next) {
           case 0:
@@ -4125,25 +4216,95 @@ var Wapp = /*#__PURE__*/function () {
             return _context9.abrupt("return");
           case 2:
             _context9.next = 4;
-            return questions.deleteWapp();
+            return this.application.fetch();
           case 4:
+            _context9.next = 6;
+            return questions.configureWapp(this.application.getOAuthExternal(), this.application.getOAuthClient(), this.manifest.permission);
+          case 6:
             answer = _context9.sent;
             if (!(answer === false)) {
-              _context9.next = 7;
+              _context9.next = 9;
               break;
             }
             return _context9.abrupt("return");
+          case 9:
+            if (!answer.extsync) {
+              _context9.next = 13;
+              break;
+            }
+            this.installation.setExtSync(answer.extsync);
+            _context9.next = 27;
+            break;
+          case 13:
+            if (!answer.api_site) {
+              _context9.next = 17;
+              break;
+            }
+            this.application.createOauthExternal(answer);
+            _context9.next = 27;
+            break;
+          case 17:
+            if (!answer.redirect_uri) {
+              _context9.next = 21;
+              break;
+            }
+            this.application.createOauthClient(answer);
+            _context9.next = 27;
+            break;
+          case 21:
+            if (!answer.create) {
+              _context9.next = 27;
+              break;
+            }
+            this.manifest.permission = answer;
+            this.saveManifest();
+            this.application.getVersion().permission = answer;
+            _context9.next = 27;
+            return this.application.getVersion().update();
+          case 27:
+          case "end":
+            return _context9.stop();
+        }
+      }, _callee9, this);
+    }));
+    function configure() {
+      return _configure.apply(this, arguments);
+    }
+    return configure;
+  }();
+  _proto["delete"] = /*#__PURE__*/function () {
+    var _delete2 = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee10() {
+      var _this4 = this;
+      var answer, status, results;
+      return _regeneratorRuntime().wrap(function _callee10$(_context10) {
+        while (1) switch (_context10.prev = _context10.next) {
+          case 0:
+            if (this.present()) {
+              _context10.next = 2;
+              break;
+            }
+            return _context10.abrupt("return");
+          case 2:
+            _context10.next = 4;
+            return questions.deleteWapp();
+          case 4:
+            answer = _context10.sent;
+            if (!(answer === false)) {
+              _context10.next = 7;
+              break;
+            }
+            return _context10.abrupt("return");
           case 7:
             if (!answer.del) {
-              _context9.next = 30;
+              _context10.next = 30;
               break;
             }
             if (!(!answer.local && !answer.remote)) {
-              _context9.next = 11;
+              _context10.next = 11;
               break;
             }
             tui.showWarning('Nothing deleted');
-            return _context9.abrupt("return");
+            return _context10.abrupt("return");
           case 11:
             status = new Spinner('Deleting Wapp, please wait...');
             status.start();
@@ -4151,7 +4312,7 @@ var Wapp = /*#__PURE__*/function () {
               this.deleteLocal();
             }
             if (!answer.remote) {
-              _context9.next = 28;
+              _context10.next = 28;
               break;
             }
             results = [];
@@ -4164,26 +4325,26 @@ var Wapp = /*#__PURE__*/function () {
             if (this.application.id) {
               results.push(this.application["delete"]());
             }
-            _context9.prev = 18;
-            _context9.next = 21;
+            _context10.prev = 18;
+            _context10.next = 21;
             return Promise.all(results);
           case 21:
-            _context9.next = 28;
+            _context10.next = 28;
             break;
           case 23:
-            _context9.prev = 23;
-            _context9.t0 = _context9["catch"](18);
+            _context10.prev = 23;
+            _context10.t0 = _context10["catch"](18);
             status.stop();
-            tui.showError("Failed to delete application: " + _context9.t0);
-            return _context9.abrupt("return");
+            tui.showError("Failed to delete application: " + _context10.t0);
+            return _context10.abrupt("return");
           case 28:
             status.stop();
             tui.showMessage('Wapp deleted');
           case 30:
           case "end":
-            return _context9.stop();
+            return _context10.stop();
         }
-      }, _callee9, this, [[18, 23]]);
+      }, _callee10, this, [[18, 23]]);
     }));
     function _delete() {
       return _delete2.apply(this, arguments);
@@ -4191,30 +4352,30 @@ var Wapp = /*#__PURE__*/function () {
     return _delete;
   }();
   _proto.getInstallationSession = /*#__PURE__*/function () {
-    var _getInstallationSession = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee10() {
+    var _getInstallationSession = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee11() {
       var ret;
-      return _regeneratorRuntime().wrap(function _callee10$(_context10) {
-        while (1) switch (_context10.prev = _context10.next) {
+      return _regeneratorRuntime().wrap(function _callee11$(_context11) {
+        while (1) switch (_context11.prev = _context11.next) {
           case 0:
-            _context10.next = 2;
+            _context11.next = 2;
             return this.installation.fetchById(this.versionID);
           case 2:
-            ret = _context10.sent;
+            ret = _context11.sent;
             if (ret) {
-              _context10.next = 5;
+              _context11.next = 5;
               break;
             }
-            return _context10.abrupt("return");
+            return _context11.abrupt("return");
           case 5:
             if (this.sessionCallback) {
               this.sessionCallback(this.installation.session);
             }
-            return _context10.abrupt("return", this.installation.session);
+            return _context11.abrupt("return", this.installation.session);
           case 7:
           case "end":
-            return _context10.stop();
+            return _context11.stop();
         }
-      }, _callee10, this);
+      }, _callee11, this);
     }));
     function getInstallationSession() {
       return _getInstallationSession.apply(this, arguments);
@@ -4225,40 +4386,40 @@ var Wapp = /*#__PURE__*/function () {
     return this.installation.token;
   };
   _proto.handleStreamEvent = /*#__PURE__*/function () {
-    var _handleStreamEvent = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee12(data) {
+    var _handleStreamEvent = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee13(data) {
       var _this5 = this;
       var oldSession, newSession, tmp;
-      return _regeneratorRuntime().wrap(function _callee12$(_context12) {
-        while (1) switch (_context12.prev = _context12.next) {
+      return _regeneratorRuntime().wrap(function _callee13$(_context13) {
+        while (1) switch (_context13.prev = _context13.next) {
           case 0:
             if (!(data && data.application !== this.application.id)) {
-              _context12.next = 2;
+              _context13.next = 2;
               break;
             }
-            return _context12.abrupt("return");
+            return _context13.abrupt("return");
           case 2:
             if (!(data && data.installation !== this.installation.id)) {
-              _context12.next = 4;
+              _context13.next = 4;
               break;
             }
-            return _context12.abrupt("return");
+            return _context13.abrupt("return");
           case 4:
             if (!data.reinstall) {
-              _context12.next = 18;
+              _context13.next = 18;
               break;
             }
             oldSession = this.installation.session;
-            _context12.next = 8;
+            _context13.next = 8;
             return this.getInstallationSession();
           case 8:
-            newSession = _context12.sent;
+            newSession = _context13.sent;
             if (!(oldSession !== newSession)) {
-              _context12.next = 15;
+              _context13.next = 15;
               break;
             }
             tmp = this.lightStream;
             this.lightStream = undefined;
-            _context12.next = 14;
+            _context13.next = 14;
             return this.openStream();
           case 14:
             if (tmp) {
@@ -4268,19 +4429,19 @@ var Wapp = /*#__PURE__*/function () {
             if (data.log) {
               tui.showStatus(data.log);
             }
-            _context12.next = 43;
+            _context13.next = 43;
             break;
           case 18:
             if (!data.log) {
-              _context12.next = 22;
+              _context13.next = 22;
               break;
             }
             tui.showLog(data.log, data.type, data.timestamp);
-            _context12.next = 43;
+            _context13.next = 43;
             break;
           case 22:
             if (!data.error) {
-              _context12.next = 26;
+              _context13.next = 26;
               break;
             }
             if (data.type === 'Background') {
@@ -4288,11 +4449,11 @@ var Wapp = /*#__PURE__*/function () {
             } else {
               tui.showError(data.error);
             }
-            _context12.next = 43;
+            _context13.next = 43;
             break;
           case 26:
             if (!data.warn) {
-              _context12.next = 30;
+              _context13.next = 30;
               break;
             }
             if (data.type === 'Background') {
@@ -4300,39 +4461,39 @@ var Wapp = /*#__PURE__*/function () {
             } else {
               tui.showWarning(data.warn);
             }
-            _context12.next = 43;
+            _context13.next = 43;
             break;
           case 30:
             if (!data.status) {
-              _context12.next = 37;
+              _context13.next = 37;
               break;
             }
             tui.showStatus(data.status);
             if (!data.session) {
-              _context12.next = 35;
+              _context13.next = 35;
               break;
             }
-            _context12.next = 35;
+            _context13.next = 35;
             return this.getInstallationSession();
           case 35:
-            _context12.next = 43;
+            _context13.next = 43;
             break;
           case 37:
             if (!data.req) {
-              _context12.next = 42;
+              _context13.next = 42;
               break;
             }
-            _context12.next = 40;
-            return this.mutex.runExclusive( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee11() {
+            _context13.next = 40;
+            return this.mutex.runExclusive( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee12() {
               var opts, search, items, results, answers, status, _answers2, _answers3;
-              return _regeneratorRuntime().wrap(function _callee11$(_context11) {
-                while (1) switch (_context11.prev = _context11.next) {
+              return _regeneratorRuntime().wrap(function _callee12$(_context12) {
+                while (1) switch (_context12.prev = _context12.next) {
                   case 0:
                     tui.block();
                     opts = [];
                     search = [];
                     if (!data.req.limitation) {
-                      _context11.next = 27;
+                      _context12.next = 27;
                       break;
                     }
                     Object.keys(data.req.limitation).forEach(function (key) {
@@ -4341,12 +4502,12 @@ var Wapp = /*#__PURE__*/function () {
                         search.push("this_" + type + "=[" + lim[type].join(',') + "]");
                       });
                     });
-                    _context11.next = 7;
+                    _context12.next = 7;
                     return _this5.wappsto.find(data.req.type, search.join('&'), data.req.method, data.req.quantity, _this5.installation.id);
                   case 7:
-                    items = _context11.sent;
+                    items = _context12.sent;
                     if (!items.length) {
-                      _context11.next = 24;
+                      _context12.next = 24;
                       break;
                     }
                     items.forEach(function (item) {
@@ -4356,15 +4517,15 @@ var Wapp = /*#__PURE__*/function () {
                       });
                     });
                     results = [];
-                    _context11.next = 13;
+                    _context12.next = 13;
                     return questions.permissionRequest(data.req, opts);
                   case 13:
-                    answers = _context11.sent;
+                    answers = _context12.sent;
                     if (!(answers === false)) {
-                      _context11.next = 16;
+                      _context12.next = 16;
                       break;
                     }
-                    return _context11.abrupt("return");
+                    return _context12.abrupt("return");
                   case 16:
                     answers.permission.forEach(function (per) {
                       results.push(_this5.wappsto.updateACL(per, data.installation, [], data.req.method));
@@ -4374,90 +4535,90 @@ var Wapp = /*#__PURE__*/function () {
                       status = 'accepted';
                     }
                     results.push(_this5.wappsto.readNotification(data.id, status));
-                    _context11.next = 22;
+                    _context12.next = 22;
                     return Promise.all(results);
                   case 22:
-                    _context11.next = 25;
+                    _context12.next = 25;
                     break;
                   case 24:
                     tui.showWarning("Failed to find anything matching the permission request from " + data.req.name_installation);
                   case 25:
-                    _context11.next = 66;
+                    _context12.next = 66;
                     break;
                   case 27:
                     if (!data.req.collection) {
-                      _context11.next = 48;
+                      _context12.next = 48;
                       break;
                     }
-                    _context11.next = 30;
+                    _context12.next = 30;
                     return questions.precisePermissionRequest(data.req);
                   case 30:
-                    _answers2 = _context11.sent;
+                    _answers2 = _context12.sent;
                     if (!(_answers2 === false)) {
-                      _context11.next = 33;
+                      _context12.next = 33;
                       break;
                     }
-                    return _context11.abrupt("return");
+                    return _context12.abrupt("return");
                   case 33:
                     if (!_answers2.accept) {
-                      _context11.next = 44;
+                      _context12.next = 44;
                       break;
                     }
                     if (!(data.req.method[0] === 'add')) {
-                      _context11.next = 39;
+                      _context12.next = 39;
                       break;
                     }
-                    _context11.next = 37;
+                    _context12.next = 37;
                     return _this5.wappsto.updateACLRestriction(data.installation, data.req.collection);
                   case 37:
-                    _context11.next = 40;
+                    _context12.next = 40;
                     break;
                   case 39:
                     tui.showWarning("Unknown '" + data.req.method[0] + "' permission request");
                   case 40:
-                    _context11.next = 42;
+                    _context12.next = 42;
                     return _this5.wappsto.readNotification(data.id, 'accepted');
                   case 42:
-                    _context11.next = 46;
+                    _context12.next = 46;
                     break;
                   case 44:
-                    _context11.next = 46;
+                    _context12.next = 46;
                     return _this5.wappsto.readNotification(data.id, 'denied');
                   case 46:
-                    _context11.next = 66;
+                    _context12.next = 66;
                     break;
                   case 48:
                     if (!data.req.name_installation) {
-                      _context11.next = 65;
+                      _context12.next = 65;
                       break;
                     }
-                    _context11.next = 51;
+                    _context12.next = 51;
                     return questions.precisePermissionRequest(data.req);
                   case 51:
-                    _answers3 = _context11.sent;
+                    _answers3 = _context12.sent;
                     if (!(_answers3 === false)) {
-                      _context11.next = 54;
+                      _context12.next = 54;
                       break;
                     }
-                    return _context11.abrupt("return");
+                    return _context12.abrupt("return");
                   case 54:
                     if (!_answers3.accept) {
-                      _context11.next = 61;
+                      _context12.next = 61;
                       break;
                     }
-                    _context11.next = 57;
+                    _context12.next = 57;
                     return _this5.installation.setExtSync(true);
                   case 57:
-                    _context11.next = 59;
+                    _context12.next = 59;
                     return _this5.wappsto.readNotification(data.id, 'accepted');
                   case 59:
-                    _context11.next = 63;
+                    _context12.next = 63;
                     break;
                   case 61:
-                    _context11.next = 63;
+                    _context12.next = 63;
                     return _this5.wappsto.readNotification(data.id, 'denied');
                   case 63:
-                    _context11.next = 66;
+                    _context12.next = 66;
                     break;
                   case 65:
                     tui.showError('Failed to handle request', data.req);
@@ -4465,12 +4626,12 @@ var Wapp = /*#__PURE__*/function () {
                     tui.unblock();
                   case 67:
                   case "end":
-                    return _context11.stop();
+                    return _context12.stop();
                 }
-              }, _callee11);
+              }, _callee12);
             })));
           case 40:
-            _context12.next = 43;
+            _context13.next = 43;
             break;
           case 42:
             if (typeof data !== 'string') {
@@ -4480,9 +4641,9 @@ var Wapp = /*#__PURE__*/function () {
             }
           case 43:
           case "end":
-            return _context12.stop();
+            return _context13.stop();
         }
-      }, _callee12, this);
+      }, _callee13, this);
     }));
     function handleStreamEvent(_x9) {
       return _handleStreamEvent.apply(this, arguments);
@@ -4490,46 +4651,46 @@ var Wapp = /*#__PURE__*/function () {
     return handleStreamEvent;
   }();
   _proto.openStream = /*#__PURE__*/function () {
-    var _openStream = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee13(sessionCallback) {
+    var _openStream = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee14(sessionCallback) {
       var _this6 = this;
       var appStream, lightStream, streams, i, subs, newStream, _i2, _subs, _newStream;
-      return _regeneratorRuntime().wrap(function _callee13$(_context13) {
-        while (1) switch (_context13.prev = _context13.next) {
+      return _regeneratorRuntime().wrap(function _callee14$(_context14) {
+        while (1) switch (_context14.prev = _context14.next) {
           case 0:
             if (sessionCallback) {
               this.sessionCallback = sessionCallback;
             }
-            _context13.next = 3;
+            _context14.next = 3;
             return this.stream.getAll();
           case 3:
-            streams = _context13.sent;
+            streams = _context14.sent;
             i = 0;
           case 5:
             if (!(i < streams.length)) {
-              _context13.next = 13;
+              _context14.next = 13;
               break;
             }
             subs = streams[i].subscription.toString();
             if (!(subs.indexOf('/notification') !== -1 && subs.indexOf('/installation') !== -1)) {
-              _context13.next = 10;
+              _context14.next = 10;
               break;
             }
             appStream = streams[i].meta.id;
-            return _context13.abrupt("break", 13);
+            return _context14.abrupt("break", 13);
           case 10:
             i += 1;
-            _context13.next = 5;
+            _context14.next = 5;
             break;
           case 13:
             if (appStream) {
-              _context13.next = 19;
+              _context14.next = 19;
               break;
             }
             tui.showMessage('Creating new stream for notifications');
-            _context13.next = 17;
+            _context14.next = 17;
             return this.stream.create(['/notification', '/installation']);
           case 17:
-            newStream = _context13.sent;
+            newStream = _context14.sent;
             if (newStream && newStream.meta) {
               appStream = newStream.meta.id;
             }
@@ -4539,45 +4700,45 @@ var Wapp = /*#__PURE__*/function () {
                 return _this6.handleStreamEvent(data);
               });
             }
-            _context13.next = 22;
+            _context14.next = 22;
             return this.stream.getAll(this.installation.session);
           case 22:
-            streams = _context13.sent;
+            streams = _context14.sent;
             if (!streams) {
-              _context13.next = 41;
+              _context14.next = 41;
               break;
             }
             _i2 = 0;
           case 25:
             if (!(_i2 < streams.length)) {
-              _context13.next = 34;
+              _context14.next = 34;
               break;
             }
             if (!streams[_i2].subscription) {
-              _context13.next = 31;
+              _context14.next = 31;
               break;
             }
             _subs = streams[_i2].subscription.toString();
             if (!(_subs.indexOf('/extsync') !== -1 && _subs.indexOf('/console') !== -1)) {
-              _context13.next = 31;
+              _context14.next = 31;
               break;
             }
             lightStream = streams[_i2].meta.id;
-            return _context13.abrupt("break", 34);
+            return _context14.abrupt("break", 34);
           case 31:
             _i2 += 1;
-            _context13.next = 25;
+            _context14.next = 25;
             break;
           case 34:
             if (lightStream) {
-              _context13.next = 40;
+              _context14.next = 40;
               break;
             }
             tui.showMessage('Creating new stream for background');
-            _context13.next = 38;
+            _context14.next = 38;
             return this.stream.create(['/extsync', '/console'], this.installation.session);
           case 38:
-            _newStream = _context13.sent;
+            _newStream = _context14.sent;
             if (_newStream && _newStream.meta) {
               lightStream = _newStream.meta.id;
             }
@@ -4589,9 +4750,9 @@ var Wapp = /*#__PURE__*/function () {
             }
           case 41:
           case "end":
-            return _context13.stop();
+            return _context14.stop();
         }
-      }, _callee13, this);
+      }, _callee14, this);
     }));
     function openStream(_x10) {
       return _openStream.apply(this, arguments);
@@ -4622,7 +4783,7 @@ var Wapp = /*#__PURE__*/function () {
   return Wapp;
 }();
 
-var optionDefinitions$4 = [{
+var optionDefinitions$5 = [{
   name: 'help',
   description: 'Display this usage guide.',
   alias: 'h',
@@ -4648,7 +4809,7 @@ var optionDefinitions$4 = [{
   alias: 'q',
   type: Boolean
 }];
-var sections$5 = [{
+var sections$6 = [{
   header: 'Create Wapp',
   content: 'Script to create a new wapp on wappsto.'
 }, {
@@ -4656,7 +4817,7 @@ var sections$5 = [{
   content: ['$ wapp create', '$ wapp create {bold --validate} {bold --vervose}', '$ wapp create {bold --help}']
 }, {
   header: 'Options',
-  optionList: optionDefinitions$4
+  optionList: optionDefinitions$5
 }, {
   content: 'Project home: {underline https://github.com/wappsto/wappsto-cli}'
 }];
@@ -4670,7 +4831,7 @@ function _create() {
       while (1) switch (_context.prev = _context.next) {
         case 0:
           _context.prev = 0;
-          options = commandLineArgs(optionDefinitions$4, {
+          options = commandLineArgs(optionDefinitions$5, {
             argv: argv
           });
           _context.next = 9;
@@ -4679,14 +4840,14 @@ function _create() {
           _context.prev = 4;
           _context.t0 = _context["catch"](0);
           tui.showError(_context.t0.message);
-          console.log(commandLineUsage(sections$5));
+          console.log(commandLineUsage(sections$6));
           return _context.abrupt("return");
         case 9:
           if (!options.help) {
             _context.next = 12;
             break;
           }
-          console.log(commandLineUsage(sections$5));
+          console.log(commandLineUsage(sections$6));
           return _context.abrupt("return");
         case 12:
           tui.debug = options.debug;
@@ -4725,7 +4886,7 @@ function _create() {
   return _create.apply(this, arguments);
 }
 
-var optionDefinitions$3 = [{
+var optionDefinitions$4 = [{
   name: 'help',
   description: 'Display this usage guide.',
   alias: 'h',
@@ -4751,7 +4912,7 @@ var optionDefinitions$3 = [{
   alias: 'q',
   type: Boolean
 }];
-var sections$4 = [{
+var sections$5 = [{
   header: 'Update Wapp',
   content: 'Script to sync your local wapp files with wappsto.'
 }, {
@@ -4759,7 +4920,7 @@ var sections$4 = [{
   content: ['$ wapp update', '$ wapp update {bold --reinstall}', '$ wapp update {bold --help}']
 }, {
   header: 'Options',
-  optionList: optionDefinitions$3
+  optionList: optionDefinitions$4
 }, {
   content: 'Project home: {underline https://github.com/wappsto/wappsto-cli}'
 }];
@@ -4773,7 +4934,7 @@ function _update() {
       while (1) switch (_context.prev = _context.next) {
         case 0:
           _context.prev = 0;
-          options = commandLineArgs(optionDefinitions$3, {
+          options = commandLineArgs(optionDefinitions$4, {
             argv: argv
           });
           _context.next = 9;
@@ -4782,14 +4943,14 @@ function _update() {
           _context.prev = 4;
           _context.t0 = _context["catch"](0);
           tui.showError(_context.t0.message);
-          console.log(commandLineUsage(sections$4));
+          console.log(commandLineUsage(sections$5));
           return _context.abrupt("return");
         case 9:
           if (!options.help) {
             _context.next = 12;
             break;
           }
-          console.log(commandLineUsage(sections$4));
+          console.log(commandLineUsage(sections$5));
           return _context.abrupt("return");
         case 12:
           tui.debug = options.debug;
@@ -4828,7 +4989,7 @@ function _update() {
   return _update.apply(this, arguments);
 }
 
-var optionDefinitions$2 = [{
+var optionDefinitions$3 = [{
   name: 'help',
   description: 'Display this usage guide.',
   alias: 'h',
@@ -4849,7 +5010,7 @@ var optionDefinitions$2 = [{
   alias: 'q',
   type: Boolean
 }];
-var sections$3 = [{
+var sections$4 = [{
   header: 'Delete Wapp',
   content: 'Script to delete the Wapp on Wappsto.'
 }, {
@@ -4857,7 +5018,7 @@ var sections$3 = [{
   content: ['$ wapp delete', '$ wapp delete {bold --verbose}', '$ wapp delete {bold --help}']
 }, {
   header: 'Options',
-  optionList: optionDefinitions$2
+  optionList: optionDefinitions$3
 }, {
   content: 'Project home: {underline https://github.com/wappsto/wappsto-cli}'
 }];
@@ -4871,7 +5032,7 @@ function _Delete() {
       while (1) switch (_context.prev = _context.next) {
         case 0:
           _context.prev = 0;
-          options = commandLineArgs(optionDefinitions$2, {
+          options = commandLineArgs(optionDefinitions$3, {
             argv: argv
           });
           _context.next = 9;
@@ -4880,14 +5041,14 @@ function _Delete() {
           _context.prev = 4;
           _context.t0 = _context["catch"](0);
           tui.showError(_context.t0.message);
-          console.log(commandLineUsage(sections$3));
+          console.log(commandLineUsage(sections$4));
           return _context.abrupt("return");
         case 9:
           if (!options.help) {
             _context.next = 12;
             break;
           }
-          console.log(commandLineUsage(sections$3));
+          console.log(commandLineUsage(sections$4));
           return _context.abrupt("return");
         case 12:
           tui.debug = options.debug;
@@ -4931,7 +5092,7 @@ function _Delete() {
   return _Delete.apply(this, arguments);
 }
 
-var optionDefinitions$1 = [{
+var optionDefinitions$2 = [{
   name: 'help',
   description: 'Display this usage guide.',
   alias: 'h',
@@ -4952,7 +5113,7 @@ var optionDefinitions$1 = [{
   alias: 'q',
   type: Boolean
 }];
-var sections$2 = [{
+var sections$3 = [{
   header: 'Configure Wapp',
   content: 'Script to change settings for your wapp on wappsto.'
 }, {
@@ -4960,7 +5121,7 @@ var sections$2 = [{
   content: ['$ wapp configure', '$ wapp configure {bold --verbose}', '$ wapp configure {bold --help}']
 }, {
   header: 'Options',
-  optionList: optionDefinitions$1
+  optionList: optionDefinitions$2
 }, {
   content: 'Project home: {underline https://github.com/wappsto/wappsto-cli}'
 }];
@@ -4974,7 +5135,7 @@ function _configure() {
       while (1) switch (_context.prev = _context.next) {
         case 0:
           _context.prev = 0;
-          options = commandLineArgs(optionDefinitions$1, {
+          options = commandLineArgs(optionDefinitions$2, {
             argv: argv
           });
           _context.next = 9;
@@ -4983,14 +5144,14 @@ function _configure() {
           _context.prev = 4;
           _context.t0 = _context["catch"](0);
           tui.showError(_context.t0.message);
-          console.log(commandLineUsage(sections$2));
+          console.log(commandLineUsage(sections$3));
           return _context.abrupt("return");
         case 9:
           if (!options.help) {
             _context.next = 12;
             break;
           }
-          console.log(commandLineUsage(sections$2));
+          console.log(commandLineUsage(sections$3));
           return _context.abrupt("return");
         case 12:
           tui.debug = options.debug;
@@ -5021,7 +5182,7 @@ function _configure() {
   return _configure.apply(this, arguments);
 }
 
-var optionDefinitions = [{
+var optionDefinitions$1 = [{
   name: 'help',
   description: 'Display this usage guide.',
   alias: 'h',
@@ -5062,7 +5223,7 @@ var optionDefinitions = [{
   alias: 'q',
   type: Boolean
 }];
-var sections$1 = [{
+var sections$2 = [{
   header: 'Serve Wapp',
   content: 'Script to run a local web server for the foreground part of the wapp and opens a stream to the background wapp running on Wappsto.'
 }, {
@@ -5070,7 +5231,7 @@ var sections$1 = [{
   content: ['$ wapp serve', '$ wapp serve {bold --port 4000} {bold --verbose}', '$ wapp serve {bold --remote} {bold --nobrowser}', '$ wapp serve {bold --help}']
 }, {
   header: 'Options',
-  optionList: optionDefinitions
+  optionList: optionDefinitions$1
 }, {
   content: 'Project home: {underline https://github.com/wappsto/wappsto-cli}'
 }];
@@ -5366,7 +5527,7 @@ function _serve() {
             return true;
           };
           _context7.prev = 9;
-          options = commandLineArgs(optionDefinitions, {
+          options = commandLineArgs(optionDefinitions$1, {
             argv: argv
           });
           _context7.next = 18;
@@ -5375,14 +5536,14 @@ function _serve() {
           _context7.prev = 13;
           _context7.t0 = _context7["catch"](9);
           tui.showError(_context7.t0.message);
-          console.log(commandLineUsage(sections$1));
+          console.log(commandLineUsage(sections$2));
           return _context7.abrupt("return");
         case 18:
           if (!options.help) {
             _context7.next = 21;
             break;
           }
-          console.log(commandLineUsage(sections$1));
+          console.log(commandLineUsage(sections$2));
           return _context7.abrupt("return");
         case 21:
           tui.debug = options.debug;
@@ -5495,6 +5656,100 @@ function _serve() {
   return _serve.apply(this, arguments);
 }
 
+var optionDefinitions = [{
+  name: 'help',
+  description: 'Display this usage guide.',
+  alias: 'h',
+  type: Boolean
+}, {
+  name: 'verbose',
+  description: 'Enable verbose output.',
+  alias: 'v',
+  type: Boolean
+}, {
+  name: 'debug',
+  description: 'Enable debug output.',
+  alias: 'd',
+  type: Boolean
+}, {
+  name: 'quiet',
+  description: 'Do not print the header.',
+  alias: 'q',
+  type: Boolean
+}];
+var sections$1 = [{
+  header: 'Publish Wapp',
+  content: 'Script to publish a new version of your wapp to wappsto.'
+}, {
+  header: 'Synopsis',
+  content: ['$ wapp publish', '$ wapp publish {bold --help}']
+}, {
+  header: 'Options',
+  optionList: optionDefinitions
+}, {
+  content: 'Project home: {underline https://github.com/wappsto/wappsto-cli}'
+}];
+function publish(_x) {
+  return _publish.apply(this, arguments);
+}
+function _publish() {
+  _publish = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(argv) {
+    var options, wapp;
+    return _regeneratorRuntime().wrap(function _callee$(_context) {
+      while (1) switch (_context.prev = _context.next) {
+        case 0:
+          _context.prev = 0;
+          options = commandLineArgs(optionDefinitions, {
+            argv: argv
+          });
+          _context.next = 9;
+          break;
+        case 4:
+          _context.prev = 4;
+          _context.t0 = _context["catch"](0);
+          tui.showError(_context.t0.message);
+          console.log(commandLineUsage(sections$1));
+          return _context.abrupt("return");
+        case 9:
+          if (!options.help) {
+            _context.next = 12;
+            break;
+          }
+          console.log(commandLineUsage(sections$1));
+          return _context.abrupt("return");
+        case 12:
+          tui.debug = options.debug;
+          tui.verbose = options.verbose;
+          if (options.quiet) {
+            _context.next = 17;
+            break;
+          }
+          _context.next = 17;
+          return tui.header('Publish Wapp');
+        case 17:
+          _context.prev = 17;
+          wapp = new Wapp();
+          _context.next = 21;
+          return wapp.init();
+        case 21:
+          _context.next = 23;
+          return wapp.publish();
+        case 23:
+          _context.next = 28;
+          break;
+        case 25:
+          _context.prev = 25;
+          _context.t1 = _context["catch"](17);
+          tui.showError('Run error', _context.t1);
+        case 28:
+        case "end":
+          return _context.stop();
+      }
+    }, _callee, null, [[0, 4], [17, 25]]);
+  }));
+  return _publish.apply(this, arguments);
+}
+
 /* istanbul ignore file */
 var mainDefinitions = [{
   name: 'command',
@@ -5524,6 +5779,9 @@ var sections = [{
     name: 'configure',
     summary: 'Change settings for your wapp on wappsto.'
   }, {
+    name: 'publish',
+    summary: 'Publish a new version of your wapp to wappsto.'
+  }, {
     name: 'delete',
     summary: 'Delete the Wapp on Wappsto.'
   }]
@@ -5545,6 +5803,9 @@ try {
       break;
     case 'configure':
       configure(argv);
+      break;
+    case 'publish':
+      publish(argv);
       break;
     case 'delete':
       Delete(argv);
