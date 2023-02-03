@@ -12,11 +12,15 @@ type Request = {
 
 class Questions {
   private async ask(questions: any): Promise<any | false> {
-    const answers = await prompt(questions);
-    if (Object.keys(answers).length === 0) {
-      return false;
-    }
-    return answers;
+    return new Promise<any | false>((resolve) => {
+      const onCancel = () => {
+        resolve(false);
+        return false;
+      };
+      prompt(questions, { onCancel }).then((answers) => {
+        resolve(answers);
+      });
+    });
   }
 
   askWappstoCredentials(

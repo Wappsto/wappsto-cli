@@ -5,6 +5,7 @@ import { mkdtemp, rmSync, mkdirSync, writeFileSync } from 'node:fs';
 import { saveJsonFile } from '../../src/util/files';
 import Config from '../../src/config';
 
+//jest.mock("../../src/util/getDirName.ts");
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 

@@ -25,6 +25,7 @@ import Wappsto from './wappsto';
 import Config from './config';
 import File from './file';
 import { compareVersions, validateFile } from './util/helpers';
+import getDirName from './util/getDirName';
 
 export default class Wapp {
   mutex: Mutex;
@@ -258,7 +259,7 @@ export default class Wapp {
       createFolder(`${path}/.`);
 
       if (createExamples && exampleFiles[f]) {
-        const exPath = `${__dirname}/../examples/simple/${f}`;
+        const exPath = `${getDirName()}/../examples/simple/${f}`;
 
         if (overwrite === undefined) {
           for (let j = 0; j < exampleFiles[f].length; j += 1) {
@@ -690,6 +691,7 @@ export default class Wapp {
 
   async getInstallationSession(): Promise<string | undefined> {
     const ret = await this.installation.fetchById(this.versionID);
+    console.log(ret);
     if (!ret) {
       return;
     }

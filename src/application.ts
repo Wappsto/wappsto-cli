@@ -111,6 +111,9 @@ export default class Application extends Model implements Application21 {
     if (!data.info) {
       delete data.icon;
     }
+    data.executable = {
+      engine: 'node',
+    };
 
     try {
       const response = await HTTP.post(

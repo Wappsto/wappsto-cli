@@ -6,19 +6,11 @@ import path from 'path';
 import watch from 'node-watch';
 import detect from 'detect-port';
 import spawn from 'cross-spawn';
-import bs from 'browser-sync';
-//import { createProxyMiddleware } from 'http-proxy-middleware';
-import {
-  createProxyMiddleware,
-  Filter,
-  Options,
-  RequestHandler,
-} from 'http-proxy-middleware';
-
+import browserSync from 'browser-sync';
 import Wapp from '../wapp';
 import Config from '../config';
 import tui from '../util/tui';
-import { directoryExists, fileExists } from '../util/files';
+import { directoryExists, fileExists, loadFile } from '../util/files';
 
 const optionDefinitions = [
   {
@@ -155,7 +147,7 @@ export default async function serve(argv: string[]) {
 
       if (directoryExists(filename)) {
         if (fileExists(filename + index)) {
-          if (request.url.endWith() !== '/') {
+          if (!request.url.endsWith('/')) {
             request.url += '/';
           }
           request.url += index;
@@ -166,68 +158,57 @@ export default async function serve(argv: string[]) {
       }
       return false;
     }
-    /*
-    const proxy = createProxyMiddleware('/services', {
-      target: `${Config.host()}`,
-      changeOrigin: true,
-      logLevel: 'silent',
-      ws: true, // proxy websockets
-      onError(err) {
-        tui.showError(err);
-      },
-      onProxyReq(proxyReq: any, req: any) {
-        req.headers['x-session'] = sessionID;
-        req.headers.tokenID = tokenID;
-        if (req.headers && req.headers.referer) {
-          req.headers.referer = req.headers.referer.replace(
-            `http://localhost:${newPort}`,
-            `${Config.host()}`
-          );
-        }
-      },
-      onProxyRes(proxyRes: any) {
-        if (proxyRes.headers && proxyRes.headers.location) {
-          // eslint-disable-next-line no-param-reassign
-          proxyRes.headers.location = proxyRes.headers.location.replace(
-            Config.host(),
-            `http://localhost:${newPort}`
-          );
-        }
-      },
-    });
-*/
-    const server = {
-      baseDir: Config.foreground(),
-      /*middleware: [
-        function localServe(request: any, response: any, next: any): void {
-          response.setHeader(
-            'set-cookie',
-            `sessionID=${sessionID}; tokenID=${tokenID}; SameSite=Lax`
-          );
-          try {
-            // check if requested file exists locally
-            if (haveFile(Config.foreground(), request)) {
-              next();
-            } else {
-              proxy(request, response, next);
-            }
-          } catch (e) {
-            tui.showError('Failed to serve local file');
-          }
-        },
-      ],*/
-    };
+
+    const bs = browserSync.create('Wappsto Wapp');
 
     // .init starts the server
     bs.init({
       logPrefix: 'Wappsto Cli',
       port: newPort,
       ui: false,
-      server,
-      //cwd: Config.foreground(),
+      https: false,
+      proxy: {
+        target: `${Config.host()}`,
+        ws: true, // proxy websockets
+        proxyReq: [
+          (req: any) => {
+            req.setHeader('x-session', sessionID);
+
+            if (req.headers && req.headers.referer) {
+              req.headers.referer = req.headers.referer.replace(
+                `http://localhost:${newPort}`,
+                `${Config.host()}`
+              );
+            }
+          },
+        ],
+      },
+      middleware: (request: any, response: any, next: any): any => {
+        response.setHeader(
+          'set-cookie',
+          `sessionID=${sessionID}; tokenID=${tokenID}; SameSite=Lax`
+        );
+        try {
+          if (request.url.includes('services')) {
+            next();
+          } else {
+            // check if requested file exists locally
+            if (haveFile(Config.foreground(), request)) {
+              response.end(loadFile(`${Config.foreground()}/${request.url}`));
+            } else {
+              response.writeHead(404, { 'Content-Type': 'text/plain' });
+              response.end('Not found in your foreground wapp');
+            }
+          }
+        } catch (e) {
+          tui.showError('Failed to serve local file', e);
+        }
+      },
+
       files: '*',
       browser: Config.browser(),
       open: !options.nobrowser,
+      online: true,
     });
   }
 
@@ -377,11 +358,13 @@ export default async function serve(argv: string[]) {
     await wapp.init();
 
     if (wapp.hasBackground && options.reinstall) {
+      tui.showMessage('Reinstalling...');
       await wapp.installation.reinstall();
     }
 
     const sessionID = await wapp.getInstallationSession();
     if (!sessionID) {
+      tui.showError('Failed to get Session from Installation');
       return;
     }
 

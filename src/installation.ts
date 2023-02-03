@@ -57,6 +57,7 @@ export default class Installation extends Model implements Installation21 {
       'supported_features',
       'application',
       'version_id',
+      'session',
     ];
   }
 

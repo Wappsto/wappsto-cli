@@ -90,6 +90,9 @@ describe('Create', () => {
               version: '',
               widget: '',
             },
+            executable: {
+              engine: 'node',
+            },
             file: [],
             name: 'Wapp name',
             permission: undefined,

@@ -12,12 +12,12 @@ import fs, { statSync, existsSync, mkdirSync, unlinkSync, rmSync, readFileSync, 
 import FormData from 'form-data';
 import { clearLine as clearLine$1, cursorTo as cursorTo$1 } from 'node:readline';
 import prompt from 'prompts';
-import 'url';
-import path from 'path';
+import url, { fileURLToPath } from 'url';
+import path, { dirname } from 'path';
 import watch from 'node-watch';
 import detect from 'detect-port';
 import spawn from 'cross-spawn';
-import bs from 'browser-sync';
+import browserSync from 'browser-sync';
 
 function _regeneratorRuntime() {
   _regeneratorRuntime = function () {
@@ -597,7 +597,8 @@ var jest = {
 	testEnvironment: "node",
 	resetMocks: true,
 	moduleNameMapper: {
-		axios: "axios/dist/node/axios.cjs"
+		axios: "axios/dist/node/axios.cjs",
+		"./util/getDirName": "../test/util/getDirName.ts"
 	},
 	coveragePathIgnorePatterns: [
 		"<rootDir>/node_modules",
@@ -635,7 +636,7 @@ var devDependencies = {
 };
 var dependencies = {
 	"async-mutex": "^0.4.0",
-	axios: "^1.3.0",
+	axios: "^1.3.1",
 	"browser-sync": "^2.27.11",
 	"command-line-args": "^5.2.1",
 	"command-line-usage": "^6.1.3",
@@ -643,7 +644,6 @@ var dependencies = {
 	"detect-port": "^1.5.1",
 	figlet: "^1.5.2",
 	"form-data": "^4.0.0",
-	"http-proxy-middleware": "^2.0.6",
 	kleur: "^4.1.5",
 	"lodash.pick": "^4.4.0",
 	"node-watch": "^0.7.3",
@@ -1562,7 +1562,7 @@ var Installation = /*#__PURE__*/function (_Model) {
   }
   var _proto = Installation.prototype;
   _proto.getAttributes = function getAttributes() {
-    return ['token_installation', 'supported_features', 'application', 'version_id'];
+    return ['token_installation', 'supported_features', 'application', 'version_id', 'session'];
   };
   _proto.create = /*#__PURE__*/function () {
     var _create = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(id) {
@@ -2311,28 +2311,31 @@ var Application = /*#__PURE__*/function (_Model) {
             if (!data.info) {
               delete data.icon;
             }
-            _context.prev = 4;
-            _context.next = 7;
+            data.executable = {
+              engine: 'node'
+            };
+            _context.prev = 5;
+            _context.next = 8;
             return HTTP.post(Model.getHost('application') + "?verbose=true", {
               version: [data]
             });
-          case 7:
+          case 8:
             response = _context.sent;
             result = new Application(response.data);
-            _context.next = 14;
+            _context.next = 15;
             break;
-          case 11:
-            _context.prev = 11;
-            _context.t0 = _context["catch"](4);
+          case 12:
+            _context.prev = 12;
+            _context.t0 = _context["catch"](5);
             /* istanbul ignore next */
             tui.showError('Failed to create the application', _context.t0);
-          case 14:
-            return _context.abrupt("return", result);
           case 15:
+            return _context.abrupt("return", result);
+          case 16:
           case "end":
             return _context.stop();
         }
-      }, _callee, null, [[4, 11]]);
+      }, _callee, null, [[5, 12]]);
     }));
     function create(_x) {
       return _create.apply(this, arguments);
@@ -2596,22 +2599,21 @@ var Questions = /*#__PURE__*/function () {
   var _proto = Questions.prototype;
   _proto.ask = /*#__PURE__*/function () {
     var _ask = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(questions) {
-      var answers;
       return _regeneratorRuntime().wrap(function _callee$(_context) {
         while (1) switch (_context.prev = _context.next) {
           case 0:
-            _context.next = 2;
-            return prompt(questions);
-          case 2:
-            answers = _context.sent;
-            if (!(Object.keys(answers).length === 0)) {
-              _context.next = 5;
-              break;
-            }
-            return _context.abrupt("return", false);
-          case 5:
-            return _context.abrupt("return", answers);
-          case 6:
+            return _context.abrupt("return", new Promise(function (resolve) {
+              var onCancel = function onCancel() {
+                resolve(false);
+                return false;
+              };
+              prompt(questions, {
+                onCancel: onCancel
+              }).then(function (answers) {
+                resolve(answers);
+              });
+            }));
+          case 1:
           case "end":
             return _context.stop();
         }
@@ -3066,7 +3068,6 @@ var Questions = /*#__PURE__*/function () {
     }]);
   };
   _proto.askPublishWapp = function askPublishWapp(oldVersion) {
-    console.log(oldVersion);
     return this.ask([{
       name: 'version',
       type: 'text',
@@ -3410,6 +3411,10 @@ var Wappsto = /*#__PURE__*/function () {
   return Wappsto;
 }();
 
+function getDirName() {
+  return dirname(fileURLToPath(import.meta.url));
+}
+
 var Wapp = /*#__PURE__*/function () {
   function Wapp(remote) {
     if (remote === void 0) {
@@ -3694,7 +3699,7 @@ var Wapp = /*#__PURE__*/function () {
               _context4.next = 25;
               break;
             }
-            exPath = __dirname + "/../examples/simple/" + f;
+            exPath = getDirName() + "/../examples/simple/" + f;
             if (!(overwrite === undefined)) {
               _context4.next = 24;
               break;
@@ -4361,17 +4366,18 @@ var Wapp = /*#__PURE__*/function () {
             return this.installation.fetchById(this.versionID);
           case 2:
             ret = _context11.sent;
+            console.log(ret);
             if (ret) {
-              _context11.next = 5;
+              _context11.next = 6;
               break;
             }
             return _context11.abrupt("return");
-          case 5:
+          case 6:
             if (this.sessionCallback) {
               this.sessionCallback(this.installation.session);
             }
             return _context11.abrupt("return", this.installation.session);
-          case 7:
+          case 8:
           case "end":
             return _context11.stop();
         }
@@ -5425,10 +5431,27 @@ function _serve() {
           };
           _startForegroundServer = function _startForegroundServe2() {
             _startForegroundServer = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(sessionID, tokenID) {
-              var port, newPort, server;
+              var port, newPort, haveFile, bs;
               return _regeneratorRuntime().wrap(function _callee$(_context) {
                 while (1) switch (_context.prev = _context.next) {
                   case 0:
+                    haveFile = function _haveFile(dir, request) {
+                      var uri = url.parse(request.url).pathname || '';
+                      var filename = path.join(process.cwd(), dir, uri);
+                      var index = 'index.html';
+                      if (directoryExists(filename)) {
+                        if (fileExists(filename + index)) {
+                          if (!request.url.endsWith('/')) {
+                            request.url += '/';
+                          }
+                          request.url += index;
+                          return true;
+                        }
+                      } else if (fileExists(filename)) {
+                        return true;
+                      }
+                      return false;
+                    };
                     port = options.port || config.port();
                     _context.next = 4;
                     return detect(port);
@@ -5437,67 +5460,46 @@ function _serve() {
                     if (port !== newPort) {
                       tui.showWarning(port + " is in use, switching to " + newPort);
                     }
-                    /*
-                    const proxy = createProxyMiddleware('/services', {
-                      target: `${Config.host()}`,
-                      changeOrigin: true,
-                      logLevel: 'silent',
-                      ws: true, // proxy websockets
-                      onError(err) {
-                        tui.showError(err);
-                      },
-                      onProxyReq(proxyReq: any, req: any) {
-                        req.headers['x-session'] = sessionID;
-                        req.headers.tokenID = tokenID;
-                        if (req.headers && req.headers.referer) {
-                          req.headers.referer = req.headers.referer.replace(
-                            `http://localhost:${newPort}`,
-                            `${Config.host()}`
-                          );
-                        }
-                      },
-                      onProxyRes(proxyRes: any) {
-                        if (proxyRes.headers && proxyRes.headers.location) {
-                          // eslint-disable-next-line no-param-reassign
-                          proxyRes.headers.location = proxyRes.headers.location.replace(
-                            Config.host(),
-                            `http://localhost:${newPort}`
-                          );
-                        }
-                      },
-                    });
-                    */
-                    server = {
-                      baseDir: config.foreground()
-                      /*middleware: [
-                        function localServe(request: any, response: any, next: any): void {
-                          response.setHeader(
-                            'set-cookie',
-                            `sessionID=${sessionID}; tokenID=${tokenID}; SameSite=Lax`
-                          );
-                          try {
-                            // check if requested file exists locally
-                            if (haveFile(Config.foreground(), request)) {
-                              next();
-                            } else {
-                              proxy(request, response, next);
-                            }
-                          } catch (e) {
-                            tui.showError('Failed to serve local file');
-                          }
-                        },
-                      ],*/
-                    }; // .init starts the server
-
+                    bs = browserSync.create('Wappsto Wapp'); // .init starts the server
                     bs.init({
                       logPrefix: 'Wappsto Cli',
                       port: newPort,
                       ui: false,
-                      server: server,
-                      //cwd: Config.foreground(),
+                      https: false,
+                      proxy: {
+                        target: "" + config.host(),
+                        ws: true,
+                        proxyReq: [function (req) {
+                          req.setHeader('x-session', sessionID);
+                          if (req.headers && req.headers.referer) {
+                            req.headers.referer = req.headers.referer.replace("http://localhost:" + newPort, "" + config.host());
+                          }
+                        }]
+                      },
+                      middleware: function middleware(request, response, next) {
+                        response.setHeader('set-cookie', "sessionID=" + sessionID + "; tokenID=" + tokenID + "; SameSite=Lax");
+                        try {
+                          if (request.url.includes('services')) {
+                            next();
+                          } else {
+                            // check if requested file exists locally
+                            if (haveFile(config.foreground(), request)) {
+                              response.end(loadFile(config.foreground() + "/" + request.url));
+                            } else {
+                              response.writeHead(404, {
+                                'Content-Type': 'text/plain'
+                              });
+                              response.end('Not found in your foreground wapp');
+                            }
+                          }
+                        } catch (e) {
+                          tui.showError('Failed to serve local file', e);
+                        }
+                      },
                       files: '*',
                       browser: config.browser(),
-                      open: !options.nobrowser
+                      open: !options.nobrowser,
+                      online: true
                     });
                   case 8:
                   case "end":
@@ -5568,26 +5570,28 @@ function _serve() {
           return wapp.init();
         case 33:
           if (!(wapp.hasBackground && options.reinstall)) {
-            _context7.next = 36;
+            _context7.next = 37;
             break;
           }
-          _context7.next = 36;
+          tui.showMessage('Reinstalling...');
+          _context7.next = 37;
           return wapp.installation.reinstall();
-        case 36:
-          _context7.next = 38;
+        case 37:
+          _context7.next = 39;
           return wapp.getInstallationSession();
-        case 38:
+        case 39:
           sessionID = _context7.sent;
           if (sessionID) {
-            _context7.next = 41;
+            _context7.next = 43;
             break;
           }
+          tui.showError('Failed to get Session from Installation');
           return _context7.abrupt("return");
-        case 41:
+        case 43:
           tokenID = wapp.getInstallationToken();
-          _context7.next = 44;
+          _context7.next = 46;
           return wapp.openStream();
-        case 44:
+        case 46:
           if (wapp.hasForeground) {
             if (isForegroundPresent()) {
               startForegroundServer(sessionID, tokenID);
@@ -5596,50 +5600,50 @@ function _serve() {
             }
           }
           if (!wapp.hasBackground) {
-            _context7.next = 65;
+            _context7.next = 67;
             break;
           }
           if (!isBackgroundPresent()) {
-            _context7.next = 64;
+            _context7.next = 66;
             break;
           }
           if (!options.remote) {
-            _context7.next = 55;
+            _context7.next = 57;
             break;
           }
-          _context7.next = 50;
+          _context7.next = 52;
           return wapp.update();
-        case 50:
+        case 52:
           backgroundFiles = _context7.sent;
           backgroundFiles.forEach(function (f) {
             tui.showMessage(f.name + " was " + f.status);
           });
           startRemoteBackgroundRunner();
-          _context7.next = 62;
+          _context7.next = 64;
           break;
-        case 55:
-          _context7.next = 57;
-          return wapp.installation.stop();
         case 57:
+          _context7.next = 59;
+          return wapp.installation.stop();
+        case 59:
           if (!_context7.sent) {
-            _context7.next = 61;
+            _context7.next = 63;
             break;
           }
           startLocalBackgroundRunner(sessionID, tokenID);
-          _context7.next = 62;
+          _context7.next = 64;
           break;
-        case 61:
+        case 63:
           tui.showError('Failed to stop the background runner on the server. Not starting background runner');
-        case 62:
-          _context7.next = 65;
-          break;
         case 64:
-          tui.showWarning('No background files found, local background runner is not started');
-        case 65:
-          _context7.next = 71;
+          _context7.next = 67;
           break;
+        case 66:
+          tui.showWarning('No background files found, local background runner is not started');
         case 67:
-          _context7.prev = 67;
+          _context7.next = 73;
+          break;
+        case 69:
+          _context7.prev = 69;
           _context7.t1 = _context7["catch"](30);
           if (_context7.t1.message === 'LoginError') {
             tui.showError('Failed to Login, please try again.');
@@ -5647,11 +5651,11 @@ function _serve() {
             tui.showError('Run error', _context7.t1);
           }
           return _context7.abrupt("return");
-        case 71:
+        case 73:
         case "end":
           return _context7.stop();
       }
-    }, _callee7, null, [[9, 13], [30, 67]]);
+    }, _callee7, null, [[9, 13], [30, 69]]);
   }));
   return _serve.apply(this, arguments);
 }

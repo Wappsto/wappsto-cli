@@ -1,10 +1,7 @@
 import axios from 'axios';
 import prompts from 'prompts';
 import { setup, teardown, createWapp } from './util/setup';
-import {
-  applicationResponse,
-  installationResponse,
-} from './util/response';
+import { applicationResponse, installationResponse } from './util/response';
 import publish from '../src/cmd/publish';
 
 describe('Publish', () => {
@@ -100,11 +97,11 @@ describe('Publish', () => {
       {}
     );
     expect(mockedAxios.patch).toHaveBeenNthCalledWith(
-        2,
-         "https://wappsto.com/services/2.1/version/98e68cd8-74a6-4841-bdd4-70c29f068056",
-        {
-             "status": "commit",
-         },
+      2,
+      'https://wappsto.com/services/2.1/version/98e68cd8-74a6-4841-bdd4-70c29f068056',
+      {
+        status: 'commit',
+      },
       {}
     );
 
@@ -112,8 +109,8 @@ describe('Publish', () => {
     expect(mockedAxios.get).toHaveBeenCalledTimes(2);
     expect(mockedAxios.get).toHaveBeenNthCalledWith(
       2,
- "https://wappsto.com/services/2.1/application/4c8ebb21-524b-4fc0-bbc5-015da2e5ca60?expand=2&verbose=true",
-              {},
+      'https://wappsto.com/services/2.1/application/4c8ebb21-524b-4fc0-bbc5-015da2e5ca60?expand=2&verbose=true',
+      {}
     );
 
     expect(mockedAxios.delete).toHaveBeenCalledTimes(0);
