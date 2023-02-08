@@ -1,19 +1,8 @@
 import axios from 'axios';
 import prompts from 'prompts';
 import { setup, teardown, createWapp } from './util/setup';
-import {
-  applicationResponse,
-  installationResponse,
-  allApplicationsResponse,
-} from './util/response';
-import {
-  loadJsonFile,
-  saveFile,
-  saveJsonFile,
-  createFolders,
-  fileExists,
-  directoryExists,
-} from '../src/util/files';
+import { applicationResponse, installationResponse } from './util/response';
+import { fileExists, directoryExists } from '../src/util/files';
 import Config from '../src/config';
 import Delete from '../src/cmd/delete';
 

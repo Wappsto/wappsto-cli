@@ -3,9 +3,15 @@ import HTTP from './util/http';
 import { Session21 } from './types/session.d';
 
 export default class Session extends Model implements Session21 {
+  user?: string;
+
   constructor() {
     super('session');
     this.load();
+  }
+
+  public getAttributes(): string[] {
+    return ['user'];
   }
 
   async login(user: string, pass: string): Promise<void> {

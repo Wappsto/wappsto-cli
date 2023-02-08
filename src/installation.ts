@@ -82,30 +82,26 @@ export default class Installation extends Model implements Installation21 {
       this.save();
       return true;
     } catch (err) {
-      /* istanbul ignore next */
-      tui.showError('Failed to create installation', err);
+      this.handleException('Failed to create installation', err);
       return false;
     }
   }
 
   async fetchById(id: string): Promise<boolean> {
-    let ret = true;
     try {
       let url = `${this.HOST}?expand=2&this_version_id=${id}`;
       const response = await HTTP.get(url);
       if (response.data && response.data.length) {
         this.parse(response.data[0]);
         this.save();
+        return true;
       } else {
         tui.showError(`Failed to fetch installation by ID: ${id}`);
-        ret = false;
       }
     } catch (err) {
-      /* istanbul ignore next */
-      tui.showError(`Failed to load installation: ${id}`, err);
-      ret = false;
+      this.handleException(`Failed to load installation: ${id}`, err);
     }
-    return ret;
+    return false;
   }
 
   async restart(): Promise<void> {
@@ -116,8 +112,7 @@ export default class Installation extends Model implements Installation21 {
         },
       });
     } catch (err) {
-      /* istanbul ignore next */
-      tui.showError(`Failed to restart installation: ${this.id}`, err);
+      this.handleException(`Failed to restart installation: ${this.id}`, err);
     }
   }
 
@@ -130,8 +125,7 @@ export default class Installation extends Model implements Installation21 {
         },
       });
     } catch (err) {
-      /* istanbul ignore next */
-      tui.showError(`Failed to reinstall installation: ${this.id}`, err);
+      this.handleException(`Failed to reinstall installation: ${this.id}`, err);
     }
   }
 
@@ -144,8 +138,7 @@ export default class Installation extends Model implements Installation21 {
       });
       return true;
     } catch (err) {
-      /* istanbul ignore next */
-      tui.showError(`Failed to stop installation: ${this.id}`, err);
+      this.handleException(`Failed to stop installation: ${this.id}`, err);
       return false;
     }
   }
@@ -156,8 +149,7 @@ export default class Installation extends Model implements Installation21 {
         extsync: enableExtSync,
       });
     } catch (err) {
-      /* istanbul ignore next */
-      tui.showError(
+      this.handleException(
         `Failed to change ExtSync for installation: ${this.id}`,
         err
       );
@@ -168,14 +160,12 @@ export default class Installation extends Model implements Installation21 {
     try {
       await HTTP.delete(`${this.HOST}?this_version_id=${id}`);
     } catch (err: any) {
-      /* istanbul ignore next */
       switch (err.response.data.code) {
         case 300020:
           // Installation already deleted
           break;
         default:
-          /* istanbul ignore next */
-          tui.showError(`Failed to delete installation: ${id}`, err);
+          this.handleException(`Failed to delete installation: ${id}`, err);
       }
     }
   }

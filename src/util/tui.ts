@@ -3,16 +3,21 @@ import figlet from 'figlet';
 import { clearLine, cursorTo } from 'readline';
 import updateNotifier from 'simple-update-notifier';
 import config from '../config';
-import packageJson from '../../package.json';
+import { VERSION } from './version';
 
 class Tui {
   traceEnabled: boolean = false;
   debug: boolean = false;
   verbose: boolean = false;
-  blocked?: string[];
+  blocked: string[] | null = null;
 
   checkForUpdate(): Promise<void> {
-    return updateNotifier({ pkg: packageJson });
+    return updateNotifier({
+      pkg: {
+        name: 'wappsto-cli',
+        version: VERSION,
+      },
+    });
   }
 
   clear(): void {
@@ -30,9 +35,7 @@ class Tui {
     );
 
     this.write(
-      `${magenta(
-        `[Wappsto CLI - Seluxit A/S - Version: ${packageJson.version}]`
-      )}\n\n`
+      `${magenta(`[Wappsto CLI - Seluxit A/S - Version: ${VERSION}]`)}\n\n`
     );
 
     return this.checkForUpdate();
@@ -44,7 +47,7 @@ class Tui {
 
   unblock(): void {
     const tmp = this.blocked;
-    this.blocked = undefined;
+    this.blocked = null;
 
     if (tmp) {
       tmp.forEach((item) => {
@@ -154,8 +157,8 @@ class Tui {
   }
 
   showError(msg: string, err?: any): void {
-    this.clear();
-    this.write(`\r${red('!')} ${bold(red(msg))}\n`);
+    let strMsg = bold(red(msg));
+    let strErr = '';
     if (err) {
       let data;
       if (err.response && err.response.data) {
@@ -166,22 +169,25 @@ class Tui {
       if (data) {
         if (data.code === 117000000) {
           // do not print invalid session error
-        } else if (err.response.data.code === 300098) {
-          this.write(`${red(data.message)}\n`);
-          this.write(
-            `Please visit ${config.host()}/pricing for more information\n`
-          );
+        } else if (data.code === 300098) {
+          strMsg += `${red(data.message)}\n`;
+          strMsg += `Please visit ${config.host()}/pricing for more information`;
         } else {
-          this.write(`${JSON.stringify(data)}\n`);
+          strErr = `${JSON.stringify(data)}\n`;
         }
       } else if (err.stack) {
-        // eslint-disable-next-line no-console
         console.error(err);
       } else if (typeof err === 'string') {
-        this.write(`${err}\n`);
+        strErr = `${err}\n`;
       } else {
-        this.write(`${JSON.stringify(err)}\n`);
+        strErr = `${JSON.stringify(err)}\n`;
       }
+    }
+
+    this.clear();
+    this.write(`\r${red('!')} ${strMsg}\n`);
+    if (this.verbose && strErr) {
+      this.write(strErr);
     }
   }
 

@@ -19,6 +19,19 @@ class Config {
     return this.custom.host || 'https://wappsto.com';
   }
 
+  env(): string {
+    if (this.host().includes('dev.')) {
+      return 'development';
+    }
+    if (this.host().includes('qa.')) {
+      return 'testing';
+    }
+    if (this.host().includes('staging.')) {
+      return 'staging';
+    }
+    return 'production';
+  }
+
   hostname(): string {
     return this.host().split('//')[1];
   }

@@ -21,6 +21,7 @@ import {
 } from './util/files';
 import tui from './util/tui';
 import questions from './util/questions';
+import Trace, { setUser } from './util/trace';
 import Wappsto from './wappsto';
 import Config from './config';
 import File from './file';
@@ -37,11 +38,10 @@ export default class Wapp {
   wappsto: Wappsto;
   application: Application;
   installation: Installation;
-  stream: Stream;
   manifest: Record<string, any>;
   ignore_file: string;
-  lightStream?: any;
-  appStream?: any;
+  wappStream?: Stream;
+  userStream?: Stream;
   sessionCallback: any;
 
   constructor(remote: boolean = true) {
@@ -61,7 +61,6 @@ export default class Wapp {
       loadJsonFile(`${this.cacheFolder}application`)
     );
     this.installation = new Installation();
-    this.stream = new Stream(this.wappsto, this.installation, remote);
     this.manifest = loadJsonFile('manifest.json');
     this.ignore_file = `${this.cacheFolder}\nnode_modules\n`;
   }
@@ -83,7 +82,10 @@ export default class Wapp {
   }
 
   async init(): Promise<void> {
+    const t = this.measure('Login', 'Validate session');
     await this.wappsto.login();
+    setUser(this.wappsto.session);
+    t.done();
   }
 
   initCacheFolder(): void {
@@ -112,6 +114,8 @@ export default class Wapp {
   async create(validate: boolean): Promise<void> {
     const listWapps: any[] = [];
     let updateFiles;
+
+    let t = this.measure('Loading all applications');
     const status = new Spinner('Loading Wapps, please wait...');
     status.start();
 
@@ -128,15 +132,19 @@ export default class Wapp {
       });
     }
     status.stop();
+    t.done();
 
+    t = this.measure('Ask the human');
     const newWapp = await questions.askForNewWapp(listWapps, this.present());
     if (newWapp === false) {
       return;
     }
+    t.done();
 
     let new_app: Application | undefined;
     switch (newWapp.create) {
       case 'download':
+        t = this.measure('Downloading wapp');
         const wapp = wapps.find((w: Application) => w.id === newWapp.wapp);
         if (!wapp) {
           tui.showError('Failed to find Application from id');
@@ -144,8 +152,10 @@ export default class Wapp {
         }
         this.deleteLocal();
         await this.downloadWapp(wapp);
+        t.done();
         break;
       case 'generate':
+        t = this.measure('Generating wapp');
         status.setMessage('Creating Wapp, please wait...');
         status.start();
 
@@ -156,6 +166,7 @@ export default class Wapp {
         new_app = await Application.create(this.manifest);
         if (!new_app) {
           status.stop();
+          t.done('unknown');
           throw new Error('Failed to generate Application');
         }
         this.application = new_app;
@@ -189,14 +200,17 @@ export default class Wapp {
         if (this.application && this.installation.id) {
           tui.showMessage(`Wapp created with id: ${this.application.id}`);
         }
+        t.done();
         break;
       default:
+        t = this.measure('Creating wapp');
         status.setMessage('Creating Wapp, please wait...');
         status.start();
 
         new_app = await Application.create(newWapp);
         if (!new_app) {
           status.stop();
+          t.done('unknown');
           throw new Error('Failed to create Application');
         }
 
@@ -220,6 +234,7 @@ export default class Wapp {
         if (this.application) {
           tui.showMessage(`Wapp created with id: ${this.application.id}`);
         }
+        t.done();
         break;
     }
 
@@ -377,6 +392,7 @@ export default class Wapp {
     let overrideAll = false;
     let uploadAll = false;
 
+    let t = this.measure('Compare versions');
     const localVersion = this.application.getVersion();
 
     const status = new Spinner('Updating Wapp, please wait...');
@@ -406,10 +422,13 @@ export default class Wapp {
       version.parse(this.manifest);
       if (!(await version.update())) {
         status.stop();
+        t.done('unknown');
         return [];
       }
     }
+    t.done();
 
+    t = this.measure('Comparing files');
     // Find all files on disk
     localFiles = this.getAllLocalFiles();
 
@@ -550,7 +569,9 @@ export default class Wapp {
         updateFiles.push(newFile);
       }
     }
+    t.done();
 
+    t = this.measure('Update version');
     status.setMessage('Loading version, please wait...');
     await this.installation.fetchById(this.versionID);
 
@@ -564,14 +585,17 @@ export default class Wapp {
     status.setMessage('Loading application, please wait...');
 
     await new Promise<void>((resolve) => {
+      const ts = this.measure('Wait', 'Waiting for files to be updated');
       setTimeout(() => {
         try {
           this.application.fetch().then(() => {
             this.application.syncFiles();
             this.saveApplication();
+            ts.done();
             resolve();
           });
         } catch (err) {
+          ts.done(err);
           /* istanbul ignore next */
           resolve();
         }
@@ -579,6 +603,7 @@ export default class Wapp {
     });
 
     status.stop();
+    t.done();
 
     return updateFiles;
   }
@@ -616,28 +641,42 @@ export default class Wapp {
     if (!this.present()) {
       return;
     }
+
+    let t = this.measure('Load application');
     await this.application.fetch();
+    t.done();
+
+    t = this.measure('Ask the human');
     const answer = await questions.configureWapp(
       this.application.getOAuthExternal(),
       this.application.getOAuthClient(),
       this.manifest.permission
     );
+    t.done();
 
     if (answer === false) {
       return;
     }
 
     if (answer.extsync) {
+      t = this.measure('setExtSync');
       this.installation.setExtSync(answer.extsync);
+      t.done();
     } else if (answer.api_site) {
+      t = this.measure('createOauthExternal');
       this.application.createOauthExternal(answer);
+      t.done();
     } else if (answer.redirect_uri) {
+      t = this.measure('createOauthClient');
       this.application.createOauthClient(answer);
+      t.done();
     } else if (answer.create) {
+      t = this.measure('changePermission');
       this.manifest.permission = answer;
       this.saveManifest();
       this.application.getVersion().permission = answer;
       await this.application.getVersion().update();
+      t.done();
     }
   }
 
@@ -691,7 +730,6 @@ export default class Wapp {
 
   async getInstallationSession(): Promise<string | undefined> {
     const ret = await this.installation.fetchById(this.versionID);
-    console.log(ret);
     if (!ret) {
       return;
     }
@@ -718,12 +756,8 @@ export default class Wapp {
       const oldSession = this.installation.session;
       const newSession = await this.getInstallationSession();
       if (oldSession !== newSession) {
-        const tmp = this.lightStream;
-        this.lightStream = undefined;
-        await this.openStream();
-        if (tmp) {
-          setTimeout(tmp.close.bind(tmp), 2000);
-        }
+        this.wappStream?.close();
+        this.wappStream?.open();
       }
       if (data.log) {
         tui.showStatus(data.log);
@@ -846,76 +880,29 @@ export default class Wapp {
   }
 
   async openStream(sessionCallback?: any): Promise<void> {
-    let appStream;
-    let lightStream;
-
     if (sessionCallback) {
       this.sessionCallback = sessionCallback;
     }
 
-    let streams = await this.stream.getAll();
-    for (let i = 0; i < streams.length; i += 1) {
-      const subs = streams[i].subscription.toString();
-      if (
-        subs.indexOf('/notification') !== -1 &&
-        subs.indexOf('/installation') !== -1
-      ) {
-        appStream = streams[i].meta.id;
-        break;
-      }
-    }
+    this.userStream = new Stream(
+      this.wappsto,
+      ['/notification', '/installation'],
+      this.handleStreamEvent
+    );
 
-    if (!appStream) {
-      tui.showMessage('Creating new stream for notifications');
-      const newStream = await this.stream.create([
-        '/notification',
-        '/installation',
-      ]);
-      if (newStream && newStream.meta) {
-        appStream = newStream.meta.id;
-      }
-    }
+    this.userStream.open();
 
-    if (!this.appStream && appStream) {
-      this.appStream = this.stream.open('app.', appStream, (data: any) =>
-        this.handleStreamEvent(data)
-      );
-    }
+    this.wappStream = new Stream(
+      this.wappsto,
+      ['/extsync', '/console'],
+      this.handleStreamEvent,
+      this.installation.session
+    );
 
-    streams = await this.stream.getAll(this.installation.session);
-    if (streams) {
-      for (let i = 0; i < streams.length; i += 1) {
-        if (streams[i].subscription) {
-          const subs = streams[i].subscription.toString();
-          if (
-            subs.indexOf('/extsync') !== -1 &&
-            subs.indexOf('/console') !== -1
-          ) {
-            lightStream = streams[i].meta.id;
-            break;
-          }
-        }
-      }
+    this.wappStream.open();
+  }
 
-      if (!lightStream) {
-        tui.showMessage('Creating new stream for background');
-        const newStream = await this.stream.create(
-          ['/extsync', '/console'],
-          this.installation.session
-        );
-        if (newStream && newStream.meta) {
-          lightStream = newStream.meta.id;
-        }
-      }
-
-      if (!this.lightStream && lightStream) {
-        this.lightStream = this.stream.open(
-          'light.',
-          lightStream,
-          (data: any) => this.handleStreamEvent(data),
-          this.installation.session
-        );
-      }
-    }
+  measure(name: string, description?: string, data?: any): Trace {
+    return new Trace(name, description, data);
   }
 }

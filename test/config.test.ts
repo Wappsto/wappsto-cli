@@ -21,6 +21,7 @@ describe('config', () => {
     expect(Config.cacheFolder()).toEqual('.wappsto-cli-cache/');
     expect(Config.isCustomHost()).toEqual(false);
     expect(Config.browser()).toEqual('default');
+    expect(Config.env()).toEqual('production');
   });
 
   it('can have custom parameters', () => {

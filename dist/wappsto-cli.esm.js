@@ -1,14 +1,16 @@
+import * as Sentry from '@sentry/node';
 import commandLineArgs from 'command-line-args';
 import commandLineUsage from 'command-line-usage';
 import { Mutex } from 'async-mutex';
 import pick from 'lodash.pick';
 import WebSocket from 'ws';
-import axios from 'axios';
+import fs, { statSync, existsSync, mkdirSync, unlinkSync, rmSync, readFileSync, writeFileSync, readdirSync, copyFileSync, createReadStream, createWriteStream } from 'fs';
 import { yellow, magenta, green, blue, red, bold, white } from 'kleur/colors';
 import figlet from 'figlet';
 import { clearLine, cursorTo } from 'readline';
 import updateNotifier from 'simple-update-notifier';
-import fs, { statSync, existsSync, mkdirSync, unlinkSync, rmSync, readFileSync, writeFileSync, readdirSync, copyFileSync, createReadStream, createWriteStream } from 'fs';
+import axios from 'axios';
+import '@sentry/tracing';
 import FormData from 'form-data';
 import { clearLine as clearLine$1, cursorTo as cursorTo$1 } from 'node:readline';
 import prompt from 'prompts';
@@ -506,6 +508,18 @@ var Config = /*#__PURE__*/function () {
   _proto.host = function host() {
     return this.custom.host || 'https://wappsto.com';
   };
+  _proto.env = function env() {
+    if (this.host().includes('dev.')) {
+      return 'development';
+    }
+    if (this.host().includes('qa.')) {
+      return 'testing';
+    }
+    if (this.host().includes('staging.')) {
+      return 'staging';
+    }
+    return 'production';
+  };
   _proto.hostname = function hostname() {
     return this.host().split('//')[1];
   };
@@ -537,155 +551,22 @@ var Config = /*#__PURE__*/function () {
 }();
 var config = /*#__PURE__*/new Config();
 
-var name = "wappsto-cli";
-var description = "Command Line Interface for Wappsto";
-var version = "2.0.0";
-var license = "Apache-2.0";
-var main = "dist/wappsto-cli.esm.js";
-var module = "dist/wappsto-cli.esm.js";
-var type = "module";
-var author = {
-	name: "Seluxit A/S",
-	email: "developer@wappsto.com",
-	url: "https://seluxit.com"
-};
-var repository = {
-	type: "git",
-	url: "git+https://github.com/wappsto/wappsto-cli.git"
-};
-var bugs = {
-	url: "https://github.com/wappsto/wappsto-cli/issues"
-};
-var homepage = "https://github.com/wappsto/wappsto-cli#readme";
-var keywords = [
-	"wappsto",
-	"wapp",
-	"api",
-	"iot",
-	"seluxit"
-];
-var files = [
-	"dist/wappsto-cli.esm.js"
-];
-var bin = {
-	wapp: "./dist/wappsto-cli.esm.js"
-};
-var scripts = {
-	build: "dts build",
-	lint: "dts lint src test",
-	"lint:fix": "yarn lint --fix",
-	prettify: "yarn run prettier -w src/ test/",
-	prepare: "dts build",
-	start: "dts watch",
-	test: "dts test",
-	"test:coverage": "dts test --coverage",
-	"generate-types": "npx json2ts -i schemas -o src/types"
-};
-var husky = {
-	hooks: {
-		"pre-commit": "dts lint"
-	}
-};
-var prettier = {
-	printWidth: 80,
-	tabWidth: 2,
-	semi: true,
-	singleQuote: true,
-	trailingComma: "es5"
-};
-var jest = {
-	testEnvironment: "node",
-	resetMocks: true,
-	moduleNameMapper: {
-		axios: "axios/dist/node/axios.cjs",
-		"./util/getDirName": "../test/util/getDirName.ts"
-	},
-	coveragePathIgnorePatterns: [
-		"<rootDir>/node_modules",
-		"<rootDir>/test",
-		"<rootDir>/src/types"
-	]
-};
-var engines = {
-	node: ">=16"
-};
-var devDependencies = {
-	"@jest/globals": "^29.4.1",
-	"@tsconfig/recommended": "^1.0.2",
-	"@types/browser-sync": "^2.26.3",
-	"@types/command-line-args": "^5.2.0",
-	"@types/command-line-usage": "^5.0.2",
-	"@types/cross-spawn": "^6.0.2",
-	"@types/detect-port": "^1.3.2",
-	"@types/figlet": "^1.5.5",
-	"@types/inquirer": "^9.0.3",
-	"@types/jest": "^29.4.0",
-	"@types/lodash.pick": "^4.4.7",
-	"@types/node": "^18.11.18",
-	"@types/prompts": "^2.4.2",
-	"@types/ws": "^8.5.4",
-	"axios-mock-adapter": "^1.21.2",
-	"dts-cli": "^1.6.3",
-	husky: "^8.0.3",
-	jest: "^29.4.1",
-	"json-schema-to-typescript": "^11.0.3",
-	"ts-jest": "^29.0.5",
-	"ts-node": "^10.9.1",
-	tslib: "^2.5.0",
-	typescript: "^4.9.5"
-};
-var dependencies = {
-	"async-mutex": "^0.4.0",
-	axios: "^1.3.1",
-	"browser-sync": "^2.27.11",
-	"command-line-args": "^5.2.1",
-	"command-line-usage": "^6.1.3",
-	"cross-spawn": "^7.0.3",
-	"detect-port": "^1.5.1",
-	figlet: "^1.5.2",
-	"form-data": "^4.0.0",
-	kleur: "^4.1.5",
-	"lodash.pick": "^4.4.0",
-	"node-watch": "^0.7.3",
-	prompts: "^2.4.2",
-	"simple-update-notifier": "^1.1.0",
-	ws: "^8.12.0"
-};
-var packageJson = {
-	name: name,
-	description: description,
-	version: version,
-	license: license,
-	main: main,
-	module: module,
-	type: type,
-	author: author,
-	repository: repository,
-	bugs: bugs,
-	homepage: homepage,
-	keywords: keywords,
-	files: files,
-	bin: bin,
-	scripts: scripts,
-	husky: husky,
-	prettier: prettier,
-	jest: jest,
-	engines: engines,
-	devDependencies: devDependencies,
-	dependencies: dependencies
-};
+var VERSION = "2.0.0";
 
 var Tui = /*#__PURE__*/function () {
   function Tui() {
     this.traceEnabled = false;
     this.debug = false;
     this.verbose = false;
-    this.blocked = void 0;
+    this.blocked = null;
   }
   var _proto = Tui.prototype;
   _proto.checkForUpdate = function checkForUpdate() {
     return updateNotifier({
-      pkg: packageJson
+      pkg: {
+        name: 'wappsto-cli',
+        version: VERSION
+      }
     });
   };
   _proto.clear = function clear() {
@@ -698,7 +579,7 @@ var Tui = /*#__PURE__*/function () {
       font: 'ANSI Shadow',
       horizontalLayout: 'full'
     })) + "\r");
-    this.write(magenta("[Wappsto CLI - Seluxit A/S - Version: " + packageJson.version + "]") + "\n\n");
+    this.write(magenta("[Wappsto CLI - Seluxit A/S - Version: " + VERSION + "]") + "\n\n");
     return this.checkForUpdate();
   };
   _proto.block = function block() {
@@ -707,10 +588,9 @@ var Tui = /*#__PURE__*/function () {
   _proto.unblock = function unblock() {
     var _this = this;
     var tmp = this.blocked;
-    this.blocked = undefined;
+    this.blocked = null;
     if (tmp) {
       tmp.forEach(function (item) {
-        /* istanbul ignore next */
         _this.write(item);
       });
     }
@@ -798,8 +678,8 @@ var Tui = /*#__PURE__*/function () {
     this.write(red('!') + " " + bold(yellow(msg)) + "\n");
   };
   _proto.showError = function showError(msg, err) {
-    this.clear();
-    this.write("\r" + red('!') + " " + bold(red(msg)) + "\n");
+    var strMsg = bold(red(msg));
+    var strErr = '';
     if (err) {
       var data;
       if (err.response && err.response.data) {
@@ -808,20 +688,24 @@ var Tui = /*#__PURE__*/function () {
         data = err.data;
       }
       if (data) {
-        if (data.code === 117000000) ; else if (err.response.data.code === 300098) {
-          this.write(red(data.message) + "\n");
-          this.write("Please visit " + config.host() + "/pricing for more information\n");
+        if (data.code === 117000000) ; else if (data.code === 300098) {
+          strMsg += red(data.message) + "\n";
+          strMsg += "Please visit " + config.host() + "/pricing for more information";
         } else {
-          this.write(JSON.stringify(data) + "\n");
+          strErr = JSON.stringify(data) + "\n";
         }
       } else if (err.stack) {
-        // eslint-disable-next-line no-console
         console.error(err);
       } else if (typeof err === 'string') {
-        this.write(err + "\n");
+        strErr = err + "\n";
       } else {
-        this.write(JSON.stringify(err) + "\n");
+        strErr = JSON.stringify(err) + "\n";
       }
+    }
+    this.clear();
+    this.write("\r" + red('!') + " " + strMsg + "\n");
+    if (this.verbose && strErr) {
+      this.write(strErr);
     }
   };
   _proto.trace = function trace(model, method, data) {
@@ -834,8 +718,7 @@ var Tui = /*#__PURE__*/function () {
     } else {
       console.trace(str);
     }
-  }
-  /* istanbul ignore next */;
+  };
   _proto.write = function write(msg) {
     if (this.blocked) {
       this.blocked.push(msg);
@@ -849,295 +732,67 @@ var Tui = /*#__PURE__*/function () {
 }();
 var tui = /*#__PURE__*/new Tui();
 
-var HTTP = /*#__PURE__*/function () {
-  function HTTP() {}
-  HTTP.setHeader = function setHeader(name, value) {
-    axios.defaults.headers.common[name] = value;
-  };
-  HTTP.removeHeader = function removeHeader(name) {
-    delete axios.defaults.headers.common[name];
-  };
-  HTTP.get = /*#__PURE__*/function () {
-    var _get = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(url, options) {
-      var res, _err$response;
-      return _regeneratorRuntime().wrap(function _callee$(_context) {
-        while (1) switch (_context.prev = _context.next) {
-          case 0:
-            if (options === void 0) {
-              options = {};
-            }
-            _context.prev = 1;
-            _context.next = 4;
-            return axios.get(url, options);
-          case 4:
-            res = _context.sent;
-            tui.showTraffic('GET', url, {}, res.data);
-            return _context.abrupt("return", res);
-          case 9:
-            _context.prev = 9;
-            _context.t0 = _context["catch"](1);
-            tui.showTraffic('GET', url, {}, (_err$response = _context.t0.response) == null ? void 0 : _err$response.data);
-            throw _context.t0;
-          case 13:
-          case "end":
-            return _context.stop();
-        }
-      }, _callee, null, [[1, 9]]);
-    }));
-    function get(_x, _x2) {
-      return _get.apply(this, arguments);
-    }
-    return get;
-  }();
-  HTTP.post = /*#__PURE__*/function () {
-    var _post = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(url, data, options) {
-      var res, _err$response2;
-      return _regeneratorRuntime().wrap(function _callee2$(_context2) {
-        while (1) switch (_context2.prev = _context2.next) {
-          case 0:
-            if (options === void 0) {
-              options = {};
-            }
-            _context2.prev = 1;
-            _context2.next = 4;
-            return axios.post(url, data, options);
-          case 4:
-            res = _context2.sent;
-            tui.showTraffic('POST', url, data, res.data);
-            return _context2.abrupt("return", res);
-          case 9:
-            _context2.prev = 9;
-            _context2.t0 = _context2["catch"](1);
-            tui.showTraffic('POST', url, data, (_err$response2 = _context2.t0.response) == null ? void 0 : _err$response2.data);
-            throw _context2.t0;
-          case 13:
-          case "end":
-            return _context2.stop();
-        }
-      }, _callee2, null, [[1, 9]]);
-    }));
-    function post(_x3, _x4, _x5) {
-      return _post.apply(this, arguments);
-    }
-    return post;
-  }();
-  HTTP.put = /*#__PURE__*/function () {
-    var _put = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(url, data, options) {
-      var res, _err$response3;
-      return _regeneratorRuntime().wrap(function _callee3$(_context3) {
-        while (1) switch (_context3.prev = _context3.next) {
-          case 0:
-            if (options === void 0) {
-              options = {};
-            }
-            _context3.prev = 1;
-            _context3.next = 4;
-            return axios.put(url, data, options);
-          case 4:
-            res = _context3.sent;
-            tui.showTraffic('PUT', url, data, res.data);
-            return _context3.abrupt("return", res);
-          case 9:
-            _context3.prev = 9;
-            _context3.t0 = _context3["catch"](1);
-            tui.showTraffic('PUT', url, data, (_err$response3 = _context3.t0.response) == null ? void 0 : _err$response3.data);
-            throw _context3.t0;
-          case 13:
-          case "end":
-            return _context3.stop();
-        }
-      }, _callee3, null, [[1, 9]]);
-    }));
-    function put(_x6, _x7, _x8) {
-      return _put.apply(this, arguments);
-    }
-    return put;
-  }();
-  HTTP.patch = /*#__PURE__*/function () {
-    var _patch = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(url, data, options) {
-      var res, _err$response4;
-      return _regeneratorRuntime().wrap(function _callee4$(_context4) {
-        while (1) switch (_context4.prev = _context4.next) {
-          case 0:
-            if (options === void 0) {
-              options = {};
-            }
-            _context4.prev = 1;
-            _context4.next = 4;
-            return axios.patch(url, data, options);
-          case 4:
-            res = _context4.sent;
-            tui.showTraffic('PATCH', url, data, res.data);
-            return _context4.abrupt("return", res);
-          case 9:
-            _context4.prev = 9;
-            _context4.t0 = _context4["catch"](1);
-            tui.showTraffic('PATCH', url, data, (_err$response4 = _context4.t0.response) == null ? void 0 : _err$response4.data);
-            throw _context4.t0;
-          case 13:
-          case "end":
-            return _context4.stop();
-        }
-      }, _callee4, null, [[1, 9]]);
-    }));
-    function patch(_x9, _x10, _x11) {
-      return _patch.apply(this, arguments);
-    }
-    return patch;
-  }();
-  HTTP["delete"] = /*#__PURE__*/function () {
-    var _delete2 = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(url, options) {
-      var res, _err$response5;
-      return _regeneratorRuntime().wrap(function _callee5$(_context5) {
-        while (1) switch (_context5.prev = _context5.next) {
-          case 0:
-            if (options === void 0) {
-              options = {};
-            }
-            _context5.prev = 1;
-            _context5.next = 4;
-            return axios["delete"](url, options);
-          case 4:
-            res = _context5.sent;
-            tui.showTraffic('DELETE', url, {}, res.data);
-            return _context5.abrupt("return", res);
-          case 9:
-            _context5.prev = 9;
-            _context5.t0 = _context5["catch"](1);
-            tui.showTraffic('DELETE', url, {}, (_err$response5 = _context5.t0.response) == null ? void 0 : _err$response5.data);
-            throw _context5.t0;
-          case 13:
-          case "end":
-            return _context5.stop();
-        }
-      }, _callee5, null, [[1, 9]]);
-    }));
-    function _delete(_x12, _x13) {
-      return _delete2.apply(this, arguments);
-    }
-    return _delete;
-  }();
-  return HTTP;
-}();
-
 var Stream = /*#__PURE__*/function () {
-  function Stream(wappsto, installation, remote) {
+  function Stream(wappsto, subscription, callback, session, installation_id, remote) {
+    this.ws = void 0;
     this.wappsto = void 0;
-    this.installation = void 0;
+    this.subscription = void 0;
+    this.installation_id = void 0;
     this.remote = true;
     this.last_permission_request = void 0;
     this.last_stream_event = void 0;
+    this.session = void 0;
+    this.callback = void 0;
     this.wappsto = wappsto;
-    this.installation = installation;
+    this.session = session || '';
+    this.callback = callback;
+    this.subscription = subscription;
+    this.installation_id = installation_id || '';
     this.remote = remote === undefined ? true : remote;
   }
   var _proto = Stream.prototype;
-  _proto.getAll = /*#__PURE__*/function () {
-    var _getAll = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(session) {
-      var result, response;
-      return _regeneratorRuntime().wrap(function _callee$(_context) {
-        while (1) switch (_context.prev = _context.next) {
-          case 0:
-            result = false;
-            _context.prev = 1;
-            _context.next = 4;
-            return HTTP.get(config.host() + "/services/2.0/stream?expand=2", {
-              headers: {
-                'x-session': session || this.wappsto.session.id
-              }
-            });
-          case 4:
-            response = _context.sent;
-            result = response.data;
-            _context.next = 11;
-            break;
-          case 8:
-            _context.prev = 8;
-            _context.t0 = _context["catch"](1);
-            /* istanbul ignore next */
-            tui.showError('Failed to get streams', _context.t0);
-          case 11:
-            return _context.abrupt("return", result);
-          case 12:
-          case "end":
-            return _context.stop();
-        }
-      }, _callee, this, [[1, 8]]);
-    }));
-    function getAll(_x) {
-      return _getAll.apply(this, arguments);
-    }
-    return getAll;
-  }();
-  _proto.create = /*#__PURE__*/function () {
-    var _create = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(subscription, session) {
-      var result, response;
-      return _regeneratorRuntime().wrap(function _callee2$(_context2) {
-        while (1) switch (_context2.prev = _context2.next) {
-          case 0:
-            result = {};
-            _context2.prev = 1;
-            _context2.next = 4;
-            return HTTP.post(config.host() + "/services/2.0/stream", {
-              subscription: subscription
-            }, {
-              headers: {
-                'x-session': session || this.wappsto.session.id
-              }
-            });
-          case 4:
-            response = _context2.sent;
-            result = response.data;
-            _context2.next = 11;
-            break;
-          case 8:
-            _context2.prev = 8;
-            _context2.t0 = _context2["catch"](1);
-            /* istanbul ignore next */
-            tui.showError("Failed to create stream for " + subscription, _context2.t0);
-          case 11:
-            return _context2.abrupt("return", result);
-          case 12:
-          case "end":
-            return _context2.stop();
-        }
-      }, _callee2, this, [[1, 8]]);
-    }));
-    function create(_x2, _x3) {
-      return _create.apply(this, arguments);
-    }
-    return create;
-  }();
-  _proto.open = function open(env, id, callback, session) {
-    var host = env + config.host().split('//')[1];
-    var ses = session || this.wappsto.session.id;
-    var wss = config.websocket() + "/services/2.1/websocket/" + id + "?x-session=" + ses;
-    var self = this;
+  _proto.open = function open() {
+    var _this = this;
+    var subStr = '';
+    this.subscription.forEach(function (s) {
+      if (subStr !== '') {
+        subStr += ',';
+      }
+      subStr += s;
+    });
+    subStr = "[" + subStr + "]";
+    var host = config.host().split('//')[1];
+    var ses = this.session || this.wappsto.session.id;
+    var wss = config.websocket() + "/services/2.1/websocket/open?x-session=" + ses + "&subscription=" + subStr;
     var reconnectInterval = 10 * 1000;
-    var ws;
     var connect = function connect() {
-      ws = new WebSocket(wss, {
+      _this.ws = new WebSocket(wss, {
         origin: "https://" + host
       });
-      ws.on('close', function (code, msg) {
+      _this.ws.on('close', function (code, msg) {
         switch (code) {
           case 1000:
             setTimeout(connect, 1);
             break;
           default:
-            tui.showError("Stream " + id + " closed: " + msg + " (" + code + ")");
+            tui.showError("Stream closed: " + msg + " (" + code + ")");
             setTimeout(connect, reconnectInterval);
         }
       });
-      ws.on('error', function (err) {
-        tui.showError("Stream error: " + id, err);
+      _this.ws.on('error', function (err) {
+        tui.showError("Stream error", err);
       });
-      ws.on('message', function (message) {
-        self.parseStreamEvent(message, callback);
+      _this.ws.on('message', function (message) {
+        _this.parseStreamEvent(message, _this.callback);
       });
     };
     connect();
-    return ws;
+  };
+  _proto.close = function close() {
+    if (this.ws) {
+      this.ws.close();
+      this.ws = undefined;
+    }
   };
   _proto.printConsoleMessage = function printConsoleMessage(data, callback) {
     if (!this.remote) {
@@ -1173,26 +828,26 @@ var Stream = /*#__PURE__*/function () {
     callback(eventMsg);
   };
   _proto.handleNotification = /*#__PURE__*/function () {
-    var _handleNotification = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(data, callback) {
+    var _handleNotification = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(data, callback) {
       var readNotification;
-      return _regeneratorRuntime().wrap(function _callee3$(_context3) {
-        while (1) switch (_context3.prev = _context3.next) {
+      return _regeneratorRuntime().wrap(function _callee$(_context) {
+        while (1) switch (_context.prev = _context.next) {
           case 0:
             if (!(data.read !== 'unread')) {
-              _context3.next = 2;
+              _context.next = 2;
               break;
             }
-            return _context3.abrupt("return");
+            return _context.abrupt("return");
           case 2:
-            if (!(this.installation && data.base.from !== this.installation.id)) {
-              _context3.next = 4;
+            if (!(this.installation_id && data.base.from !== this.installation_id)) {
+              _context.next = 4;
               break;
             }
-            return _context3.abrupt("return");
+            return _context.abrupt("return");
           case 4:
             readNotification = true;
-            _context3.t0 = data.base.code;
-            _context3.next = _context3.t0 === 1100028 ? 8 : _context3.t0 === 1100031 ? 10 : _context3.t0 === 1100002 ? 10 : _context3.t0 === 1100003 ? 10 : _context3.t0 === 1100006 ? 12 : _context3.t0 === 1100004 ? 12 : 13;
+            _context.t0 = data.base.code;
+            _context.next = _context.t0 === 1100028 ? 8 : _context.t0 === 1100031 ? 10 : _context.t0 === 1100002 ? 10 : _context.t0 === 1100003 ? 10 : _context.t0 === 1100006 ? 12 : _context.t0 === 1100004 ? 12 : 13;
             break;
           case 8:
             if (data.custom.code === 1299999) {
@@ -1205,7 +860,7 @@ var Stream = /*#__PURE__*/function () {
                 status: data.custom.description
               });
             }
-            return _context3.abrupt("break", 14);
+            return _context.abrupt("break", 14);
           case 10:
             if (this.last_permission_request !== data.timestamp) {
               this.last_permission_request = data.timestamp;
@@ -1217,69 +872,69 @@ var Stream = /*#__PURE__*/function () {
                 id: data.meta.id
               });
             }
-            return _context3.abrupt("break", 14);
+            return _context.abrupt("break", 14);
           case 12:
-            return _context3.abrupt("break", 14);
+            return _context.abrupt("break", 14);
           case 13:
             callback(data);
           case 14:
             if (!readNotification) {
-              _context3.next = 17;
+              _context.next = 17;
               break;
             }
-            _context3.next = 17;
+            _context.next = 17;
             return this.wappsto.readNotification(data.meta.id);
           case 17:
           case "end":
-            return _context3.stop();
+            return _context.stop();
         }
-      }, _callee3, this);
+      }, _callee, this);
     }));
-    function handleNotification(_x4, _x5) {
+    function handleNotification(_x, _x2) {
       return _handleNotification.apply(this, arguments);
     }
     return handleNotification;
   }();
   _proto.parseStreamEvent = /*#__PURE__*/function () {
-    var _parseStreamEvent = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(message, callback) {
+    var _parseStreamEvent = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(message, callback) {
       var event, data, msg;
-      return _regeneratorRuntime().wrap(function _callee4$(_context4) {
-        while (1) switch (_context4.prev = _context4.next) {
+      return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+        while (1) switch (_context2.prev = _context2.next) {
           case 0:
-            _context4.prev = 0;
+            _context2.prev = 0;
             event = JSON.parse(message);
             if (!(!event.meta || !event.meta.id)) {
-              _context4.next = 4;
+              _context2.next = 4;
               break;
             }
-            return _context4.abrupt("return");
+            return _context2.abrupt("return");
           case 4:
             if (!(this.last_stream_event === event.meta.id)) {
-              _context4.next = 6;
+              _context2.next = 6;
               break;
             }
-            return _context4.abrupt("return");
+            return _context2.abrupt("return");
           case 6:
             this.last_stream_event = event.meta.id;
             if (!(event.event === 'delete')) {
-              _context4.next = 9;
+              _context2.next = 9;
               break;
             }
-            return _context4.abrupt("return");
+            return _context2.abrupt("return");
           case 9:
             data = event.data;
-            _context4.t0 = event.meta_object.type;
-            _context4.next = _context4.t0 === 'state' ? 13 : _context4.t0 === 'installation' ? 14 : _context4.t0 === 'extsync' ? 16 : _context4.t0 === 'notification' ? 18 : _context4.t0 === 'console' ? 21 : 26;
+            _context2.t0 = event.meta_object.type;
+            _context2.next = _context2.t0 === 'state' ? 13 : _context2.t0 === 'installation' ? 14 : _context2.t0 === 'extsync' ? 16 : _context2.t0 === 'notification' ? 18 : _context2.t0 === 'console' ? 21 : 26;
             break;
           case 13:
-            return _context4.abrupt("break", 27);
+            return _context2.abrupt("break", 27);
           case 14:
             callback({
               application: data.application,
               status: 'Installation Updated',
               session: true
             });
-            return _context4.abrupt("break", 27);
+            return _context2.abrupt("break", 27);
           case 16:
             try {
               if (data.uri !== 'extsync/wappsto/editor/console') {
@@ -1292,20 +947,18 @@ var Stream = /*#__PURE__*/function () {
                 this.printConsoleMessage(data, callback);
               }
             } catch (err) {
-              /* istanbul ignore next */
               tui.showError(err);
-              /* istanbul ignore next */
               callback(data.body);
             }
-            return _context4.abrupt("break", 27);
+            return _context2.abrupt("break", 27);
           case 18:
-            _context4.next = 20;
+            _context2.next = 20;
             return this.handleNotification(data, callback);
           case 20:
-            return _context4.abrupt("break", 27);
+            return _context2.abrupt("break", 27);
           case 21:
             if (!(event.type === 'error')) {
-              _context4.next = 26;
+              _context2.next = 26;
               break;
             }
             msg = data;
@@ -1317,29 +970,287 @@ var Stream = /*#__PURE__*/function () {
               type: 'Background',
               timestamp: event.timestamp
             });
-            return _context4.abrupt("break", 27);
+            return _context2.abrupt("break", 27);
           case 26:
             callback(data);
           case 27:
-            _context4.next = 32;
+            _context2.next = 32;
             break;
           case 29:
-            _context4.prev = 29;
-            _context4.t1 = _context4["catch"](0);
-            /* istanbul ignore next */
-            tui.showError('Failed to handle stream event', _context4.t1);
+            _context2.prev = 29;
+            _context2.t1 = _context2["catch"](0);
+            tui.showError('Failed to handle stream event', _context2.t1);
           case 32:
           case "end":
-            return _context4.stop();
+            return _context2.stop();
         }
-      }, _callee4, this, [[0, 29]]);
+      }, _callee2, this, [[0, 29]]);
     }));
-    function parseStreamEvent(_x6, _x7) {
+    function parseStreamEvent(_x3, _x4) {
       return _parseStreamEvent.apply(this, arguments);
     }
     return parseStreamEvent;
   }();
   return Stream;
+}();
+
+var transaction$1;
+function startTrace(command) {
+  if (process.env.NODE_ENV !== 'test') {
+    Sentry.init({
+      dsn: 'https://ef7592dc40c34510b9246633e453ef0e@sentry.iot.seluxit.com/124',
+      tracesSampleRate: 1.0,
+      environment: config.env(),
+      release: "wappsto-cli@" + VERSION
+    });
+    transaction$1 = Sentry.startTransaction({
+      op: command,
+      name: "Wappsto CLI - " + command
+    });
+  }
+  return transaction$1;
+}
+function setUser(session) {
+  if (process.env.NODE_ENV !== 'test') {
+    Sentry.setUser({
+      id: session.user || 'unknown user'
+    });
+  }
+}
+var Trace = /*#__PURE__*/function () {
+  function Trace(name, description, data) {
+    this.span = void 0;
+    if (process.env.NODE_ENV !== 'test') {
+      if (transaction$1) {
+        this.span = transaction$1.startChild({
+          op: name,
+          description: description
+        });
+        if (data) {
+          var _this$span;
+          (_this$span = this.span) == null ? void 0 : _this$span.setData('data', data);
+        }
+      }
+    }
+  }
+  var _proto = Trace.prototype;
+  _proto.ok = function ok() {
+    if (this.span) {
+      this.span.setStatus('ok');
+    }
+  };
+  _proto.error = function error(status) {
+    if (this.span) {
+      var _status$response;
+      if (typeof status === 'string') {
+        this.span.setStatus(status);
+      } else if ((_status$response = status.response) != null && _status$response.status) {
+        this.span.setStatus(status.response.status);
+      } else {
+        this.span.setStatus('unknown');
+      }
+    }
+  };
+  _proto.done = function done(status) {
+    if (this.span) {
+      if (status) {
+        this.error(status);
+      } else {
+        this.ok();
+      }
+      this.span.finish();
+    }
+  };
+  return Trace;
+}();
+
+var HTTP = /*#__PURE__*/function () {
+  function HTTP() {}
+  HTTP.trace = function trace(method, url, data) {
+    return new Trace("HTTP " + method, url, data);
+  };
+  HTTP.setHeader = function setHeader(name, value) {
+    axios.defaults.headers.common[name] = value;
+  };
+  HTTP.removeHeader = function removeHeader(name) {
+    delete axios.defaults.headers.common[name];
+  };
+  HTTP.get = /*#__PURE__*/function () {
+    var _get = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(url, options) {
+      var t, res, _err$response;
+      return _regeneratorRuntime().wrap(function _callee$(_context) {
+        while (1) switch (_context.prev = _context.next) {
+          case 0:
+            if (options === void 0) {
+              options = {};
+            }
+            t = HTTP.trace('GET', url);
+            _context.prev = 2;
+            _context.next = 5;
+            return axios.get(url, options);
+          case 5:
+            res = _context.sent;
+            tui.showTraffic('GET', url, {}, res.data);
+            t.done();
+            return _context.abrupt("return", res);
+          case 11:
+            _context.prev = 11;
+            _context.t0 = _context["catch"](2);
+            tui.showTraffic('GET', url, {}, (_err$response = _context.t0.response) == null ? void 0 : _err$response.data);
+            t.done(_context.t0);
+            throw _context.t0;
+          case 16:
+          case "end":
+            return _context.stop();
+        }
+      }, _callee, null, [[2, 11]]);
+    }));
+    function get(_x, _x2) {
+      return _get.apply(this, arguments);
+    }
+    return get;
+  }();
+  HTTP.post = /*#__PURE__*/function () {
+    var _post = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(url, data, options) {
+      var t, res, _err$response2;
+      return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+        while (1) switch (_context2.prev = _context2.next) {
+          case 0:
+            if (options === void 0) {
+              options = {};
+            }
+            t = HTTP.trace('POST', url);
+            _context2.prev = 2;
+            _context2.next = 5;
+            return axios.post(url, data, options);
+          case 5:
+            res = _context2.sent;
+            tui.showTraffic('POST', url, data, res.data);
+            t.done();
+            return _context2.abrupt("return", res);
+          case 11:
+            _context2.prev = 11;
+            _context2.t0 = _context2["catch"](2);
+            tui.showTraffic('POST', url, data, (_err$response2 = _context2.t0.response) == null ? void 0 : _err$response2.data);
+            t.done(_context2.t0);
+            throw _context2.t0;
+          case 16:
+          case "end":
+            return _context2.stop();
+        }
+      }, _callee2, null, [[2, 11]]);
+    }));
+    function post(_x3, _x4, _x5) {
+      return _post.apply(this, arguments);
+    }
+    return post;
+  }();
+  HTTP.put = /*#__PURE__*/function () {
+    var _put = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(url, data, options) {
+      var t, res, _err$response3;
+      return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+        while (1) switch (_context3.prev = _context3.next) {
+          case 0:
+            if (options === void 0) {
+              options = {};
+            }
+            t = HTTP.trace('PUT', url);
+            _context3.prev = 2;
+            _context3.next = 5;
+            return axios.put(url, data, options);
+          case 5:
+            res = _context3.sent;
+            tui.showTraffic('PUT', url, data, res.data);
+            t.done();
+            return _context3.abrupt("return", res);
+          case 11:
+            _context3.prev = 11;
+            _context3.t0 = _context3["catch"](2);
+            tui.showTraffic('PUT', url, data, (_err$response3 = _context3.t0.response) == null ? void 0 : _err$response3.data);
+            t.done(_context3.t0);
+            throw _context3.t0;
+          case 16:
+          case "end":
+            return _context3.stop();
+        }
+      }, _callee3, null, [[2, 11]]);
+    }));
+    function put(_x6, _x7, _x8) {
+      return _put.apply(this, arguments);
+    }
+    return put;
+  }();
+  HTTP.patch = /*#__PURE__*/function () {
+    var _patch = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(url, data, options) {
+      var t, res, _err$response4;
+      return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+        while (1) switch (_context4.prev = _context4.next) {
+          case 0:
+            if (options === void 0) {
+              options = {};
+            }
+            t = HTTP.trace('PATCH', url);
+            _context4.prev = 2;
+            _context4.next = 5;
+            return axios.patch(url, data, options);
+          case 5:
+            res = _context4.sent;
+            tui.showTraffic('PATCH', url, data, res.data);
+            t.done();
+            return _context4.abrupt("return", res);
+          case 11:
+            _context4.prev = 11;
+            _context4.t0 = _context4["catch"](2);
+            tui.showTraffic('PATCH', url, data, (_err$response4 = _context4.t0.response) == null ? void 0 : _err$response4.data);
+            t.done(_context4.t0);
+            throw _context4.t0;
+          case 16:
+          case "end":
+            return _context4.stop();
+        }
+      }, _callee4, null, [[2, 11]]);
+    }));
+    function patch(_x9, _x10, _x11) {
+      return _patch.apply(this, arguments);
+    }
+    return patch;
+  }();
+  HTTP["delete"] = /*#__PURE__*/function () {
+    var _delete2 = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(url, options) {
+      var t, res, _err$response5;
+      return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+        while (1) switch (_context5.prev = _context5.next) {
+          case 0:
+            if (options === void 0) {
+              options = {};
+            }
+            t = HTTP.trace('DELETE', url);
+            _context5.prev = 2;
+            _context5.next = 5;
+            return axios["delete"](url, options);
+          case 5:
+            res = _context5.sent;
+            tui.showTraffic('DELETE', url, {}, res.data);
+            t.done();
+            return _context5.abrupt("return", res);
+          case 11:
+            _context5.prev = 11;
+            _context5.t0 = _context5["catch"](2);
+            tui.showTraffic('DELETE', url, {}, (_err$response5 = _context5.t0.response) == null ? void 0 : _err$response5.data);
+            t.done(_context5.t0);
+            throw _context5.t0;
+          case 16:
+          case "end":
+            return _context5.stop();
+        }
+      }, _callee5, null, [[2, 11]]);
+    }));
+    function _delete(_x12, _x13) {
+      return _delete2.apply(this, arguments);
+    }
+    return _delete;
+  }();
+  return HTTP;
 }();
 
 var Model = /*#__PURE__*/function () {
@@ -1362,12 +1273,10 @@ var Model = /*#__PURE__*/function () {
     return config.host() + "/services/2.1/" + type;
   };
   var _proto = Model.prototype;
-  /* istanbul ignore next */
   _proto.getAttributes = function getAttributes() {
     return [];
   };
   _proto.toJSON = function toJSON() {
-    tui.trace('model', 'toJSON', this);
     var meta = Object.assign({}, pick(this.meta, ['id', 'type', 'version', 'revision', 'updated']));
     var json = Object.assign({
       meta: meta
@@ -1375,15 +1284,13 @@ var Model = /*#__PURE__*/function () {
     return json;
   };
   _proto.parse = function parse(data) {
-    tui.trace('model', 'parse', data);
     try {
       Object.assign(this, pick(data, this.getAttributes().concat(['meta'])));
-    } catch (e) {
-      console.log(e);
+    } catch (err) {
+      this.handleException("Failed to parse data in " + this.meta.type, err);
     }
   };
   _proto.save = function save() {
-    tui.trace('model', 'save', this);
     var data = this.toJSON();
     if (typeof data !== 'string') {
       data = JSON.stringify(data);
@@ -1391,7 +1298,6 @@ var Model = /*#__PURE__*/function () {
     saveFile("" + this.cacheFolder + this.meta.type, data);
   };
   _proto.load = function load() {
-    tui.trace('model', 'load');
     var data = loadFile("" + this.cacheFolder + this.meta.type);
     if (data) {
       try {
@@ -1401,7 +1307,6 @@ var Model = /*#__PURE__*/function () {
     }
   };
   _proto.clear = function clear() {
-    tui.trace('model', 'clear');
     deleteFile("" + this.cacheFolder + this.meta.type);
   };
   _proto.fetch = /*#__PURE__*/function () {
@@ -1410,25 +1315,24 @@ var Model = /*#__PURE__*/function () {
       return _regeneratorRuntime().wrap(function _callee$(_context) {
         while (1) switch (_context.prev = _context.next) {
           case 0:
-            tui.trace('model', 'fetch');
-            _context.prev = 1;
-            _context.next = 4;
+            _context.prev = 0;
+            _context.next = 3;
             return HTTP.get(this.HOST + "/" + this.id + "?expand=2&verbose=true");
-          case 4:
+          case 3:
             response = _context.sent;
             this.parse(response.data);
             return _context.abrupt("return", true);
-          case 9:
-            _context.prev = 9;
-            _context.t0 = _context["catch"](1);
-            tui.showError("Failed to fetch " + this.meta.type, _context.t0);
-          case 12:
+          case 8:
+            _context.prev = 8;
+            _context.t0 = _context["catch"](0);
+            this.handleException("Failed to fetch " + this.meta.type, _context.t0);
+          case 11:
             return _context.abrupt("return", false);
-          case 13:
+          case 12:
           case "end":
             return _context.stop();
         }
-      }, _callee, this, [[1, 9]]);
+      }, _callee, this, [[0, 8]]);
     }));
     function fetch() {
       return _fetch.apply(this, arguments);
@@ -1437,31 +1341,28 @@ var Model = /*#__PURE__*/function () {
   }();
   _proto.update = /*#__PURE__*/function () {
     var _update = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
-      var result, response;
+      var response;
       return _regeneratorRuntime().wrap(function _callee2$(_context2) {
         while (1) switch (_context2.prev = _context2.next) {
           case 0:
-            result = true;
-            _context2.prev = 1;
-            _context2.next = 4;
+            _context2.prev = 0;
+            _context2.next = 3;
             return HTTP.patch(this.HOST + "/" + this.id, this.toJSON());
-          case 4:
+          case 3:
             response = _context2.sent;
             this.parse(response.data);
-            _context2.next = 12;
-            break;
+            return _context2.abrupt("return", true);
           case 8:
             _context2.prev = 8;
-            _context2.t0 = _context2["catch"](1);
-            tui.showError("Failed to update " + this.meta.type + ": " + this.id, _context2.t0);
-            result = false;
+            _context2.t0 = _context2["catch"](0);
+            this.handleException("Failed to update " + this.meta.type + ": " + this.id, _context2.t0);
+          case 11:
+            return _context2.abrupt("return", false);
           case 12:
-            return _context2.abrupt("return", result);
-          case 13:
           case "end":
             return _context2.stop();
         }
-      }, _callee2, this, [[1, 8]]);
+      }, _callee2, this, [[0, 8]]);
     }));
     function update() {
       return _update.apply(this, arguments);
@@ -1473,33 +1374,31 @@ var Model = /*#__PURE__*/function () {
       return _regeneratorRuntime().wrap(function _callee3$(_context3) {
         while (1) switch (_context3.prev = _context3.next) {
           case 0:
-            tui.trace('model', 'delete');
-            _context3.prev = 1;
-            _context3.next = 4;
+            _context3.prev = 0;
+            _context3.next = 3;
             return HTTP["delete"](this.HOST + "/" + this.id);
-          case 4:
-            _context3.next = 15;
+          case 3:
+            _context3.next = 14;
             break;
-          case 6:
-            _context3.prev = 6;
-            _context3.t0 = _context3["catch"](1);
+          case 5:
+            _context3.prev = 5;
+            _context3.t0 = _context3["catch"](0);
             _context3.t1 = _context3.t0.response.data.code;
-            _context3.next = _context3.t1 === 300020 ? 11 : _context3.t1 === 9900067 ? 12 : _context3.t1 === 300024 ? 13 : 14;
+            _context3.next = _context3.t1 === 300020 ? 10 : _context3.t1 === 9900067 ? 11 : _context3.t1 === 300024 ? 12 : 13;
             break;
+          case 10:
+            return _context3.abrupt("break", 14);
           case 11:
-            return _context3.abrupt("break", 15);
+            return _context3.abrupt("break", 14);
           case 12:
-            return _context3.abrupt("break", 15);
-          case 13:
             throw Error('Can not delete application that is published!');
+          case 13:
+            this.handleException("Failed to delete " + this.meta.type + ": " + this.id, _context3.t0);
           case 14:
-            /* istanbul ignore next */
-            tui.showError("Failed to delete " + this.meta.type + ": " + this.id, _context3.t0);
-          case 15:
           case "end":
             return _context3.stop();
         }
-      }, _callee3, this, [[1, 6]]);
+      }, _callee3, this, [[0, 5]]);
     }));
     function _delete() {
       return _delete2.apply(this, arguments);
@@ -1525,7 +1424,19 @@ var Model = /*#__PURE__*/function () {
     return obj;
   };
   _proto.trace = function trace(method, data) {
-    tui.trace(this.meta.type || 'model', method, data);
+    return new Trace(this.meta.type || 'model', method, data);
+  };
+  Model.trace = function trace(type, method, data) {
+    return new Trace(type, method, data);
+  };
+  _proto.handleException = function handleException(msg, err) {
+    Model.handleException(msg, err);
+  };
+  Model.handleException = function handleException(msg, err) {
+    if (process.env.NODE_ENV !== 'test') {
+      Sentry.captureException(err);
+    }
+    tui.showError(msg, err);
   };
   _createClass(Model, [{
     key: "id",
@@ -1583,8 +1494,7 @@ var Installation = /*#__PURE__*/function (_Model) {
           case 9:
             _context.prev = 9;
             _context.t0 = _context["catch"](0);
-            /* istanbul ignore next */
-            tui.showError('Failed to create installation', _context.t0);
+            this.handleException('Failed to create installation', _context.t0);
             return _context.abrupt("return", false);
           case 13:
           case "end":
@@ -1599,39 +1509,39 @@ var Installation = /*#__PURE__*/function (_Model) {
   }();
   _proto.fetchById = /*#__PURE__*/function () {
     var _fetchById = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(id) {
-      var ret, url, response;
+      var url, response;
       return _regeneratorRuntime().wrap(function _callee2$(_context2) {
         while (1) switch (_context2.prev = _context2.next) {
           case 0:
-            ret = true;
-            _context2.prev = 1;
+            _context2.prev = 0;
             url = this.HOST + "?expand=2&this_version_id=" + id;
-            _context2.next = 5;
+            _context2.next = 4;
             return HTTP.get(url);
-          case 5:
+          case 4:
             response = _context2.sent;
-            if (response.data && response.data.length) {
-              this.parse(response.data[0]);
-              this.save();
-            } else {
-              tui.showError("Failed to fetch installation by ID: " + id);
-              ret = false;
+            if (!(response.data && response.data.length)) {
+              _context2.next = 11;
+              break;
             }
-            _context2.next = 13;
+            this.parse(response.data[0]);
+            this.save();
+            return _context2.abrupt("return", true);
+          case 11:
+            tui.showError("Failed to fetch installation by ID: " + id);
+          case 12:
+            _context2.next = 17;
             break;
-          case 9:
-            _context2.prev = 9;
-            _context2.t0 = _context2["catch"](1);
-            /* istanbul ignore next */
-            tui.showError("Failed to load installation: " + id, _context2.t0);
-            ret = false;
-          case 13:
-            return _context2.abrupt("return", ret);
           case 14:
+            _context2.prev = 14;
+            _context2.t0 = _context2["catch"](0);
+            this.handleException("Failed to load installation: " + id, _context2.t0);
+          case 17:
+            return _context2.abrupt("return", false);
+          case 18:
           case "end":
             return _context2.stop();
         }
-      }, _callee2, this, [[1, 9]]);
+      }, _callee2, this, [[0, 14]]);
     }));
     function fetchById(_x2) {
       return _fetchById.apply(this, arguments);
@@ -1656,8 +1566,7 @@ var Installation = /*#__PURE__*/function (_Model) {
           case 5:
             _context3.prev = 5;
             _context3.t0 = _context3["catch"](0);
-            /* istanbul ignore next */
-            tui.showError("Failed to restart installation: " + this.id, _context3.t0);
+            this.handleException("Failed to restart installation: " + this.id, _context3.t0);
           case 8:
           case "end":
             return _context3.stop();
@@ -1688,8 +1597,7 @@ var Installation = /*#__PURE__*/function (_Model) {
           case 5:
             _context4.prev = 5;
             _context4.t0 = _context4["catch"](0);
-            /* istanbul ignore next */
-            tui.showError("Failed to reinstall installation: " + this.id, _context4.t0);
+            this.handleException("Failed to reinstall installation: " + this.id, _context4.t0);
           case 8:
           case "end":
             return _context4.stop();
@@ -1718,8 +1626,7 @@ var Installation = /*#__PURE__*/function (_Model) {
           case 6:
             _context5.prev = 6;
             _context5.t0 = _context5["catch"](0);
-            /* istanbul ignore next */
-            tui.showError("Failed to stop installation: " + this.id, _context5.t0);
+            this.handleException("Failed to stop installation: " + this.id, _context5.t0);
             return _context5.abrupt("return", false);
           case 10:
           case "end":
@@ -1748,8 +1655,7 @@ var Installation = /*#__PURE__*/function (_Model) {
           case 5:
             _context6.prev = 5;
             _context6.t0 = _context6["catch"](0);
-            /* istanbul ignore next */
-            tui.showError("Failed to change ExtSync for installation: " + this.id, _context6.t0);
+            this.handleException("Failed to change ExtSync for installation: " + this.id, _context6.t0);
           case 8:
           case "end":
             return _context6.stop();
@@ -1781,8 +1687,7 @@ var Installation = /*#__PURE__*/function (_Model) {
           case 10:
             return _context7.abrupt("break", 12);
           case 11:
-            /* istanbul ignore next */
-            tui.showError("Failed to delete installation: " + id, _context7.t0);
+            this.handleException("Failed to delete installation: " + id, _context7.t0);
           case 12:
           case "end":
             return _context7.stop();
@@ -1933,6 +1838,9 @@ var File = /*#__PURE__*/function (_Model) {
             return _context.abrupt("return", new Promise(function (resolve, reject) {
               var path = filePath || _this2.path;
               createFolders(path);
+              var error = function error() {
+                reject();
+              };
               var done = function done() {
                 _this2.syncModified();
                 resolve();
@@ -1941,7 +1849,7 @@ var File = /*#__PURE__*/function (_Model) {
                 var writer = createWriteStream(path);
                 response.data.pipe(writer);
                 writer.on('finish', done);
-                writer.on('error', reject);
+                writer.on('error', error);
               } else {
                 saveFile(path, response.data);
                 done();
@@ -1980,7 +1888,7 @@ var File = /*#__PURE__*/function (_Model) {
           case 10:
             _context2.prev = 10;
             _context2.t0 = _context2["catch"](2);
-            tui.showError("Failed to update File: " + this.name, _context2.t0);
+            this.handleException("Failed to update File: " + this.name, _context2.t0);
           case 13:
             return _context2.abrupt("return", false);
           case 14:
@@ -2037,7 +1945,7 @@ File.create = /*#__PURE__*/function () {
         case 12:
           _context3.prev = 12;
           _context3.t0 = _context3["catch"](5);
-          tui.showError("Failed to create File: " + name, _context3.t0);
+          File.handleException("Failed to create File: " + name, _context3.t0);
         case 15:
           return _context3.abrupt("return", null);
         case 16:
@@ -2077,7 +1985,6 @@ var Version = /*#__PURE__*/function (_Model) {
   };
   _proto.parse = function parse(data) {
     var _this2 = this;
-    this.trace('parse', data);
     _Model.prototype.parse.call(this, data);
     var files = this.file || [];
     this.file = [];
@@ -2086,7 +1993,6 @@ var Version = /*#__PURE__*/function (_Model) {
     });
   };
   _proto.toJSON = function toJSON() {
-    this.trace('toJSON', this);
     var data = _Model.prototype.toJSON.call(this);
     data.file = [];
     this.file.forEach(function (file) {
@@ -2111,7 +2017,7 @@ var Version = /*#__PURE__*/function (_Model) {
           case 7:
             _context.prev = 7;
             _context.t0 = _context["catch"](0);
-            tui.showError("Failed to get version: " + this.id, _context.t0);
+            this.handleException("Failed to get version: " + this.id, _context.t0);
           case 10:
             return _context.abrupt("return", null);
           case 11:
@@ -2151,17 +2057,7 @@ var Version = /*#__PURE__*/function (_Model) {
     }
     return createFile;
   }();
-  _proto.updateFile = function updateFile(filePath, newFile) {
-    /*for (let i = 0; i < this.file.length; i += 1) {
-      if (
-        filePath === `${getFilePath(this.file[i].use)}/${this.file[i].name}`
-      ) {
-        this.file[i] = newFile;
-        this.parent?.save();
-        return;
-      }
-    }*/
-  };
+  _proto.updateFile = function updateFile(filePath, newFile) {};
   _proto.getFiles = function getFiles() {
     var files = [];
     this.file.forEach(function (file) {
@@ -2173,33 +2069,30 @@ var Version = /*#__PURE__*/function (_Model) {
   };
   _proto.publish = /*#__PURE__*/function () {
     var _publish = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
-      var result, response;
+      var response;
       return _regeneratorRuntime().wrap(function _callee3$(_context3) {
         while (1) switch (_context3.prev = _context3.next) {
           case 0:
-            result = true;
-            _context3.prev = 1;
-            _context3.next = 4;
+            _context3.prev = 0;
+            _context3.next = 3;
             return HTTP.patch(this.HOST + "/" + this.id, {
               status: 'commit'
             });
-          case 4:
+          case 3:
             response = _context3.sent;
             this.parse(response.data);
-            _context3.next = 12;
-            break;
+            return _context3.abrupt("return", true);
           case 8:
             _context3.prev = 8;
-            _context3.t0 = _context3["catch"](1);
-            tui.showError("Failed to update " + this.meta.type + ": " + this.id, _context3.t0);
-            result = false;
+            _context3.t0 = _context3["catch"](0);
+            this.handleException("Failed to update " + this.meta.type + ": " + this.id, _context3.t0);
+          case 11:
+            return _context3.abrupt("return", false);
           case 12:
-            return _context3.abrupt("return", result);
-          case 13:
           case "end":
             return _context3.stop();
         }
-      }, _callee3, this, [[1, 8]]);
+      }, _callee3, this, [[0, 8]]);
     }));
     function publish() {
       return _publish.apply(this, arguments);
@@ -2219,17 +2112,14 @@ var Application = /*#__PURE__*/function (_Model) {
     _this.oauth_client = [];
     _this.oauth_external = [];
     _this.application_product = [];
-    _this.trace('constructor');
     _this.parse(data);
     return _this;
   }
   var _proto = Application.prototype;
   _proto.getAttributes = function getAttributes() {
-    this.trace('getAttributes');
     return ['name', 'name_identifier', 'version'];
   };
   _proto.toJSON = function toJSON() {
-    this.trace('toJSON', this);
     var data = _Model.prototype.toJSON.call(this);
     data.version = [];
     for (var i = 0; i < this.version.length; i += 1) {
@@ -2241,14 +2131,12 @@ var Application = /*#__PURE__*/function (_Model) {
     return data;
   };
   _proto.getVersion = function getVersion() {
-    this.trace('getVersion');
     if (this.version.length > 0) {
       var last = this.version[this.version.length - 1];
       if (typeof last !== 'string') {
         return last;
       }
     }
-    /* istanbul ignore next */
     return new Version({}, this);
   };
   _proto.getOAuthExternal = function getOAuthExternal() {
@@ -2271,7 +2159,6 @@ var Application = /*#__PURE__*/function (_Model) {
   };
   _proto.parse = function parse(data) {
     var _this2 = this;
-    this.trace('parse', data);
     _Model.prototype.parse.call(this, data);
     var vs = this.version || [];
     this.version = [];
@@ -2285,7 +2172,6 @@ var Application = /*#__PURE__*/function (_Model) {
       return _regeneratorRuntime().wrap(function _callee$(_context) {
         while (1) switch (_context.prev = _context.next) {
           case 0:
-            tui.trace('application', 'create', info);
             result = undefined;
             if (!info.description || info.object_requested) {
               data = {
@@ -2314,28 +2200,27 @@ var Application = /*#__PURE__*/function (_Model) {
             data.executable = {
               engine: 'node'
             };
-            _context.prev = 5;
-            _context.next = 8;
+            _context.prev = 4;
+            _context.next = 7;
             return HTTP.post(Model.getHost('application') + "?verbose=true", {
               version: [data]
             });
-          case 8:
+          case 7:
             response = _context.sent;
             result = new Application(response.data);
-            _context.next = 15;
+            _context.next = 14;
             break;
-          case 12:
-            _context.prev = 12;
-            _context.t0 = _context["catch"](5);
-            /* istanbul ignore next */
-            tui.showError('Failed to create the application', _context.t0);
-          case 15:
+          case 11:
+            _context.prev = 11;
+            _context.t0 = _context["catch"](4);
+            Model.handleException('Failed to create the application', _context.t0);
+          case 14:
             return _context.abrupt("return", result);
-          case 16:
+          case 15:
           case "end":
             return _context.stop();
         }
-      }, _callee, null, [[5, 12]]);
+      }, _callee, null, [[4, 11]]);
     }));
     function create(_x) {
       return _create.apply(this, arguments);
@@ -2344,32 +2229,27 @@ var Application = /*#__PURE__*/function (_Model) {
   }();
   _proto.get = /*#__PURE__*/function () {
     var _get = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
-      var result, response;
+      var response;
       return _regeneratorRuntime().wrap(function _callee2$(_context2) {
         while (1) switch (_context2.prev = _context2.next) {
           case 0:
-            this.trace('get');
-            result = {};
-            _context2.prev = 2;
-            _context2.next = 5;
+            _context2.prev = 0;
+            _context2.next = 3;
             return HTTP.get(this.HOST + "/" + this.id + "?expand=2&verbose=true");
-          case 5:
+          case 3:
             response = _context2.sent;
-            result = response.data;
-            _context2.next = 12;
-            break;
-          case 9:
-            _context2.prev = 9;
-            _context2.t0 = _context2["catch"](2);
-            /* istanbul ignore next */
-            tui.showError("Failed to get application: " + this.id, _context2.t0);
-          case 12:
-            return _context2.abrupt("return", result);
-          case 13:
+            return _context2.abrupt("return", response.data);
+          case 7:
+            _context2.prev = 7;
+            _context2.t0 = _context2["catch"](0);
+            this.handleException("Failed to get application: " + this.id, _context2.t0);
+          case 10:
+            return _context2.abrupt("return", {});
+          case 11:
           case "end":
             return _context2.stop();
         }
-      }, _callee2, this, [[2, 9]]);
+      }, _callee2, this, [[0, 7]]);
     }));
     function get() {
       return _get.apply(this, arguments);
@@ -2382,31 +2262,29 @@ var Application = /*#__PURE__*/function (_Model) {
       return _regeneratorRuntime().wrap(function _callee3$(_context3) {
         while (1) switch (_context3.prev = _context3.next) {
           case 0:
-            this.trace('getAll');
             result = [];
-            _context3.prev = 2;
-            _context3.next = 5;
+            _context3.prev = 1;
+            _context3.next = 4;
             return HTTP.get(this.HOST + "?expand=2&verbose=true");
-          case 5:
+          case 4:
             response = _context3.sent;
             response.data.forEach(function (data) {
               var app = new Application(data);
               result.push(app);
             });
-            _context3.next = 12;
+            _context3.next = 11;
             break;
-          case 9:
-            _context3.prev = 9;
-            _context3.t0 = _context3["catch"](2);
-            /* istanbul ignore next */
-            tui.showError('Failed to load all applications');
-          case 12:
+          case 8:
+            _context3.prev = 8;
+            _context3.t0 = _context3["catch"](1);
+            Model.handleException('Failed to load all applications', _context3.t0);
+          case 11:
             return _context3.abrupt("return", result);
-          case 13:
+          case 12:
           case "end":
             return _context3.stop();
         }
-      }, _callee3, this, [[2, 9]]);
+      }, _callee3, this, [[1, 8]]);
     }));
     function getAll() {
       return _getAll.apply(this, arguments);
@@ -2418,51 +2296,50 @@ var Application = /*#__PURE__*/function (_Model) {
       return _regeneratorRuntime().wrap(function _callee4$(_context4) {
         while (1) switch (_context4.prev = _context4.next) {
           case 0:
-            this.trace('createOauthExternal', oauth);
             if (!(this.oauth_external.length === 0)) {
-              _context4.next = 13;
+              _context4.next = 12;
               break;
             }
-            _context4.prev = 2;
-            _context4.next = 5;
+            _context4.prev = 1;
+            _context4.next = 4;
             return HTTP.post(this.HOST + "/" + this.id + "/oauth_external", oauth);
-          case 5:
+          case 4:
             tui.showMessage('External OAuth created');
-            _context4.next = 11;
+            _context4.next = 10;
             break;
-          case 8:
-            _context4.prev = 8;
-            _context4.t0 = _context4["catch"](2);
+          case 7:
+            _context4.prev = 7;
+            _context4.t0 = _context4["catch"](1);
             tui.showError('Failed to create OAuth External', _context4.t0);
-          case 11:
-            _context4.next = 26;
+          case 10:
+            _context4.next = 25;
             break;
-          case 13:
+          case 12:
             if (!(typeof this.oauth_external[0] !== 'string')) {
-              _context4.next = 25;
+              _context4.next = 24;
               break;
             }
-            _context4.prev = 14;
-            _context4.next = 17;
+            _context4.prev = 13;
+            _context4.next = 16;
             return HTTP.patch(this.HOST + "/" + this.id + "/oauth_external/" + this.oauth_external[0].meta.id, oauth);
-          case 17:
+          case 16:
             tui.showMessage('External OAuth updated');
-            _context4.next = 23;
+            _context4.next = 22;
             break;
-          case 20:
-            _context4.prev = 20;
-            _context4.t1 = _context4["catch"](14);
-            tui.showError('Failed to update OAuth External', _context4.t1);
-          case 23:
-            _context4.next = 26;
+          case 19:
+            _context4.prev = 19;
+            _context4.t1 = _context4["catch"](13);
+            this.handleException('Failed to update OAuth External', _context4.t1);
+          case 22:
+            _context4.next = 25;
             break;
-          case 25:
+          case 24:
             tui.showError('Failed to update OAuth External, because old OAuth was not loaded correctly');
-          case 26:
+          case 25:
           case "end":
             return _context4.stop();
         }
-      }, _callee4, this, [[2, 8], [14, 20]]);
+      }, _callee4, this, [[1, 7], [13, 19]]);
     }));
     function createOauthExternal(_x2) {
       return _createOauthExternal.apply(this, arguments);
@@ -2475,7 +2352,6 @@ var Application = /*#__PURE__*/function (_Model) {
       return _regeneratorRuntime().wrap(function _callee5$(_context5) {
         while (1) switch (_context5.prev = _context5.next) {
           case 0:
-            this.trace('createOauthClient');
             newOauth = oauth;
             if (typeof oauth.redirect_uri === 'string') {
               newOauth.redirect_uri = [oauth.redirect_uri];
@@ -2483,41 +2359,41 @@ var Application = /*#__PURE__*/function (_Model) {
             if (typeof oauth.path_access_token === 'string') {
               newOauth.path_access_token = [oauth.path_access_token];
             }
-            _context5.prev = 4;
-            _context5.next = 7;
+            _context5.prev = 3;
+            _context5.next = 6;
             return HTTP.post(this.HOST + "/" + this.id + "/oauth_client", oauth);
-          case 7:
+          case 6:
             tui.showMessage('OAuth Client created');
-            _context5.next = 25;
+            _context5.next = 24;
             break;
-          case 10:
-            _context5.prev = 10;
-            _context5.t0 = _context5["catch"](4);
+          case 9:
+            _context5.prev = 9;
+            _context5.t0 = _context5["catch"](3);
             if (!(_context5.t0.response.data.code === 500232)) {
-              _context5.next = 24;
+              _context5.next = 23;
               break;
             }
-            _context5.prev = 13;
-            _context5.next = 16;
+            _context5.prev = 12;
+            _context5.next = 15;
             return HTTP.patch(this.HOST + "/" + this.id + "/oauth_client", oauth);
-          case 16:
+          case 15:
             tui.showMessage('OAuth Client updated');
-            _context5.next = 22;
+            _context5.next = 21;
             break;
-          case 19:
-            _context5.prev = 19;
-            _context5.t1 = _context5["catch"](13);
-            tui.showError('Failed to create OAuth Client', _context5.t1);
-          case 22:
-            _context5.next = 25;
+          case 18:
+            _context5.prev = 18;
+            _context5.t1 = _context5["catch"](12);
+            this.handleException('Failed to create OAuth Client', _context5.t1);
+          case 21:
+            _context5.next = 24;
             break;
+          case 23:
+            this.handleException('Failed to create OAuth Client', _context5.t0);
           case 24:
-            tui.showError('Failed to create OAuth Client', _context5.t0);
-          case 25:
           case "end":
             return _context5.stop();
         }
-      }, _callee5, this, [[4, 10], [13, 19]]);
+      }, _callee5, this, [[3, 9], [12, 18]]);
     }));
     function createOauthClient(_x3) {
       return _createOauthClient.apply(this, arguments);
@@ -2599,21 +2475,25 @@ var Questions = /*#__PURE__*/function () {
   var _proto = Questions.prototype;
   _proto.ask = /*#__PURE__*/function () {
     var _ask = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(questions) {
+      var t;
       return _regeneratorRuntime().wrap(function _callee$(_context) {
         while (1) switch (_context.prev = _context.next) {
           case 0:
+            t = new Trace('User Input', questions[0].message);
             return _context.abrupt("return", new Promise(function (resolve) {
               var onCancel = function onCancel() {
+                t.done('unknown');
                 resolve(false);
                 return false;
               };
               prompt(questions, {
                 onCancel: onCancel
               }).then(function (answers) {
+                t.done();
                 resolve(answers);
               });
             }));
-          case 1:
+          case 2:
           case "end":
             return _context.stop();
         }
@@ -3090,6 +2970,7 @@ var Session = /*#__PURE__*/function (_Model) {
   function Session() {
     var _this;
     _this = _Model.call(this, 'session') || this;
+    _this.user = void 0;
     _this.load();
     return _this;
   }
@@ -3265,7 +3146,6 @@ var Wappsto = /*#__PURE__*/function () {
             _context3.next = _context3.t1 === 9900071 ? 12 : 14;
             break;
           case 12:
-            /* istanbul ignore next */
             setTimeout( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
               return _regeneratorRuntime().wrap(function _callee2$(_context2) {
                 while (1) switch (_context2.prev = _context2.next) {
@@ -3280,7 +3160,6 @@ var Wappsto = /*#__PURE__*/function () {
             })), 100);
             return _context3.abrupt("break", 15);
           case 14:
-            /* istanbul ignore next */
             tui.showError('Failed to update ACL', _context3.t0);
           case 15:
           case "end":
@@ -3311,7 +3190,6 @@ var Wappsto = /*#__PURE__*/function () {
             }
             return _context4.abrupt("return");
           case 7:
-            // Append the new service to the acl restriction for the installation
             aclRestriction[0].create.push(collection);
             _context4.next = 10;
             return HTTP.patch(this.HOST + "/services/2.0/acl/" + id + "/permission/" + id + "?propagate=true", {
@@ -3323,7 +3201,6 @@ var Wappsto = /*#__PURE__*/function () {
           case 12:
             _context4.prev = 12;
             _context4.t0 = _context4["catch"](0);
-            /* istanbul ignore next */
             tui.showError('Failed to update ACL Restriction', _context4.t0);
           case 15:
           case "end":
@@ -3355,7 +3232,6 @@ var Wappsto = /*#__PURE__*/function () {
           case 9:
             _context5.prev = 9;
             _context5.t0 = _context5["catch"](1);
-            /* istanbul ignore next */
             tui.showError('Failed to find', _context5.t0);
           case 12:
             return _context5.abrupt("return", result);
@@ -3392,9 +3268,7 @@ var Wappsto = /*#__PURE__*/function () {
           case 6:
             _context6.prev = 6;
             _context6.t0 = _context6["catch"](1);
-            /* istanbul ignore next */
             if (!_context6.t0.response || !_context6.t0.response.data || _context6.t0.response.data.code !== 9900147) {
-              /* istanbul ignore next */
               tui.showError('Failed to read notification', _context6.t0);
             }
           case 9:
@@ -3417,9 +3291,6 @@ function getDirName() {
 
 var Wapp = /*#__PURE__*/function () {
   function Wapp(remote) {
-    if (remote === void 0) {
-      remote = true;
-    }
     this.mutex = void 0;
     this.wapp_files = void 0;
     this.ignoreFolders = void 0;
@@ -3429,11 +3300,10 @@ var Wapp = /*#__PURE__*/function () {
     this.wappsto = void 0;
     this.application = void 0;
     this.installation = void 0;
-    this.stream = void 0;
     this.manifest = void 0;
     this.ignore_file = void 0;
-    this.lightStream = void 0;
-    this.appStream = void 0;
+    this.wappStream = void 0;
+    this.userStream = void 0;
     this.sessionCallback = void 0;
     this.mutex = new Mutex();
     this.cacheFolder = config.cacheFolder();
@@ -3445,19 +3315,23 @@ var Wapp = /*#__PURE__*/function () {
     this.wappsto = new Wappsto();
     this.application = new Application(loadJsonFile(this.cacheFolder + "application"));
     this.installation = new Installation();
-    this.stream = new Stream(this.wappsto, this.installation, remote);
     this.manifest = loadJsonFile('manifest.json');
     this.ignore_file = this.cacheFolder + "\nnode_modules\n";
   }
   var _proto = Wapp.prototype;
   _proto.init = /*#__PURE__*/function () {
     var _init = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
+      var t;
       return _regeneratorRuntime().wrap(function _callee$(_context) {
         while (1) switch (_context.prev = _context.next) {
           case 0:
-            _context.next = 2;
+            t = this.measure('Login', 'Validate session');
+            _context.next = 3;
             return this.wappsto.login();
-          case 2:
+          case 3:
+            setUser(this.wappsto.session);
+            t.done();
+          case 5:
           case "end":
             return _context.stop();
         }
@@ -3491,16 +3365,17 @@ var Wapp = /*#__PURE__*/function () {
   _proto.create = /*#__PURE__*/function () {
     var _create = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(validate) {
       var _this = this;
-      var listWapps, updateFiles, status, wapps, newWapp, new_app, wapp, customFolders, ignore, addLines;
+      var listWapps, updateFiles, t, status, wapps, newWapp, new_app, wapp, customFolders, ignore, addLines;
       return _regeneratorRuntime().wrap(function _callee3$(_context3) {
         while (1) switch (_context3.prev = _context3.next) {
           case 0:
             listWapps = [];
+            t = this.measure('Loading all applications');
             status = new Spinner('Loading Wapps, please wait...');
             status.start();
-            _context3.next = 5;
+            _context3.next = 6;
             return this.application.getAll();
-          case 5:
+          case 6:
             wapps = _context3.sent;
             if (wapps.length) {
               wapps.forEach(function (w) {
@@ -3514,61 +3389,68 @@ var Wapp = /*#__PURE__*/function () {
               });
             }
             status.stop();
-            _context3.next = 10;
+            t.done();
+            t = this.measure('Ask the human');
+            _context3.next = 13;
             return questions.askForNewWapp(listWapps, this.present());
-          case 10:
+          case 13:
             newWapp = _context3.sent;
             if (!(newWapp === false)) {
-              _context3.next = 13;
+              _context3.next = 16;
               break;
             }
             return _context3.abrupt("return");
-          case 13:
-            _context3.t0 = newWapp.create;
-            _context3.next = _context3.t0 === 'download' ? 16 : _context3.t0 === 'generate' ? 24 : 44;
-            break;
           case 16:
+            t.done();
+            _context3.t0 = newWapp.create;
+            _context3.next = _context3.t0 === 'download' ? 20 : _context3.t0 === 'generate' ? 30 : 53;
+            break;
+          case 20:
+            t = this.measure('Downloading wapp');
             wapp = wapps.find(function (w) {
               return w.id === newWapp.wapp;
             });
             if (wapp) {
-              _context3.next = 20;
+              _context3.next = 25;
               break;
             }
             tui.showError('Failed to find Application from id');
             return _context3.abrupt("return");
-          case 20:
+          case 25:
             this.deleteLocal();
-            _context3.next = 23;
+            _context3.next = 28;
             return this.downloadWapp(wapp);
-          case 23:
-            return _context3.abrupt("break", 64);
-          case 24:
+          case 28:
+            t.done();
+            return _context3.abrupt("break", 76);
+          case 30:
+            t = this.measure('Generating wapp');
             status.setMessage('Creating Wapp, please wait...');
             status.start();
             if (this.manifest.meta) {
               this.saveManifest();
             }
-            _context3.next = 29;
+            _context3.next = 36;
             return Application.create(this.manifest);
-          case 29:
+          case 36:
             new_app = _context3.sent;
             if (new_app) {
-              _context3.next = 33;
+              _context3.next = 41;
               break;
             }
             status.stop();
+            t.done('unknown');
             throw new Error('Failed to generate Application');
-          case 33:
+          case 41:
             this.application = new_app;
-            _context3.next = 36;
+            _context3.next = 44;
             return this.installation.create(this.versionID);
-          case 36:
+          case 44:
             this.saveApplication();
             status.stop();
-            _context3.next = 40;
+            _context3.next = 48;
             return this.update();
-          case 40:
+          case 48:
             updateFiles = _context3.sent;
             updateFiles.forEach( /*#__PURE__*/function () {
               var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(f) {
@@ -3613,41 +3495,45 @@ var Wapp = /*#__PURE__*/function () {
             if (this.application && this.installation.id) {
               tui.showMessage("Wapp created with id: " + this.application.id);
             }
-            return _context3.abrupt("break", 64);
-          case 44:
+            t.done();
+            return _context3.abrupt("break", 76);
+          case 53:
+            t = this.measure('Creating wapp');
             status.setMessage('Creating Wapp, please wait...');
             status.start();
-            _context3.next = 48;
+            _context3.next = 58;
             return Application.create(newWapp);
-          case 48:
+          case 58:
             new_app = _context3.sent;
             if (new_app) {
-              _context3.next = 52;
+              _context3.next = 63;
               break;
             }
             status.stop();
+            t.done('unknown');
             throw new Error('Failed to create Application');
-          case 52:
+          case 63:
             this.application = new_app;
             customFolders = {
               foreground: config.foreground(),
               background: config.background()
             };
             status.stop();
-            _context3.next = 57;
+            _context3.next = 68;
             return this.createFolders(newWapp.features, newWapp.examples, customFolders);
-          case 57:
+          case 68:
             status.start();
-            _context3.next = 60;
+            _context3.next = 71;
             return this.installation.create(this.application.getVersion().id);
-          case 60:
+          case 71:
             this.saveApplication();
             status.stop();
             if (this.application) {
               tui.showMessage("Wapp created with id: " + this.application.id);
             }
-            return _context3.abrupt("break", 64);
-          case 64:
+            t.done();
+            return _context3.abrupt("break", 76);
+          case 76:
             if (fileExists('.gitignore')) {
               ignore = loadFile('.gitignore');
               addLines = '';
@@ -3663,7 +3549,7 @@ var Wapp = /*#__PURE__*/function () {
             } else {
               saveFile('.gitignore', this.ignore_file);
             }
-          case 65:
+          case 77:
           case "end":
             return _context3.stop();
         }
@@ -3866,7 +3752,7 @@ var Wapp = /*#__PURE__*/function () {
   _proto.update = /*#__PURE__*/function () {
     var _update = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee7(reinstall) {
       var _this3 = this;
-      var results, localFiles, updateFiles, upload, overrideAll, uploadAll, localVersion, status, remoteVersion, overide, version, cmp, localVersionFiles, remoteVersionFiles, allFiles, i, file, remoteUpdated, locallyUpdated, fileTime, rf, lf, localIndex, run, answers, _answers, _i, filePath, newFile;
+      var results, localFiles, updateFiles, upload, overrideAll, uploadAll, t, localVersion, status, remoteVersion, overide, version, cmp, localVersionFiles, remoteVersionFiles, allFiles, i, file, remoteUpdated, locallyUpdated, fileTime, rf, lf, localIndex, run, answers, _answers, _i, filePath, newFile;
       return _regeneratorRuntime().wrap(function _callee7$(_context7) {
         while (1) switch (_context7.prev = _context7.next) {
           case 0:
@@ -3882,54 +3768,56 @@ var Wapp = /*#__PURE__*/function () {
             upload = true;
             overrideAll = false;
             uploadAll = false;
+            t = this.measure('Compare versions');
             localVersion = this.application.getVersion();
             status = new Spinner('Updating Wapp, please wait...');
             status.start();
             status.setMessage('Downloading version, please wait...');
-            _context7.next = 14;
+            _context7.next = 15;
             return localVersion.get();
-          case 14:
+          case 15:
             remoteVersion = _context7.sent;
             if (!(remoteVersion && remoteVersion.revision !== localVersion.revision && !compareVersions(this.manifest, remoteVersion.data))) {
-              _context7.next = 24;
+              _context7.next = 25;
               break;
             }
             status.stop();
-            _context7.next = 19;
+            _context7.next = 20;
             return questions.remoteVersionUpdated();
-          case 19:
+          case 20:
             overide = _context7.sent;
             status.start();
             if (!(overide === false)) {
-              _context7.next = 23;
+              _context7.next = 24;
               break;
             }
             return _context7.abrupt("return", []);
-          case 23:
+          case 24:
             if (overide.local) {
               upload = false;
             }
-          case 24:
+          case 25:
             if (!upload) {
-              _context7.next = 33;
+              _context7.next = 35;
               break;
             }
             status.setMessage('Updating version, please wait...');
             version = this.application.getVersion();
             version.parse(this.manifest);
-            _context7.next = 30;
+            _context7.next = 31;
             return version.update();
-          case 30:
+          case 31:
             if (_context7.sent) {
-              _context7.next = 33;
+              _context7.next = 35;
               break;
             }
             status.stop();
+            t.done('unknown');
             return _context7.abrupt("return", []);
-          case 33:
-            // Find all files on disk
+          case 35:
+            t.done();
+            t = this.measure('Comparing files');
             localFiles = this.getAllLocalFiles();
-            // Get both remote and local files into a single array
             cmp = function cmp(item, file) {
               return item.path === file.path;
             };
@@ -3941,18 +3829,18 @@ var Wapp = /*#__PURE__*/function () {
               });
             }));
             i = 0;
-          case 39:
+          case 43:
             if (!(i < allFiles.length)) {
-              _context7.next = 105;
+              _context7.next = 109;
               break;
             }
             file = allFiles[i];
             if (file) {
-              _context7.next = 43;
+              _context7.next = 47;
               break;
             }
-            return _context7.abrupt("continue", 102);
-          case 43:
+            return _context7.abrupt("continue", 106);
+          case 47:
             remoteUpdated = false;
             locallyUpdated = false;
             fileTime = null;
@@ -3982,52 +3870,51 @@ var Wapp = /*#__PURE__*/function () {
               remoteUpdated = false;
             }
             if (!(remoteUpdated && locallyUpdated)) {
-              _context7.next = 76;
+              _context7.next = 80;
               break;
             }
             status.stop();
             run = true;
-          case 56:
+          case 60:
             if (!run) {
-              _context7.next = 75;
+              _context7.next = 79;
               break;
             }
             run = false;
-            // eslint-disable-next-line no-await-in-loop
-            _context7.next = 60;
+            _context7.next = 64;
             return questions.fileConflict(file.path);
-          case 60:
+          case 64:
             answers = _context7.sent;
             if (!(answers === false)) {
-              _context7.next = 63;
+              _context7.next = 67;
               break;
             }
             return _context7.abrupt("return", []);
-          case 63:
-            _context7.t0 = answers.conflict;
-            _context7.next = _context7.t0 === 'override_all' ? 66 : _context7.t0 === 'overwrite' ? 67 : _context7.t0 === 'upload_all' ? 69 : _context7.t0 === 'upload' ? 70 : _context7.t0 === 'abort' ? 72 : 73;
-            break;
-          case 66:
-            overrideAll = true;
           case 67:
-            locallyUpdated = false;
-            return _context7.abrupt("break", 73);
-          case 69:
-            uploadAll = true;
-          case 70:
-            remoteUpdated = false;
-            return _context7.abrupt("break", 73);
-          case 72:
-            process.exit();
-          case 73:
-            _context7.next = 56;
+            _context7.t0 = answers.conflict;
+            _context7.next = _context7.t0 === 'override_all' ? 70 : _context7.t0 === 'overwrite' ? 71 : _context7.t0 === 'upload_all' ? 73 : _context7.t0 === 'upload' ? 74 : _context7.t0 === 'abort' ? 76 : 77;
             break;
-          case 75:
-            status.start();
+          case 70:
+            overrideAll = true;
+          case 71:
+            locallyUpdated = false;
+            return _context7.abrupt("break", 77);
+          case 73:
+            uploadAll = true;
+          case 74:
+            remoteUpdated = false;
+            return _context7.abrupt("break", 77);
           case 76:
+            process.exit();
+          case 77:
+            _context7.next = 60;
+            break;
+          case 79:
+            status.start();
+          case 80:
             file.status = 'unknown';
             if (!(rf && !lf || remoteUpdated && !locallyUpdated)) {
-              _context7.next = 81;
+              _context7.next = 85;
               break;
             }
             try {
@@ -4037,21 +3924,21 @@ var Wapp = /*#__PURE__*/function () {
             } catch (err) {
               file.status = 'not downloaded';
             }
-            _context7.next = 101;
+            _context7.next = 105;
             break;
-          case 81:
+          case 85:
             if (!(!remoteUpdated && locallyUpdated)) {
-              _context7.next = 87;
+              _context7.next = 91;
               break;
             }
             status.setMessage("Uploading " + file.path + ", please wait...");
             file.status = 'updated';
             results.push(file.update());
-            _context7.next = 101;
+            _context7.next = 105;
             break;
-          case 87:
+          case 91:
             if (!(lf && !fileTime)) {
-              _context7.next = 92;
+              _context7.next = 96;
               break;
             }
             file.status = 'deleted';
@@ -4059,93 +3946,96 @@ var Wapp = /*#__PURE__*/function () {
               status.setMessage("Deleting " + file.path + ", please wait...");
               results.push(file["delete"]());
             }
-            _context7.next = 101;
+            _context7.next = 105;
             break;
-          case 92:
+          case 96:
             if (!(!rf && lf && !locallyUpdated)) {
-              _context7.next = 101;
+              _context7.next = 105;
               break;
             }
             status.stop();
-            // eslint-disable-next-line no-await-in-loop
-            _context7.next = 96;
+            _context7.next = 100;
             return questions.askDeleteLocalFile(file.path);
-          case 96:
+          case 100:
             _answers = _context7.sent;
             status.start();
             if (!(_answers === false)) {
-              _context7.next = 100;
+              _context7.next = 104;
               break;
             }
             return _context7.abrupt("return", []);
-          case 100:
+          case 104:
             if (_answers["delete"]) {
               file.status = 'deleted';
               file.deleteLocal();
             }
-          case 101:
+          case 105:
             if (file.status !== 'unknown') {
               updateFiles.push(file);
             }
-          case 102:
-            i += 1;
-            _context7.next = 39;
-            break;
-          case 105:
-            _i = 0;
           case 106:
+            i += 1;
+            _context7.next = 43;
+            break;
+          case 109:
+            _i = 0;
+          case 110:
             if (!(_i < localFiles.length)) {
-              _context7.next = 116;
+              _context7.next = 120;
               break;
             }
             filePath = localFiles[_i];
             status.setMessage("Creating " + filePath + ", please wait...");
-            // eslint-disable-next-line no-await-in-loop
-            _context7.next = 111;
+            _context7.next = 115;
             return this.application.getVersion().createFile(filePath);
-          case 111:
+          case 115:
             newFile = _context7.sent;
             if (newFile) {
               newFile.status = 'created';
               updateFiles.push(newFile);
             }
-          case 113:
+          case 117:
             _i += 1;
-            _context7.next = 106;
+            _context7.next = 110;
             break;
-          case 116:
+          case 120:
+            t.done();
+            t = this.measure('Update version');
             status.setMessage('Loading version, please wait...');
-            _context7.next = 119;
+            _context7.next = 125;
             return this.installation.fetchById(this.versionID);
-          case 119:
+          case 125:
             if (reinstall) {
               results.push(this.installation.reinstall());
             } else {
               results.push(this.installation.restart());
             }
-            _context7.next = 122;
+            _context7.next = 128;
             return Promise.all(results);
-          case 122:
+          case 128:
             status.setMessage('Loading application, please wait...');
-            _context7.next = 125;
+            _context7.next = 131;
             return new Promise(function (resolve) {
+              var ts = _this3.measure('Wait', 'Waiting for files to be updated');
               setTimeout(function () {
                 try {
                   _this3.application.fetch().then(function () {
                     _this3.application.syncFiles();
                     _this3.saveApplication();
+                    ts.done();
                     resolve();
                   });
                 } catch (err) {
-                  /* istanbul ignore next */
+                  ts.done(err);
                   resolve();
                 }
               }, 500);
             });
-          case 125:
+          case 131:
             status.stop();
+            t.done();
             return _context7.abrupt("return", updateFiles);
-          case 127:
+          case 134:
           case "end":
             return _context7.stop();
         }
@@ -4210,7 +4100,7 @@ var Wapp = /*#__PURE__*/function () {
   }();
   _proto.configure = /*#__PURE__*/function () {
     var _configure = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee9() {
-      var answer;
+      var t, answer;
       return _regeneratorRuntime().wrap(function _callee9$(_context9) {
         while (1) switch (_context9.prev = _context9.next) {
           case 0:
@@ -4220,53 +4110,66 @@ var Wapp = /*#__PURE__*/function () {
             }
             return _context9.abrupt("return");
           case 2:
-            _context9.next = 4;
+            t = this.measure('Load application');
+            _context9.next = 5;
             return this.application.fetch();
-          case 4:
-            _context9.next = 6;
+          case 5:
+            t.done();
+            t = this.measure('Ask the human');
+            _context9.next = 9;
             return questions.configureWapp(this.application.getOAuthExternal(), this.application.getOAuthClient(), this.manifest.permission);
-          case 6:
-            answer = _context9.sent;
-            if (!(answer === false)) {
-              _context9.next = 9;
-              break;
-            }
-            return _context9.abrupt("return");
           case 9:
-            if (!answer.extsync) {
+            answer = _context9.sent;
+            t.done();
+            if (!(answer === false)) {
               _context9.next = 13;
               break;
             }
-            this.installation.setExtSync(answer.extsync);
-            _context9.next = 27;
-            break;
+            return _context9.abrupt("return");
           case 13:
+            if (!answer.extsync) {
+              _context9.next = 19;
+              break;
+            }
+            t = this.measure('setExtSync');
+            this.installation.setExtSync(answer.extsync);
+            t.done();
+            _context9.next = 39;
+            break;
+          case 19:
             if (!answer.api_site) {
-              _context9.next = 17;
+              _context9.next = 25;
               break;
             }
+            t = this.measure('createOauthExternal');
             this.application.createOauthExternal(answer);
-            _context9.next = 27;
+            t.done();
+            _context9.next = 39;
             break;
-          case 17:
+          case 25:
             if (!answer.redirect_uri) {
-              _context9.next = 21;
+              _context9.next = 31;
               break;
             }
+            t = this.measure('createOauthClient');
             this.application.createOauthClient(answer);
-            _context9.next = 27;
+            t.done();
+            _context9.next = 39;
             break;
-          case 21:
+          case 31:
             if (!answer.create) {
-              _context9.next = 27;
+              _context9.next = 39;
               break;
             }
+            t = this.measure('changePermission');
             this.manifest.permission = answer;
             this.saveManifest();
             this.application.getVersion().permission = answer;
-            _context9.next = 27;
+            _context9.next = 38;
             return this.application.getVersion().update();
-          case 27:
+          case 38:
+            t.done();
+          case 39:
           case "end":
             return _context9.stop();
         }
@@ -4366,18 +4269,17 @@ var Wapp = /*#__PURE__*/function () {
             return this.installation.fetchById(this.versionID);
           case 2:
             ret = _context11.sent;
-            console.log(ret);
             if (ret) {
-              _context11.next = 6;
+              _context11.next = 5;
               break;
             }
             return _context11.abrupt("return");
-          case 6:
+          case 5:
             if (this.sessionCallback) {
               this.sessionCallback(this.installation.session);
             }
             return _context11.abrupt("return", this.installation.session);
-          case 8:
+          case 7:
           case "end":
             return _context11.stop();
         }
@@ -4394,7 +4296,7 @@ var Wapp = /*#__PURE__*/function () {
   _proto.handleStreamEvent = /*#__PURE__*/function () {
     var _handleStreamEvent = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee13(data) {
       var _this5 = this;
-      var oldSession, newSession, tmp;
+      var oldSession, newSession, _this$wappStream, _this$wappStream2;
       return _regeneratorRuntime().wrap(function _callee13$(_context13) {
         while (1) switch (_context13.prev = _context13.next) {
           case 0:
@@ -4411,7 +4313,7 @@ var Wapp = /*#__PURE__*/function () {
             return _context13.abrupt("return");
           case 4:
             if (!data.reinstall) {
-              _context13.next = 18;
+              _context13.next = 13;
               break;
             }
             oldSession = this.installation.session;
@@ -4419,35 +4321,26 @@ var Wapp = /*#__PURE__*/function () {
             return this.getInstallationSession();
           case 8:
             newSession = _context13.sent;
-            if (!(oldSession !== newSession)) {
-              _context13.next = 15;
-              break;
+            if (oldSession !== newSession) {
+              (_this$wappStream = this.wappStream) == null ? void 0 : _this$wappStream.close();
+              (_this$wappStream2 = this.wappStream) == null ? void 0 : _this$wappStream2.open();
             }
-            tmp = this.lightStream;
-            this.lightStream = undefined;
-            _context13.next = 14;
-            return this.openStream();
-          case 14:
-            if (tmp) {
-              setTimeout(tmp.close.bind(tmp), 2000);
-            }
-          case 15:
             if (data.log) {
               tui.showStatus(data.log);
             }
-            _context13.next = 43;
+            _context13.next = 38;
             break;
-          case 18:
+          case 13:
             if (!data.log) {
-              _context13.next = 22;
+              _context13.next = 17;
               break;
             }
             tui.showLog(data.log, data.type, data.timestamp);
-            _context13.next = 43;
+            _context13.next = 38;
             break;
-          case 22:
+          case 17:
             if (!data.error) {
-              _context13.next = 26;
+              _context13.next = 21;
               break;
             }
             if (data.type === 'Background') {
@@ -4455,11 +4348,11 @@ var Wapp = /*#__PURE__*/function () {
             } else {
               tui.showError(data.error);
             }
-            _context13.next = 43;
+            _context13.next = 38;
             break;
-          case 26:
+          case 21:
             if (!data.warn) {
-              _context13.next = 30;
+              _context13.next = 25;
               break;
             }
             if (data.type === 'Background') {
@@ -4467,29 +4360,29 @@ var Wapp = /*#__PURE__*/function () {
             } else {
               tui.showWarning(data.warn);
             }
-            _context13.next = 43;
+            _context13.next = 38;
             break;
-          case 30:
+          case 25:
             if (!data.status) {
-              _context13.next = 37;
+              _context13.next = 32;
               break;
             }
             tui.showStatus(data.status);
             if (!data.session) {
-              _context13.next = 35;
+              _context13.next = 30;
+              break;
+            }
+            _context13.next = 30;
+            return this.getInstallationSession();
+          case 30:
+            _context13.next = 38;
+            break;
+          case 32:
+            if (!data.req) {
+              _context13.next = 37;
               break;
             }
             _context13.next = 35;
-            return this.getInstallationSession();
-          case 35:
-            _context13.next = 43;
-            break;
-          case 37:
-            if (!data.req) {
-              _context13.next = 42;
-              break;
-            }
-            _context13.next = 40;
             return this.mutex.runExclusive( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee12() {
               var opts, search, items, results, answers, status, _answers2, _answers3;
               return _regeneratorRuntime().wrap(function _callee12$(_context12) {
@@ -4636,16 +4529,16 @@ var Wapp = /*#__PURE__*/function () {
                 }
               }, _callee12);
             })));
-          case 40:
-            _context13.next = 43;
+          case 35:
+            _context13.next = 38;
             break;
-          case 42:
+          case 37:
             if (typeof data !== 'string') {
               tui.showMessage(JSON.stringify(data));
             } else {
               tui.showMessage(data);
             }
-          case 43:
+          case 38:
           case "end":
             return _context13.stop();
         }
@@ -4658,103 +4551,17 @@ var Wapp = /*#__PURE__*/function () {
   }();
   _proto.openStream = /*#__PURE__*/function () {
     var _openStream = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee14(sessionCallback) {
-      var _this6 = this;
-      var appStream, lightStream, streams, i, subs, newStream, _i2, _subs, _newStream;
       return _regeneratorRuntime().wrap(function _callee14$(_context14) {
         while (1) switch (_context14.prev = _context14.next) {
           case 0:
             if (sessionCallback) {
               this.sessionCallback = sessionCallback;
             }
-            _context14.next = 3;
-            return this.stream.getAll();
-          case 3:
-            streams = _context14.sent;
-            i = 0;
+            this.userStream = new Stream(this.wappsto, ['/notification', '/installation'], this.handleStreamEvent);
+            this.userStream.open();
+            this.wappStream = new Stream(this.wappsto, ['/extsync', '/console'], this.handleStreamEvent, this.installation.session);
+            this.wappStream.open();
           case 5:
-            if (!(i < streams.length)) {
-              _context14.next = 13;
-              break;
-            }
-            subs = streams[i].subscription.toString();
-            if (!(subs.indexOf('/notification') !== -1 && subs.indexOf('/installation') !== -1)) {
-              _context14.next = 10;
-              break;
-            }
-            appStream = streams[i].meta.id;
-            return _context14.abrupt("break", 13);
-          case 10:
-            i += 1;
-            _context14.next = 5;
-            break;
-          case 13:
-            if (appStream) {
-              _context14.next = 19;
-              break;
-            }
-            tui.showMessage('Creating new stream for notifications');
-            _context14.next = 17;
-            return this.stream.create(['/notification', '/installation']);
-          case 17:
-            newStream = _context14.sent;
-            if (newStream && newStream.meta) {
-              appStream = newStream.meta.id;
-            }
-          case 19:
-            if (!this.appStream && appStream) {
-              this.appStream = this.stream.open('app.', appStream, function (data) {
-                return _this6.handleStreamEvent(data);
-              });
-            }
-            _context14.next = 22;
-            return this.stream.getAll(this.installation.session);
-          case 22:
-            streams = _context14.sent;
-            if (!streams) {
-              _context14.next = 41;
-              break;
-            }
-            _i2 = 0;
-          case 25:
-            if (!(_i2 < streams.length)) {
-              _context14.next = 34;
-              break;
-            }
-            if (!streams[_i2].subscription) {
-              _context14.next = 31;
-              break;
-            }
-            _subs = streams[_i2].subscription.toString();
-            if (!(_subs.indexOf('/extsync') !== -1 && _subs.indexOf('/console') !== -1)) {
-              _context14.next = 31;
-              break;
-            }
-            lightStream = streams[_i2].meta.id;
-            return _context14.abrupt("break", 34);
-          case 31:
-            _i2 += 1;
-            _context14.next = 25;
-            break;
-          case 34:
-            if (lightStream) {
-              _context14.next = 40;
-              break;
-            }
-            tui.showMessage('Creating new stream for background');
-            _context14.next = 38;
-            return this.stream.create(['/extsync', '/console'], this.installation.session);
-          case 38:
-            _newStream = _context14.sent;
-            if (_newStream && _newStream.meta) {
-              lightStream = _newStream.meta.id;
-            }
-          case 40:
-            if (!this.lightStream && lightStream) {
-              this.lightStream = this.stream.open('light.', lightStream, function (data) {
-                return _this6.handleStreamEvent(data);
-              }, this.installation.session);
-            }
-          case 41:
           case "end":
             return _context14.stop();
         }
@@ -4765,6 +4572,9 @@ var Wapp = /*#__PURE__*/function () {
     }
     return openStream;
   }();
+  _proto.measure = function measure(name, description, data) {
+    return new Trace(name, description, data);
+  };
   _createClass(Wapp, [{
     key: "host",
     get: function get() {
@@ -5347,9 +5157,7 @@ function _serve() {
                               if (name === config.background() + "/package.json") {
                                 install().then(function () {
                                   runner = start();
-                                })["catch"](function () {
-                                  // empty
-                                });
+                                })["catch"](function () {});
                               } else {
                                 runner = start();
                               }
@@ -5411,12 +5219,9 @@ function _serve() {
             var restarting = false;
             watch(config.background(), {
               filter: function filter(f, skip) {
-                // skip node_modules
                 if (/\/node_modules/.test(f)) return skip;
-                // skip .git folder
                 if (/\.git/.test(f)) return skip;
                 if (/\.#/.test(f)) return skip;
-                // only watch for js and json files
                 return /\.js|\.json$/.test(f);
               },
               recursive: true
@@ -5460,7 +5265,7 @@ function _serve() {
                     if (port !== newPort) {
                       tui.showWarning(port + " is in use, switching to " + newPort);
                     }
-                    bs = browserSync.create('Wappsto Wapp'); // .init starts the server
+                    bs = browserSync.create('Wappsto Wapp');
                     bs.init({
                       logPrefix: 'Wappsto Cli',
                       port: newPort,
@@ -5482,7 +5287,6 @@ function _serve() {
                           if (request.url.includes('services')) {
                             next();
                           } else {
-                            // check if requested file exists locally
                             if (haveFile(config.foreground(), request)) {
                               response.end(loadFile(config.foreground() + "/" + request.url));
                             } else {
@@ -5754,7 +5558,6 @@ function _publish() {
   return _publish.apply(this, arguments);
 }
 
-/* istanbul ignore file */
 var mainDefinitions = [{
   name: 'command',
   defaultOption: true
@@ -5792,38 +5595,71 @@ var sections = [{
 }, {
   content: 'Project home: {underline https://github.com/wappsto/wappsto-cli}'
 }];
-try {
-  var mainOptions = /*#__PURE__*/commandLineArgs(mainDefinitions, {
-    stopAtFirstUnknown: true
-  });
-  /* eslint-disable-next-line no-underscore-dangle */
-  var argv = mainOptions._unknown || [];
-  switch (mainOptions.command) {
-    case 'create':
-      create(argv);
-      break;
-    case 'update':
-      update(argv);
-      break;
-    case 'configure':
-      configure(argv);
-      break;
-    case 'publish':
-      publish(argv);
-      break;
-    case 'delete':
-      Delete(argv);
-      break;
-    case 'serve':
-      serve(argv);
-      break;
-    case 'help':
-    default:
-      process.stdout.write(commandLineUsage(sections));
-      break;
-  }
-} catch (e) {
-  process.stdout.write(e.message);
-  process.exit(-1);
-}
+var transaction;
+_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
+  var mainOptions, argv, _transaction;
+  return _regeneratorRuntime().wrap(function _callee$(_context) {
+    while (1) switch (_context.prev = _context.next) {
+      case 0:
+        _context.prev = 0;
+        mainOptions = commandLineArgs(mainDefinitions, {
+          stopAtFirstUnknown: true
+        });
+        argv = mainOptions._unknown || [];
+        transaction = startTrace(mainOptions.command);
+        _context.t0 = mainOptions.command;
+        _context.next = _context.t0 === 'create' ? 7 : _context.t0 === 'update' ? 10 : _context.t0 === 'configure' ? 13 : _context.t0 === 'publish' ? 16 : _context.t0 === 'delete' ? 19 : _context.t0 === 'serve' ? 22 : _context.t0 === 'help' ? 25 : 25;
+        break;
+      case 7:
+        _context.next = 9;
+        return create(argv);
+      case 9:
+        return _context.abrupt("break", 27);
+      case 10:
+        _context.next = 12;
+        return update(argv);
+      case 12:
+        return _context.abrupt("break", 27);
+      case 13:
+        _context.next = 15;
+        return configure(argv);
+      case 15:
+        return _context.abrupt("break", 27);
+      case 16:
+        _context.next = 18;
+        return publish(argv);
+      case 18:
+        return _context.abrupt("break", 27);
+      case 19:
+        _context.next = 21;
+        return Delete(argv);
+      case 21:
+        return _context.abrupt("break", 27);
+      case 22:
+        _context.next = 24;
+        return serve(argv);
+      case 24:
+        return _context.abrupt("break", 27);
+      case 25:
+        console.log(commandLineUsage(sections));
+        return _context.abrupt("break", 27);
+      case 27:
+        _context.next = 34;
+        break;
+      case 29:
+        _context.prev = 29;
+        _context.t1 = _context["catch"](0);
+        Sentry.captureException(_context.t1);
+        console.error(_context.t1.message);
+        process.exit(-1);
+      case 34:
+        _context.prev = 34;
+        (_transaction = transaction) == null ? void 0 : _transaction.finish();
+        return _context.finish(34);
+      case 37:
+      case "end":
+        return _context.stop();
+    }
+  }, _callee, null, [[0, 29, 34, 37]]);
+}))();
 //# sourceMappingURL=wappsto-cli.esm.js.map

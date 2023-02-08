@@ -1,14 +1,8 @@
 import axios from 'axios';
 import prompts from 'prompts';
 import { setup, teardown, createWapp } from './util/setup';
-import {
-  applicationResponse,
-  versionResponse,
-  installationResponse,
-  allApplicationsResponse,
-} from './util/response';
+import { applicationResponse, versionResponse } from './util/response';
 import { loadJsonFile } from '../src/util/files';
-import Config from '../src/config';
 import configure from '../src/cmd/configure';
 
 describe('Configure', () => {

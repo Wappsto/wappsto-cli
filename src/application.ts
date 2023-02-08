@@ -1,7 +1,7 @@
 import HTTP from './util/http';
 import tui from './util/tui';
-import Version from './version';
 import Model from './model';
+import Version from './version';
 import File from './file';
 import {
   Application21,
@@ -19,17 +19,14 @@ export default class Application extends Model implements Application21 {
 
   constructor(data: any) {
     super('application');
-    this.trace('constructor');
     this.parse(data);
   }
 
   getAttributes() {
-    this.trace('getAttributes');
     return ['name', 'name_identifier', 'version'];
   }
 
   toJSON(): any {
-    this.trace('toJSON', this);
     const data = super.toJSON();
     data.version = [];
     for (let i = 0; i < this.version.length; i += 1) {
@@ -42,7 +39,6 @@ export default class Application extends Model implements Application21 {
   }
 
   getVersion(): Version {
-    this.trace('getVersion');
     if (this.version.length > 0) {
       const last = this.version[this.version.length - 1];
       if (typeof last !== 'string') {
@@ -74,7 +70,6 @@ export default class Application extends Model implements Application21 {
   }
 
   parse(data: any): void {
-    this.trace('parse', data);
     super.parse(data);
     const vs = this.version || [];
     this.version = [];
@@ -84,7 +79,6 @@ export default class Application extends Model implements Application21 {
   }
 
   static async create(info: any): Promise<Application | undefined> {
-    tui.trace('application', 'create', info);
     let result = undefined;
     let data: any;
     if (!info.description || info.object_requested) {
@@ -124,29 +118,24 @@ export default class Application extends Model implements Application21 {
       );
       result = new Application(response.data);
     } catch (err) {
-      /* istanbul ignore next */
-      tui.showError('Failed to create the application', err);
+      Model.handleException('Failed to create the application', err);
     }
     return result;
   }
 
   async get(): Promise<any> {
-    this.trace('get');
-    let result = {};
     try {
       const response = await HTTP.get(
         `${this.HOST}/${this.id}?expand=2&verbose=true`
       );
-      result = response.data;
+      return response.data;
     } catch (err) {
-      /* istanbul ignore next */
-      tui.showError(`Failed to get application: ${this.id}`, err);
+      this.handleException(`Failed to get application: ${this.id}`, err);
     }
-    return result;
+    return {};
   }
 
   async getAll(): Promise<Application[]> {
-    this.trace('getAll');
     let result: Application[] = [];
     try {
       const response = await HTTP.get(`${this.HOST}?expand=2&verbose=true`);
@@ -155,14 +144,12 @@ export default class Application extends Model implements Application21 {
         result.push(app);
       });
     } catch (err) {
-      /* istanbul ignore next */
-      tui.showError('Failed to load all applications');
+      Model.handleException('Failed to load all applications', err);
     }
     return result;
   }
 
   async createOauthExternal(oauth: any): Promise<void> {
-    this.trace('createOauthExternal', oauth);
     if (this.oauth_external.length === 0) {
       try {
         await HTTP.post(`${this.HOST}/${this.id}/oauth_external`, oauth);
@@ -179,7 +166,7 @@ export default class Application extends Model implements Application21 {
           );
           tui.showMessage('External OAuth updated');
         } catch (err) {
-          tui.showError('Failed to update OAuth External', err);
+          this.handleException('Failed to update OAuth External', err);
         }
       } else {
         tui.showError(
@@ -190,7 +177,6 @@ export default class Application extends Model implements Application21 {
   }
 
   async createOauthClient(oauth: any): Promise<void> {
-    this.trace('createOauthClient');
     const newOauth = oauth;
     if (typeof oauth.redirect_uri === 'string') {
       newOauth.redirect_uri = [oauth.redirect_uri];
@@ -207,10 +193,10 @@ export default class Application extends Model implements Application21 {
           await HTTP.patch(`${this.HOST}/${this.id}/oauth_client`, oauth);
           tui.showMessage('OAuth Client updated');
         } catch (patchErr) {
-          tui.showError('Failed to create OAuth Client', patchErr);
+          this.handleException('Failed to create OAuth Client', patchErr);
         }
       } else {
-        tui.showError('Failed to create OAuth Client', err);
+        this.handleException('Failed to create OAuth Client', err);
       }
     }
   }
@@ -228,7 +214,6 @@ export default class Application extends Model implements Application21 {
     if (await version.update()) {
       return version.publish();
     }
-
     return false;
   }
 }

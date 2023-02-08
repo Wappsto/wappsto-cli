@@ -1,98 +1,81 @@
 import WebSocket from 'ws';
-import HTTP from './util/http';
 import Config from './config';
 import tui from './util/tui';
+import Wappsto from './wappsto';
 
 export default class Stream {
-  wappsto: any;
-  installation: any;
+  ws?: WebSocket | undefined;
+  wappsto: Wappsto;
+  subscription: string[];
+  installation_id: string;
   remote: boolean = true;
   last_permission_request: any;
   last_stream_event: any;
+  session: string;
+  callback: any;
 
-  constructor(wappsto: any, installation?: any, remote?: boolean) {
+  constructor(
+    wappsto: any,
+    subscription: string[],
+    callback: any,
+    session?: string,
+    installation_id?: string,
+    remote?: boolean
+  ) {
     this.wappsto = wappsto;
-    this.installation = installation;
+    this.session = session || '';
+    this.callback = callback;
+    this.subscription = subscription;
+    this.installation_id = installation_id || '';
     this.remote = remote === undefined ? true : remote;
   }
 
-  async getAll(session?: string): Promise<any> {
-    let result = false;
-    try {
-      const response = await HTTP.get(
-        `${Config.host()}/services/2.0/stream?expand=2`,
-        {
-          headers: {
-            'x-session': session || this.wappsto.session.id,
-          },
-        }
-      );
-
-      result = response.data;
-    } catch (err) {
-      /* istanbul ignore next */
-      tui.showError('Failed to get streams', err);
-    }
-    return result;
-  }
-
-  async create(subscription: string[], session?: string): Promise<any> {
-    let result = {};
-    try {
-      const response = await HTTP.post(
-        `${Config.host()}/services/2.0/stream`,
-        {
-          subscription,
-        },
-        {
-          headers: {
-            'x-session': session || this.wappsto.session.id,
-          },
-        }
-      );
-      result = response.data;
-    } catch (err) {
-      /* istanbul ignore next */
-      tui.showError(`Failed to create stream for ${subscription}`, err);
-    }
-    return result;
-  }
-
-  open(env: string, id: string, callback: any, session?: string): any {
-    const host = env + Config.host().split('//')[1];
-    const ses = session || this.wappsto.session.id;
-    const wss = `${Config.websocket()}/services/2.1/websocket/${id}?x-session=${ses}`;
-    const self = this;
+  open(): void {
+    let subStr = '';
+    this.subscription.forEach((s) => {
+      if (subStr !== '') {
+        subStr += ',';
+      }
+      subStr += s;
+    });
+    subStr = `[${subStr}]`;
+    const host = Config.host().split('//')[1];
+    const ses = this.session || this.wappsto.session.id;
+    const wss = `${Config.websocket()}/services/2.1/websocket/open?x-session=${ses}&subscription=${subStr}`;
 
     const reconnectInterval = 10 * 1000;
-    let ws;
-    const connect = function connect() {
-      ws = new WebSocket(wss, {
+    const connect = () => {
+      this.ws = new WebSocket(wss, {
         origin: `https://${host}`,
       });
 
-      ws.on('close', (code: number, msg: string) => {
+      this.ws.on('close', (code: number, msg: string) => {
         switch (code) {
           case 1000:
             setTimeout(connect, 1);
             break;
           default:
-            tui.showError(`Stream ${id} closed: ${msg} (${code})`);
+            tui.showError(`Stream closed: ${msg} (${code})`);
             setTimeout(connect, reconnectInterval);
         }
       });
 
-      ws.on('error', (err: any) => {
-        tui.showError(`Stream error: ${id}`, err);
+      this.ws.on('error', (err: any) => {
+        tui.showError(`Stream error`, err);
       });
 
-      ws.on('message', (message: any) => {
-        self.parseStreamEvent(message, callback);
+      this.ws.on('message', (message: any) => {
+        this.parseStreamEvent(message, this.callback);
       });
     };
     connect();
+  }
 
-    return ws;
+  close() {
+    if (this.ws) {
+      this.ws.close();
+      this.ws = undefined;
+    }
   }
 
   printConsoleMessage(data: any, callback: any) {
@@ -137,7 +120,7 @@ export default class Stream {
       return;
     }
 
-    if (this.installation && data.base.from !== this.installation.id) {
+    if (this.installation_id && data.base.from !== this.installation_id) {
       return;
     }
 

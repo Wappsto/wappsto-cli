@@ -2,7 +2,6 @@ import { createWriteStream, createReadStream } from 'fs';
 import FormData from 'form-data';
 import Model from './model';
 import HTTP from './util/http';
-import tui from './util/tui';
 import {
   createFolders,
   getFileTimeISO,
@@ -68,6 +67,10 @@ export default class File extends Model implements File21 {
         const path = filePath || this.path;
         createFolders(path);
 
+        const error = () => {
+          reject();
+        };
+
         const done = () => {
           this.syncModified();
           resolve();
@@ -77,7 +80,7 @@ export default class File extends Model implements File21 {
           const writer = createWriteStream(path);
           response.data.pipe(writer);
           writer.on('finish', done);
-          writer.on('error', reject);
+          writer.on('error', error);
         } else {
           saveFile(path, response.data);
           done();
@@ -110,8 +113,9 @@ export default class File extends Model implements File21 {
       );
       return new File(response.data, parent);
     } catch (err: any) {
-      tui.showError(`Failed to create File: ${name}`, err);
+      this.handleException(`Failed to create File: ${name}`, err);
     }
+
     return null;
   };
 
@@ -130,8 +134,9 @@ export default class File extends Model implements File21 {
       this.parse(response.data);
       return true;
     } catch (err: any) {
-      tui.showError(`Failed to update File: ${this.name}`, err);
+      this.handleException(`Failed to update File: ${this.name}`, err);
     }
+
     return false;
   }
 }

@@ -2,6 +2,7 @@
 
 /* istanbul ignore file */
 
+import * as Sentry from '@sentry/node';
 import commandLineArgs from 'command-line-args';
 import commandLineUsage from 'command-line-usage';
 import create from './cmd/create';
@@ -10,6 +11,7 @@ import Delete from './cmd/delete';
 import configure from './cmd/configure';
 import serve from './cmd/serve';
 import publish from './cmd/publish';
+import { startTrace } from './util/trace';
 
 const mainDefinitions = [{ name: 'command', defaultOption: true }];
 
@@ -49,38 +51,47 @@ const sections = [
   },
 ];
 
-try {
-  const mainOptions = commandLineArgs(mainDefinitions, {
-    stopAtFirstUnknown: true,
-  });
-  /* eslint-disable-next-line no-underscore-dangle */
-  const argv = mainOptions._unknown || [];
+let transaction;
 
-  switch (mainOptions.command) {
-    case 'create':
-      create(argv);
-      break;
-    case 'update':
-      update(argv);
-      break;
-    case 'configure':
-      configure(argv);
-      break;
-    case 'publish':
-      publish(argv);
-      break;
-    case 'delete':
-      Delete(argv);
-      break;
-    case 'serve':
-      serve(argv);
-      break;
-    case 'help':
-    default:
-      process.stdout.write(commandLineUsage(sections));
-      break;
+(async () => {
+  try {
+    const mainOptions = commandLineArgs(mainDefinitions, {
+      stopAtFirstUnknown: true,
+    });
+    /* eslint-disable-next-line no-underscore-dangle */
+    const argv = mainOptions._unknown || [];
+
+    transaction = startTrace(mainOptions.command);
+
+    switch (mainOptions.command) {
+      case 'create':
+        await create(argv);
+        break;
+      case 'update':
+        await update(argv);
+        break;
+      case 'configure':
+        await configure(argv);
+        break;
+      case 'publish':
+        await publish(argv);
+        break;
+      case 'delete':
+        await Delete(argv);
+        break;
+      case 'serve':
+        await serve(argv);
+        break;
+      case 'help':
+      default:
+        console.log(commandLineUsage(sections));
+        break;
+    }
+  } catch (e: any) {
+    Sentry.captureException(e);
+    console.error(e.message);
+    process.exit(-1);
+  } finally {
+    transaction?.finish();
   }
-} catch (e: any) {
-  process.stdout.write(e.message);
-  process.exit(-1);
-}
+})();

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import prompts from 'prompts';
 import { setup, teardown, createWapp } from './util/setup';
-import { applicationResponse, installationResponse } from './util/response';
+import { installationResponse } from './util/response';
 import publish from '../src/cmd/publish';
 
 describe('Publish', () => {

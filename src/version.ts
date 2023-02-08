@@ -1,5 +1,4 @@
 import HTTP from './util/http';
-import tui from './util/tui';
 import Model from './model';
 import File from './file';
 import { Version21 } from './types/application.d';
@@ -73,7 +72,6 @@ export default class Version extends Model implements Version21 {
   }
 
   parse(data: any): void {
-    this.trace('parse', data);
     super.parse(data);
     const files = this.file || [];
     this.file = [];
@@ -83,7 +81,6 @@ export default class Version extends Model implements Version21 {
   }
 
   toJSON(): any {
-    this.trace('toJSON', this);
     const data = super.toJSON();
     data.file = [];
     this.file.forEach((file: File | string) => {
@@ -101,7 +98,7 @@ export default class Version extends Model implements Version21 {
       );
       return new Version(response.data, this.parent);
     } catch (err) {
-      tui.showError(`Failed to get version: ${this.id}`, err);
+      this.handleException(`Failed to get version: ${this.id}`, err);
     }
     return null;
   }
@@ -140,16 +137,18 @@ export default class Version extends Model implements Version21 {
   }
 
   async publish() {
-    let result = true;
     try {
       const response = await HTTP.patch(`${this.HOST}/${this.id}`, {
         status: 'commit',
       });
       this.parse(response.data);
+      return true;
     } catch (err) {
-      tui.showError(`Failed to update ${this.meta.type}: ${this.id}`, err);
-      result = false;
+      this.handleException(
+        `Failed to update ${this.meta.type}: ${this.id}`,
+        err
+      );
     }
-    return result;
+    return false;
   }
 }

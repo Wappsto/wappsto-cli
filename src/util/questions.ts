@@ -2,6 +2,7 @@ import prompt from 'prompts';
 import tui from './tui';
 import { Permission } from '../types/custom.d';
 import { OauthExternal21, OauthClient21 } from '../types/application.d';
+import Trace from './trace';
 
 type Request = {
   collection: string;
@@ -12,12 +13,15 @@ type Request = {
 
 class Questions {
   private async ask(questions: any): Promise<any | false> {
+    const t = new Trace('User Input', questions[0].message);
     return new Promise<any | false>((resolve) => {
       const onCancel = () => {
+        t.done('unknown');
         resolve(false);
         return false;
       };
       prompt(questions, { onCancel }).then((answers) => {
+        t.done();
         resolve(answers);
       });
     });

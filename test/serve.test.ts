@@ -1,20 +1,13 @@
-import axios from 'axios';
-import prompts from 'prompts';
+//import axios from 'axios';
 import { setup, teardown } from './util/setup';
-import {
-  applicationResponse,
-  installationResponse,
-  allApplicationsResponse,
-} from './util/response';
-import { loadJsonFile } from '../src/util/files';
-import Config from '../src/config';
 import serve from '../src/cmd/serve';
 
 describe('Serve', () => {
-  let mockedAxios: jest.Mocked<typeof axios>;
+  //let mockedAxios: jest.Mocked<typeof axios>;
 
   beforeEach(async () => {
-    mockedAxios = await setup();
+    //mockedAxios = await setup();
+    await setup();
   });
 
   afterEach(() => {

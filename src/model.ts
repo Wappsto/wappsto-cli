@@ -1,8 +1,10 @@
+import * as Sentry from '@sentry/node';
 import pick from 'lodash.pick';
 import Config from './config';
 import HTTP from './util/http';
 import { deleteFile, saveFile, loadFile } from './util/files';
 import tui from './util/tui';
+import Trace from './util/trace';
 import { Meta21 } from './types/application.d';
 
 export default class Model {
@@ -35,7 +37,6 @@ export default class Model {
   }
 
   toJSON(): any {
-    tui.trace('model', 'toJSON', this);
     const meta = Object.assign(
       {},
       pick(this.meta, ['id', 'type', 'version', 'revision', 'updated'])
@@ -48,16 +49,14 @@ export default class Model {
   }
 
   parse(data: any): void {
-    tui.trace('model', 'parse', data);
     try {
       Object.assign(this, pick(data, this.getAttributes().concat(['meta'])));
-    } catch (e: any) {
-      console.log(e);
+    } catch (err: any) {
+      this.handleException(`Failed to parse data in ${this.meta.type}`, err);
     }
   }
 
   save(): void {
-    tui.trace('model', 'save', this);
     let data = this.toJSON();
     if (typeof data !== 'string') {
       data = JSON.stringify(data);
@@ -66,7 +65,6 @@ export default class Model {
   }
 
   load(): void {
-    tui.trace('model', 'load');
     let data = loadFile(`${this.cacheFolder}${this.meta.type}`);
     if (data) {
       try {
@@ -77,12 +75,10 @@ export default class Model {
   }
 
   clear(): void {
-    tui.trace('model', 'clear');
     deleteFile(`${this.cacheFolder}${this.meta.type}`);
   }
 
   async fetch(): Promise<boolean> {
-    tui.trace('model', 'fetch');
     try {
       const response = await HTTP.get(
         `${this.HOST}/${this.id}?expand=2&verbose=true`
@@ -90,29 +86,30 @@ export default class Model {
       this.parse(response.data);
       return true;
     } catch (err: any) {
-      tui.showError(`Failed to fetch ${this.meta.type}`, err);
+      this.handleException(`Failed to fetch ${this.meta.type}`, err);
     }
 
     return false;
   }
 
   async update(): Promise<boolean> {
-    let result = true;
     try {
       const response = await HTTP.patch(
         `${this.HOST}/${this.id}`,
         this.toJSON()
       );
       this.parse(response.data);
+      return true;
     } catch (err) {
-      tui.showError(`Failed to update ${this.meta.type}: ${this.id}`, err);
-      result = false;
+      this.handleException(
+        `Failed to update ${this.meta.type}: ${this.id}`,
+        err
+      );
     }
-    return result;
+    return false;
   }
 
   async delete(): Promise<void> {
-    tui.trace('model', 'delete');
     try {
       await HTTP.delete(`${this.HOST}/${this.id}`);
     } catch (err: any) {
@@ -128,7 +125,10 @@ export default class Model {
           throw Error('Can not delete application that is published!');
         default:
           /* istanbul ignore next */
-          tui.showError(`Failed to delete ${this.meta.type}: ${this.id}`, err);
+          this.handleException(
+            `Failed to delete ${this.meta.type}: ${this.id}`,
+            err
+          );
       }
     }
   }
@@ -148,7 +148,22 @@ export default class Model {
     return obj;
   }
 
-  trace(method: string, data?: any): void {
-    tui.trace(this.meta.type || 'model', method, data);
+  trace(method: string, data?: any): Trace {
+    return new Trace(this.meta.type || 'model', method, data);
+  }
+
+  static trace(type: string, method: string, data?: any): Trace {
+    return new Trace(type, method, data);
+  }
+
+  handleException(msg: string, err: any): void {
+    Model.handleException(msg, err);
+  }
+
+  static handleException(msg: string, err: any): void {
+    if (process.env.NODE_ENV !== 'test') {
+      Sentry.captureException(err);
+    }
+    tui.showError(msg, err);
   }
 }
