@@ -85,9 +85,11 @@ export default async function update(argv: string[]) {
     await wapp.init();
 
     const files = await wapp.update(options.reinstall);
+
     files.forEach((f) => {
-      tui.showMessage(`${f.path} was ${f.status}`);
+      tui.showMessage(`File ${f.path} was ${f.status}`);
     });
+    tui.showMessage('Wapp Updated');
   } catch (err: any) {
     tui.showError('Run error', err);
   }

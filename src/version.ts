@@ -50,7 +50,7 @@ export default class Version extends Model implements Version21 {
   file: (File | string)[] = [];
   parent: Model;
 
-  constructor(data: any, parent: Model) {
+  constructor(data: Record<string, any>, parent: Model) {
     super('version');
     this.parse(data);
     this.parent = parent;
@@ -71,36 +71,43 @@ export default class Version extends Model implements Version21 {
     ];
   }
 
-  parse(data: any): void {
+  parse(data: Record<string, any>): void {
+    const fileData = data.file;
+    delete data.file;
     super.parse(data);
-    const files = this.file || [];
-    this.file = [];
-    files.forEach((f: any) => {
-      this.file.push(new File(f, this));
-    });
+    if (fileData) {
+      if (fileData.length > 0 && typeof fileData[0] !== 'string') {
+        this.file = [];
+        fileData.forEach((f: any) => {
+          this.file.push(new File(f, this));
+        });
+      }
+    }
   }
 
-  toJSON(): any {
-    const data = super.toJSON();
-    data.file = [];
-    this.file.forEach((file: File | string) => {
-      if (typeof file !== 'string') {
-        data.file.push(file.toJSON());
-      }
-    });
+  toJSON(full: boolean = true): any {
+    const data = super.toJSON(full);
+    if (full) {
+      data.file = [];
+      this.file.forEach((file: File | string) => {
+        if (typeof file !== 'string') {
+          data.file.push(file.toJSON());
+        }
+      });
+    } else {
+      delete data.file;
+    }
     return data;
   }
 
-  async get(): Promise<any> {
+  async clone(): Promise<Version> {
     try {
-      const response = await HTTP.get(
-        `${this.HOST}/${this.id}?expand=2&verbose=true`
-      );
+      const response = await HTTP.get(`${this.url}?expand=2&verbose=true`);
       return new Version(response.data, this.parent);
     } catch (err) {
       this.handleException(`Failed to get version: ${this.id}`, err);
     }
-    return null;
+    return new Version({ meta: { id: this.id } }, this.parent);
   }
 
   findFile(filePath: string): File | undefined {
@@ -110,8 +117,12 @@ export default class Version extends Model implements Version21 {
     });
   }
 
-  async createFile(filePath: string) {
-    return await File.create(filePath, this);
+  async createFile(filePath: string): Promise<File | null> {
+    const f = await File.create(filePath, this);
+    if (f) {
+      this.file.push(f);
+    }
+    return f;
   }
 
   updateFile(filePath: string, newFile: string): void {
@@ -136,9 +147,9 @@ export default class Version extends Model implements Version21 {
     return files;
   }
 
-  async publish() {
+  async publish(): Promise<boolean> {
     try {
-      const response = await HTTP.patch(`${this.HOST}/${this.id}`, {
+      const response = await HTTP.patch(`${this.url}`, {
         status: 'commit',
       });
       this.parse(response.data);

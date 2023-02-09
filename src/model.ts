@@ -31,12 +31,16 @@ export default class Model {
     return this.meta.revision || 1;
   }
 
+  get url(): string {
+    return `${this.HOST}/${this.id}`;
+  }
+
   /* istanbul ignore next */
   public getAttributes(): string[] {
     return [];
   }
 
-  toJSON(): any {
+  toJSON(full: boolean = true): any {
     const meta = Object.assign(
       {},
       pick(this.meta, ['id', 'type', 'version', 'revision', 'updated'])
@@ -80,9 +84,7 @@ export default class Model {
 
   async fetch(): Promise<boolean> {
     try {
-      const response = await HTTP.get(
-        `${this.HOST}/${this.id}?expand=2&verbose=true`
-      );
+      const response = await HTTP.get(`${this.url}?expand=2&verbose=true`);
       this.parse(response.data);
       return true;
     } catch (err: any) {
@@ -94,10 +96,7 @@ export default class Model {
 
   async update(): Promise<boolean> {
     try {
-      const response = await HTTP.patch(
-        `${this.HOST}/${this.id}`,
-        this.toJSON()
-      );
+      const response = await HTTP.patch(`${this.url}`, this.toJSON(false));
       this.parse(response.data);
       return true;
     } catch (err) {
@@ -111,7 +110,7 @@ export default class Model {
 
   async delete(): Promise<void> {
     try {
-      await HTTP.delete(`${this.HOST}/${this.id}`);
+      await HTTP.delete(`${this.url}`);
     } catch (err: any) {
       /* istanbul ignore next */
       switch (err.response.data.code) {

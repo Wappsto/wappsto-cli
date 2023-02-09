@@ -106,8 +106,7 @@ class Tui {
       try {
         this.write(JSON.stringify(output));
       } catch (e) {
-        console.log(output);
-        this.write(red('Circular Structure'));
+        this.write(blue('Binary Data'));
       }
       this.write('\n');
     }

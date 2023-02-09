@@ -635,8 +635,7 @@ var Tui = /*#__PURE__*/function () {
       try {
         this.write(JSON.stringify(output));
       } catch (e) {
-        console.log(output);
-        this.write(red('Circular Structure'));
+        this.write(blue('Binary Data'));
       }
       this.write('\n');
     }
@@ -1075,177 +1074,151 @@ var HTTP = /*#__PURE__*/function () {
   HTTP.removeHeader = function removeHeader(name) {
     delete axios.defaults.headers.common[name];
   };
-  HTTP.get = /*#__PURE__*/function () {
-    var _get = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(url, options) {
-      var t, res, _err$response;
+  HTTP.wrap = /*#__PURE__*/function () {
+    var _wrap = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(func, url, data, config) {
+      var t, response, _err$response;
       return _regeneratorRuntime().wrap(function _callee$(_context) {
         while (1) switch (_context.prev = _context.next) {
           case 0:
-            if (options === void 0) {
-              options = {};
+            if (data === void 0) {
+              data = {};
             }
-            t = HTTP.trace('GET', url);
+            t = HTTP.trace(func, url);
             _context.prev = 2;
-            _context.next = 5;
-            return axios.get(url, options);
-          case 5:
-            res = _context.sent;
-            tui.showTraffic('GET', url, {}, res.data);
-            t.done();
-            return _context.abrupt("return", res);
+            if (!(config === undefined)) {
+              _context.next = 9;
+              break;
+            }
+            _context.next = 6;
+            return axios[func](url, data);
+          case 6:
+            response = _context.sent;
+            _context.next = 12;
+            break;
+          case 9:
+            _context.next = 11;
+            return axios[func](url, data, config);
           case 11:
-            _context.prev = 11;
+            response = _context.sent;
+          case 12:
+            tui.showTraffic(func, url, data, response.data);
+            t.done();
+            return _context.abrupt("return", response);
+          case 17:
+            _context.prev = 17;
             _context.t0 = _context["catch"](2);
-            tui.showTraffic('GET', url, {}, (_err$response = _context.t0.response) == null ? void 0 : _err$response.data);
+            if (axios.isAxiosError(_context.t0)) {
+              tui.showTraffic(func, url, data, (_err$response = _context.t0.response) == null ? void 0 : _err$response.data);
+            }
             t.done(_context.t0);
             throw _context.t0;
-          case 16:
+          case 22:
           case "end":
             return _context.stop();
         }
-      }, _callee, null, [[2, 11]]);
+      }, _callee, null, [[2, 17]]);
     }));
-    function get(_x, _x2) {
-      return _get.apply(this, arguments);
+    function wrap(_x, _x2, _x3, _x4) {
+      return _wrap.apply(this, arguments);
     }
-    return get;
+    return wrap;
   }();
-  HTTP.post = /*#__PURE__*/function () {
-    var _post = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(url, data, options) {
-      var t, res, _err$response2;
+  HTTP.get = /*#__PURE__*/function () {
+    var _get = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(url, options) {
       return _regeneratorRuntime().wrap(function _callee2$(_context2) {
         while (1) switch (_context2.prev = _context2.next) {
           case 0:
             if (options === void 0) {
               options = {};
             }
-            t = HTTP.trace('POST', url);
-            _context2.prev = 2;
-            _context2.next = 5;
-            return axios.post(url, data, options);
-          case 5:
-            res = _context2.sent;
-            tui.showTraffic('POST', url, data, res.data);
-            t.done();
-            return _context2.abrupt("return", res);
-          case 11:
-            _context2.prev = 11;
-            _context2.t0 = _context2["catch"](2);
-            tui.showTraffic('POST', url, data, (_err$response2 = _context2.t0.response) == null ? void 0 : _err$response2.data);
-            t.done(_context2.t0);
-            throw _context2.t0;
-          case 16:
+            return _context2.abrupt("return", HTTP.wrap('get', url, options));
+          case 2:
           case "end":
             return _context2.stop();
         }
-      }, _callee2, null, [[2, 11]]);
+      }, _callee2);
     }));
-    function post(_x3, _x4, _x5) {
-      return _post.apply(this, arguments);
+    function get(_x5, _x6) {
+      return _get.apply(this, arguments);
     }
-    return post;
+    return get;
   }();
-  HTTP.put = /*#__PURE__*/function () {
-    var _put = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(url, data, options) {
-      var t, res, _err$response3;
+  HTTP.post = /*#__PURE__*/function () {
+    var _post = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(url, data, options) {
       return _regeneratorRuntime().wrap(function _callee3$(_context3) {
         while (1) switch (_context3.prev = _context3.next) {
           case 0:
             if (options === void 0) {
               options = {};
             }
-            t = HTTP.trace('PUT', url);
-            _context3.prev = 2;
-            _context3.next = 5;
-            return axios.put(url, data, options);
-          case 5:
-            res = _context3.sent;
-            tui.showTraffic('PUT', url, data, res.data);
-            t.done();
-            return _context3.abrupt("return", res);
-          case 11:
-            _context3.prev = 11;
-            _context3.t0 = _context3["catch"](2);
-            tui.showTraffic('PUT', url, data, (_err$response3 = _context3.t0.response) == null ? void 0 : _err$response3.data);
-            t.done(_context3.t0);
-            throw _context3.t0;
-          case 16:
+            return _context3.abrupt("return", HTTP.wrap('post', url, data, options));
+          case 2:
           case "end":
             return _context3.stop();
         }
-      }, _callee3, null, [[2, 11]]);
+      }, _callee3);
     }));
-    function put(_x6, _x7, _x8) {
-      return _put.apply(this, arguments);
+    function post(_x7, _x8, _x9) {
+      return _post.apply(this, arguments);
     }
-    return put;
+    return post;
   }();
-  HTTP.patch = /*#__PURE__*/function () {
-    var _patch = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(url, data, options) {
-      var t, res, _err$response4;
+  HTTP.put = /*#__PURE__*/function () {
+    var _put = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(url, data, options) {
       return _regeneratorRuntime().wrap(function _callee4$(_context4) {
         while (1) switch (_context4.prev = _context4.next) {
           case 0:
             if (options === void 0) {
               options = {};
             }
-            t = HTTP.trace('PATCH', url);
-            _context4.prev = 2;
-            _context4.next = 5;
-            return axios.patch(url, data, options);
-          case 5:
-            res = _context4.sent;
-            tui.showTraffic('PATCH', url, data, res.data);
-            t.done();
-            return _context4.abrupt("return", res);
-          case 11:
-            _context4.prev = 11;
-            _context4.t0 = _context4["catch"](2);
-            tui.showTraffic('PATCH', url, data, (_err$response4 = _context4.t0.response) == null ? void 0 : _err$response4.data);
-            t.done(_context4.t0);
-            throw _context4.t0;
-          case 16:
+            return _context4.abrupt("return", HTTP.wrap('put', url, data, options));
+          case 2:
           case "end":
             return _context4.stop();
         }
-      }, _callee4, null, [[2, 11]]);
+      }, _callee4);
     }));
-    function patch(_x9, _x10, _x11) {
-      return _patch.apply(this, arguments);
+    function put(_x10, _x11, _x12) {
+      return _put.apply(this, arguments);
     }
-    return patch;
+    return put;
   }();
-  HTTP["delete"] = /*#__PURE__*/function () {
-    var _delete2 = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(url, options) {
-      var t, res, _err$response5;
+  HTTP.patch = /*#__PURE__*/function () {
+    var _patch = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(url, data, options) {
       return _regeneratorRuntime().wrap(function _callee5$(_context5) {
         while (1) switch (_context5.prev = _context5.next) {
           case 0:
             if (options === void 0) {
               options = {};
             }
-            t = HTTP.trace('DELETE', url);
-            _context5.prev = 2;
-            _context5.next = 5;
-            return axios["delete"](url, options);
-          case 5:
-            res = _context5.sent;
-            tui.showTraffic('DELETE', url, {}, res.data);
-            t.done();
-            return _context5.abrupt("return", res);
-          case 11:
-            _context5.prev = 11;
-            _context5.t0 = _context5["catch"](2);
-            tui.showTraffic('DELETE', url, {}, (_err$response5 = _context5.t0.response) == null ? void 0 : _err$response5.data);
-            t.done(_context5.t0);
-            throw _context5.t0;
-          case 16:
+            return _context5.abrupt("return", HTTP.wrap('patch', url, data, options));
+          case 2:
           case "end":
             return _context5.stop();
         }
-      }, _callee5, null, [[2, 11]]);
+      }, _callee5);
     }));
-    function _delete(_x12, _x13) {
+    function patch(_x13, _x14, _x15) {
+      return _patch.apply(this, arguments);
+    }
+    return patch;
+  }();
+  HTTP["delete"] = /*#__PURE__*/function () {
+    var _delete2 = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6(url, options) {
+      return _regeneratorRuntime().wrap(function _callee6$(_context6) {
+        while (1) switch (_context6.prev = _context6.next) {
+          case 0:
+            if (options === void 0) {
+              options = {};
+            }
+            return _context6.abrupt("return", HTTP.wrap('delete', url, options));
+          case 2:
+          case "end":
+            return _context6.stop();
+        }
+      }, _callee6);
+    }));
+    function _delete(_x16, _x17) {
       return _delete2.apply(this, arguments);
     }
     return _delete;
@@ -1276,7 +1249,7 @@ var Model = /*#__PURE__*/function () {
   _proto.getAttributes = function getAttributes() {
     return [];
   };
-  _proto.toJSON = function toJSON() {
+  _proto.toJSON = function toJSON(full) {
     var meta = Object.assign({}, pick(this.meta, ['id', 'type', 'version', 'revision', 'updated']));
     var json = Object.assign({
       meta: meta
@@ -1317,7 +1290,7 @@ var Model = /*#__PURE__*/function () {
           case 0:
             _context.prev = 0;
             _context.next = 3;
-            return HTTP.get(this.HOST + "/" + this.id + "?expand=2&verbose=true");
+            return HTTP.get(this.url + "?expand=2&verbose=true");
           case 3:
             response = _context.sent;
             this.parse(response.data);
@@ -1347,7 +1320,7 @@ var Model = /*#__PURE__*/function () {
           case 0:
             _context2.prev = 0;
             _context2.next = 3;
-            return HTTP.patch(this.HOST + "/" + this.id, this.toJSON());
+            return HTTP.patch("" + this.url, this.toJSON(false));
           case 3:
             response = _context2.sent;
             this.parse(response.data);
@@ -1376,7 +1349,7 @@ var Model = /*#__PURE__*/function () {
           case 0:
             _context3.prev = 0;
             _context3.next = 3;
-            return HTTP["delete"](this.HOST + "/" + this.id);
+            return HTTP["delete"]("" + this.url);
           case 3:
             _context3.next = 14;
             break;
@@ -1447,6 +1420,11 @@ var Model = /*#__PURE__*/function () {
     key: "revision",
     get: function get() {
       return this.meta.revision || 1;
+    }
+  }, {
+    key: "url",
+    get: function get() {
+      return this.HOST + "/" + this.id;
     }
   }]);
   return Model;
@@ -1555,7 +1533,7 @@ var Installation = /*#__PURE__*/function (_Model) {
           case 0:
             _context3.prev = 0;
             _context3.next = 3;
-            return HTTP.patch(this.HOST + "/" + this.id, {
+            return HTTP.patch("" + this.url, {
               restart: {
                 new_process: true
               }
@@ -1585,7 +1563,7 @@ var Installation = /*#__PURE__*/function (_Model) {
           case 0:
             _context4.prev = 0;
             _context4.next = 3;
-            return HTTP.patch(this.HOST + "/" + this.id, {
+            return HTTP.patch("" + this.url, {
               restart: {
                 new_process: true,
                 new_user: true
@@ -1616,7 +1594,7 @@ var Installation = /*#__PURE__*/function (_Model) {
           case 0:
             _context5.prev = 0;
             _context5.next = 3;
-            return HTTP.patch(this.HOST + "/" + this.id, {
+            return HTTP.patch("" + this.url, {
               restart: {
                 stop_background: true
               }
@@ -1646,7 +1624,7 @@ var Installation = /*#__PURE__*/function (_Model) {
           case 0:
             _context6.prev = 0;
             _context6.next = 3;
-            return HTTP.patch(this.HOST + "/" + this.id, {
+            return HTTP.patch("" + this.url, {
               extsync: enableExtSync
             });
           case 3:
@@ -1826,7 +1804,7 @@ var File = /*#__PURE__*/function (_Model) {
         while (1) switch (_context.prev = _context.next) {
           case 0:
             _context.next = 2;
-            return HTTP.get(this.HOST + "/" + this.id, {
+            return HTTP.get("" + this.url, {
               responseType: 'stream'
             });
           case 2:
@@ -1878,7 +1856,7 @@ var File = /*#__PURE__*/function (_Model) {
             data.append(this.id, createReadStream(this.path));
             _context2.prev = 2;
             _context2.next = 5;
-            return HTTP.put(this.HOST + "/" + this.id + "?verbose=true", data, {
+            return HTTP.put(this.url + "?verbose=true", data, {
               headers: data.getHeaders()
             });
           case 5:
@@ -1936,7 +1914,7 @@ File.create = /*#__PURE__*/function () {
           data.append(name, createReadStream(getFilePath(use) + "/" + name));
           _context3.prev = 5;
           _context3.next = 8;
-          return HTTP.post(m.HOST + "/file/" + use + "?verbose=true", data, {
+          return HTTP.post(m.url + "/file/" + use + "?verbose=true", data, {
             headers: data.getHeaders()
           });
         case 8:
@@ -1985,32 +1963,44 @@ var Version = /*#__PURE__*/function (_Model) {
   };
   _proto.parse = function parse(data) {
     var _this2 = this;
+    var fileData = data.file;
+    delete data.file;
     _Model.prototype.parse.call(this, data);
-    var files = this.file || [];
-    this.file = [];
-    files.forEach(function (f) {
-      _this2.file.push(new File(f, _this2));
-    });
-  };
-  _proto.toJSON = function toJSON() {
-    var data = _Model.prototype.toJSON.call(this);
-    data.file = [];
-    this.file.forEach(function (file) {
-      if (typeof file !== 'string') {
-        data.file.push(file.toJSON());
+    if (fileData) {
+      if (fileData.length > 0 && typeof fileData[0] !== 'string') {
+        this.file = [];
+        fileData.forEach(function (f) {
+          _this2.file.push(new File(f, _this2));
+        });
       }
-    });
+    }
+  };
+  _proto.toJSON = function toJSON(full) {
+    if (full === void 0) {
+      full = true;
+    }
+    var data = _Model.prototype.toJSON.call(this, full);
+    if (full) {
+      data.file = [];
+      this.file.forEach(function (file) {
+        if (typeof file !== 'string') {
+          data.file.push(file.toJSON());
+        }
+      });
+    } else {
+      delete data.file;
+    }
     return data;
   };
-  _proto.get = /*#__PURE__*/function () {
-    var _get = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
+  _proto.clone = /*#__PURE__*/function () {
+    var _clone = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
       var response;
       return _regeneratorRuntime().wrap(function _callee$(_context) {
         while (1) switch (_context.prev = _context.next) {
           case 0:
             _context.prev = 0;
             _context.next = 3;
-            return HTTP.get(this.HOST + "/" + this.id + "?expand=2&verbose=true");
+            return HTTP.get(this.url + "?expand=2&verbose=true");
           case 3:
             response = _context.sent;
             return _context.abrupt("return", new Version(response.data, this.parent));
@@ -2019,17 +2009,21 @@ var Version = /*#__PURE__*/function (_Model) {
             _context.t0 = _context["catch"](0);
             this.handleException("Failed to get version: " + this.id, _context.t0);
           case 10:
-            return _context.abrupt("return", null);
-          case 11:
+            return _context.abrupt("return", new Version({
+              meta: {
+                id: this.id
+              }
+            }, this.parent));
+          case 12:
           case "end":
             return _context.stop();
         }
       }, _callee, this, [[0, 7]]);
     }));
-    function get() {
-      return _get.apply(this, arguments);
+    function clone() {
+      return _clone.apply(this, arguments);
     }
-    return get;
+    return clone;
   }();
   _proto.findFile = function findFile(filePath) {
     var files = this.getFiles();
@@ -2039,14 +2033,19 @@ var Version = /*#__PURE__*/function (_Model) {
   };
   _proto.createFile = /*#__PURE__*/function () {
     var _createFile = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(filePath) {
+      var f;
       return _regeneratorRuntime().wrap(function _callee2$(_context2) {
         while (1) switch (_context2.prev = _context2.next) {
           case 0:
             _context2.next = 2;
             return File.create(filePath, this);
           case 2:
-            return _context2.abrupt("return", _context2.sent);
-          case 3:
+            f = _context2.sent;
+            if (f) {
+              this.file.push(f);
+            }
+            return _context2.abrupt("return", f);
+          case 5:
           case "end":
             return _context2.stop();
         }
@@ -2075,7 +2074,7 @@ var Version = /*#__PURE__*/function (_Model) {
           case 0:
             _context3.prev = 0;
             _context3.next = 3;
-            return HTTP.patch(this.HOST + "/" + this.id, {
+            return HTTP.patch("" + this.url, {
               status: 'commit'
             });
           case 3:
@@ -2119,14 +2118,21 @@ var Application = /*#__PURE__*/function (_Model) {
   _proto.getAttributes = function getAttributes() {
     return ['name', 'name_identifier', 'version'];
   };
-  _proto.toJSON = function toJSON() {
-    var data = _Model.prototype.toJSON.call(this);
-    data.version = [];
-    for (var i = 0; i < this.version.length; i += 1) {
-      var ver = this.version[i];
-      if (typeof ver !== 'string') {
-        data.version.push(ver.toJSON());
+  _proto.toJSON = function toJSON(full) {
+    if (full === void 0) {
+      full = true;
+    }
+    var data = _Model.prototype.toJSON.call(this, full);
+    if (full) {
+      data.version = [];
+      for (var i = 0; i < this.version.length; i += 1) {
+        var ver = this.version[i];
+        if (typeof ver !== 'string') {
+          data.version.push(ver.toJSON());
+        }
       }
+    } else {
+      delete data.version;
     }
     return data;
   };
@@ -2235,7 +2241,7 @@ var Application = /*#__PURE__*/function (_Model) {
           case 0:
             _context2.prev = 0;
             _context2.next = 3;
-            return HTTP.get(this.HOST + "/" + this.id + "?expand=2&verbose=true");
+            return HTTP.get(this.url + "?expand=2&verbose=true");
           case 3:
             response = _context2.sent;
             return _context2.abrupt("return", response.data);
@@ -2302,7 +2308,7 @@ var Application = /*#__PURE__*/function (_Model) {
             }
             _context4.prev = 1;
             _context4.next = 4;
-            return HTTP.post(this.HOST + "/" + this.id + "/oauth_external", oauth);
+            return HTTP.post(this.url + "/oauth_external", oauth);
           case 4:
             tui.showMessage('External OAuth created');
             _context4.next = 10;
@@ -2321,7 +2327,7 @@ var Application = /*#__PURE__*/function (_Model) {
             }
             _context4.prev = 13;
             _context4.next = 16;
-            return HTTP.patch(this.HOST + "/" + this.id + "/oauth_external/" + this.oauth_external[0].meta.id, oauth);
+            return HTTP.patch(this.url + "/oauth_external/" + this.oauth_external[0].meta.id, oauth);
           case 16:
             tui.showMessage('External OAuth updated');
             _context4.next = 22;
@@ -2361,7 +2367,7 @@ var Application = /*#__PURE__*/function (_Model) {
             }
             _context5.prev = 3;
             _context5.next = 6;
-            return HTTP.post(this.HOST + "/" + this.id + "/oauth_client", oauth);
+            return HTTP.post(this.url + "/oauth_client", oauth);
           case 6:
             tui.showMessage('OAuth Client created');
             _context5.next = 24;
@@ -2375,7 +2381,7 @@ var Application = /*#__PURE__*/function (_Model) {
             }
             _context5.prev = 12;
             _context5.next = 15;
-            return HTTP.patch(this.HOST + "/" + this.id + "/oauth_client", oauth);
+            return HTTP.patch(this.url + "/oauth_client", oauth);
           case 15:
             tui.showMessage('OAuth Client updated');
             _context5.next = 21;
@@ -2975,6 +2981,9 @@ var Session = /*#__PURE__*/function (_Model) {
     return _this;
   }
   var _proto = Session.prototype;
+  _proto.getAttributes = function getAttributes() {
+    return ['user'];
+  };
   _proto.login = /*#__PURE__*/function () {
     var _login = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(user, pass) {
       var response;
@@ -3006,7 +3015,7 @@ var Session = /*#__PURE__*/function (_Model) {
     _Model.prototype.clear.call(this);
     HTTP.removeHeader('x-session');
   };
-  _proto.toJSON = function toJSON() {
+  _proto.toJSON = function toJSON(full) {
     return this.id;
   };
   _proto.parse = function parse(data) {
@@ -3774,10 +3783,10 @@ var Wapp = /*#__PURE__*/function () {
             status.start();
             status.setMessage('Downloading version, please wait...');
             _context7.next = 15;
-            return localVersion.get();
+            return localVersion.clone();
           case 15:
             remoteVersion = _context7.sent;
-            if (!(remoteVersion && remoteVersion.revision !== localVersion.revision && !compareVersions(this.manifest, remoteVersion.data))) {
+            if (!(remoteVersion && remoteVersion.revision !== localVersion.revision && !compareVersions(this.manifest, remoteVersion.toJSON()))) {
               _context7.next = 25;
               break;
             }
@@ -3823,7 +3832,7 @@ var Wapp = /*#__PURE__*/function () {
             };
             localVersionFiles = localVersion.getFiles();
             remoteVersionFiles = remoteVersion.getFiles();
-            allFiles = !remoteVersion ? localVersionFiles : remoteVersionFiles.concat(localVersionFiles.filter(function (item) {
+            allFiles = remoteVersionFiles.concat(localVersionFiles.filter(function (item) {
               return !remoteVersionFiles.find(function (file) {
                 return cmp(item, file);
               });
@@ -3844,7 +3853,7 @@ var Wapp = /*#__PURE__*/function () {
             remoteUpdated = false;
             locallyUpdated = false;
             fileTime = null;
-            rf = !remoteVersion ? null : remoteVersion.findFile(file.path);
+            rf = remoteVersion.findFile(file.path);
             lf = localVersion.findFile(file.path);
             localIndex = localFiles.indexOf(file.path);
             if (localIndex !== -1) {
@@ -4010,11 +4019,12 @@ var Wapp = /*#__PURE__*/function () {
             } else {
               results.push(this.installation.restart());
             }
-            _context7.next = 128;
+            results.push(this.application.getVersion().fetch());
+            _context7.next = 129;
             return Promise.all(results);
-          case 128:
+          case 129:
             status.setMessage('Loading application, please wait...');
-            _context7.next = 131;
+            _context7.next = 132;
             return new Promise(function (resolve) {
               var ts = _this3.measure('Wait', 'Waiting for files to be updated');
               setTimeout(function () {
@@ -4031,11 +4041,11 @@ var Wapp = /*#__PURE__*/function () {
                 }
               }, 500);
             });
-          case 131:
+          case 132:
             status.stop();
             t.done();
             return _context7.abrupt("return", updateFiles);
-          case 134:
+          case 135:
           case "end":
             return _context7.stop();
         }
@@ -4790,17 +4800,18 @@ function _update() {
           files.forEach(function (f) {
             tui.showMessage(f.path + " was " + f.status);
           });
-          _context.next = 30;
+          tui.showMessage('Wapp Updated');
+          _context.next = 31;
           break;
-        case 27:
-          _context.prev = 27;
+        case 28:
+          _context.prev = 28;
           _context.t1 = _context["catch"](17);
           tui.showError('Run error', _context.t1);
-        case 30:
+        case 31:
         case "end":
           return _context.stop();
       }
-    }, _callee, null, [[0, 4], [17, 27]]);
+    }, _callee, null, [[0, 4], [17, 28]]);
   }));
   return _update.apply(this, arguments);
 }

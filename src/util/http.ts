@@ -2,6 +2,8 @@ import axios from 'axios';
 import tui from './tui';
 import Trace from './trace';
 
+type Methods = 'head' | 'options' | 'put' | 'post' | 'patch' | 'delete' | 'get';
+
 export default class HTTP {
   static trace(method: string, url: string, data?: any): Trace {
     return new Trace(`HTTP ${method}`, url, data);
@@ -15,73 +17,50 @@ export default class HTTP {
     delete axios.defaults.headers.common[name];
   }
 
-  static async get(url: string, options: any = {}): Promise<any> {
-    const t = HTTP.trace('GET', url);
+  static async wrap(
+    func: Methods,
+    url: string,
+    data: any = {},
+    config?: any
+  ): Promise<any> {
+    const t = HTTP.trace(func, url);
     try {
-      const res = await axios.get(url, options);
-      tui.showTraffic('GET', url, {}, res.data);
+      let response;
+      if (config === undefined) {
+        response = await axios[func](url, data);
+      } else {
+        response = await axios[func](url, data, config);
+      }
+
+      tui.showTraffic(func, url, data, response.data);
       t.done();
-      return res;
-    } catch (err: any) {
-      tui.showTraffic('GET', url, {}, err.response?.data);
+      return response;
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        tui.showTraffic(func, url, data, err.response?.data);
+      }
       t.done(err);
       throw err;
     }
+  }
+
+  static async get(url: string, options: any = {}): Promise<any> {
+    return HTTP.wrap('get', url, options);
   }
 
   static async post(url: string, data: any, options: any = {}): Promise<any> {
-    const t = HTTP.trace('POST', url);
-    try {
-      const res = await axios.post(url, data, options);
-      tui.showTraffic('POST', url, data, res.data);
-      t.done();
-      return res;
-    } catch (err: any) {
-      tui.showTraffic('POST', url, data, err.response?.data);
-      t.done(err);
-      throw err;
-    }
+    return HTTP.wrap('post', url, data, options);
   }
 
   static async put(url: string, data: any, options: any = {}): Promise<any> {
-    const t = HTTP.trace('PUT', url);
-    try {
-      const res = await axios.put(url, data, options);
-      tui.showTraffic('PUT', url, data, res.data);
-      t.done();
-      return res;
-    } catch (err: any) {
-      tui.showTraffic('PUT', url, data, err.response?.data);
-      t.done(err);
-      throw err;
-    }
+    return HTTP.wrap('put', url, data, options);
   }
 
   static async patch(url: string, data: any, options: any = {}): Promise<any> {
-    const t = HTTP.trace('PATCH', url);
-    try {
-      const res = await axios.patch(url, data, options);
-      tui.showTraffic('PATCH', url, data, res.data);
-      t.done();
-      return res;
-    } catch (err: any) {
-      tui.showTraffic('PATCH', url, data, err.response?.data);
-      t.done(err);
-      throw err;
-    }
+    return HTTP.wrap('patch', url, data, options);
   }
 
   static async delete(url: string, options: any = {}): Promise<any> {
-    const t = HTTP.trace('DELETE', url);
-    try {
-      const res = await axios.delete(url, options);
-      tui.showTraffic('DELETE', url, {}, res.data);
-      t.done();
-      return res;
-    } catch (err: any) {
-      tui.showTraffic('DELETE', url, {}, err.response?.data);
-      t.done(err);
-      throw err;
-    }
+    return HTTP.wrap('delete', url, options);
   }
 }

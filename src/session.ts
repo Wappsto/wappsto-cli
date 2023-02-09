@@ -29,7 +29,7 @@ export default class Session extends Model implements Session21 {
     HTTP.removeHeader('x-session');
   }
 
-  toJSON(): any {
+  toJSON(full: boolean = true): any {
     return this.id;
   }
 

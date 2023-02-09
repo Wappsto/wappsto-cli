@@ -399,12 +399,12 @@ export default class Wapp {
     status.start();
 
     status.setMessage('Downloading version, please wait...');
-    const remoteVersion = await localVersion.get();
+    const remoteVersion = await localVersion.clone();
 
     if (
       remoteVersion &&
       remoteVersion.revision !== localVersion.revision &&
-      !compareVersions(this.manifest, remoteVersion.data)
+      !compareVersions(this.manifest, remoteVersion.toJSON())
     ) {
       status.stop();
       const overide = await questions.remoteVersionUpdated();
@@ -438,25 +438,23 @@ export default class Wapp {
     const localVersionFiles = localVersion.getFiles();
     const remoteVersionFiles = remoteVersion.getFiles();
 
-    const allFiles = !remoteVersion
-      ? localVersionFiles
-      : remoteVersionFiles.concat(
-          localVersionFiles.filter(
-            (item: any) =>
-              !remoteVersionFiles.find((file: File) => cmp(item, file))
-          )
-        );
+    const allFiles = remoteVersionFiles.concat(
+      localVersionFiles.filter(
+        (item: any) => !remoteVersionFiles.find((file: File) => cmp(item, file))
+      )
+    );
 
     for (let i = 0; i < allFiles.length; i += 1) {
       const file = allFiles[i];
       if (!file) {
         continue;
       }
+
       let remoteUpdated = false;
       let locallyUpdated = false;
       let fileTime = null;
 
-      const rf = !remoteVersion ? null : remoteVersion.findFile(file.path);
+      const rf = remoteVersion.findFile(file.path);
       const lf = localVersion.findFile(file.path);
 
       const localIndex = localFiles.indexOf(file.path);
@@ -580,6 +578,7 @@ export default class Wapp {
     } else {
       results.push(this.installation.restart());
     }
+    results.push(this.application.getVersion().fetch());
 
     await Promise.all(results);
     status.setMessage('Loading application, please wait...');

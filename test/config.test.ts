@@ -46,6 +46,7 @@ describe('config', () => {
     expect(Config.cacheFolder()).toEqual(`${data.cacheFolder}/`);
     expect(Config.isCustomHost()).toEqual(true);
     expect(Config.browser()).toEqual(data.browser);
+    expect(Config.env()).toEqual('testing');
   });
 
   it('have default parameters after reload', () => {

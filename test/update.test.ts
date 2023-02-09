@@ -97,7 +97,6 @@ describe('Update', () => {
         name: 'Wapp name',
         supported_features: ['foreground'],
         version_app: '1.2.3',
-        file: [],
         meta: {
           id: '98e68cd8-74a6-4841-bdd4-70c29f068056',
           revision: 1,
@@ -117,7 +116,7 @@ describe('Update', () => {
     );
 
     expect(mockedAxios.post).toHaveBeenCalledTimes(0);
-    expect(mockedAxios.get).toHaveBeenCalledTimes(4);
+    expect(mockedAxios.get).toHaveBeenCalledTimes(5);
     expect(mockedAxios.get).toHaveBeenNthCalledWith(
       2,
       'https://wappsto.com/services/2.1/version/98e68cd8-74a6-4841-bdd4-70c29f068056?expand=2&verbose=true',
@@ -130,6 +129,11 @@ describe('Update', () => {
     );
     expect(mockedAxios.get).toHaveBeenNthCalledWith(
       4,
+      'https://wappsto.com/services/2.1/version/98e68cd8-74a6-4841-bdd4-70c29f068056?expand=2&verbose=true',
+      {}
+    );
+    expect(mockedAxios.get).toHaveBeenNthCalledWith(
+      5,
       'https://wappsto.com/services/2.1/application/4c8ebb21-524b-4fc0-bbc5-015da2e5ca60?expand=2&verbose=true',
       {}
     );

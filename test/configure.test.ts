@@ -88,7 +88,6 @@ describe('Configure', () => {
           version: '',
           widget: '',
         },
-        file: [],
         max_number_installation: 1,
         meta: {
           id: '98e68cd8-74a6-4841-bdd4-70c29f068056',

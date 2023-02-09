@@ -84,7 +84,6 @@ describe('Publish', () => {
         name: 'Wapp name',
         supported_features: ['foreground'],
         version_app: '2.2.2',
-        file: [],
         meta: {
           id: '98e68cd8-74a6-4841-bdd4-70c29f068056',
           revision: 1,

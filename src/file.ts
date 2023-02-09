@@ -58,7 +58,7 @@ export default class File extends Model implements File21 {
   }
 
   async download(filePath?: string) {
-    const response = await HTTP.get(`${this.HOST}/${this.id}`, {
+    const response = await HTTP.get(`${this.url}`, {
       responseType: 'stream',
     });
 
@@ -105,7 +105,7 @@ export default class File extends Model implements File21 {
 
     try {
       const response = await HTTP.post(
-        `${m.HOST}/file/${use}?verbose=true`,
+        `${m.url}/file/${use}?verbose=true`,
         data,
         {
           headers: data.getHeaders(),
@@ -113,7 +113,7 @@ export default class File extends Model implements File21 {
       );
       return new File(response.data, parent);
     } catch (err: any) {
-      this.handleException(`Failed to create File: ${name}`, err);
+      this.handleException(`Failed to create File: ${filePath}`, err);
     }
 
     return null;
@@ -124,17 +124,13 @@ export default class File extends Model implements File21 {
     data.append(this.id, createReadStream(this.path));
 
     try {
-      const response = await HTTP.put(
-        `${this.HOST}/${this.id}?verbose=true`,
-        data,
-        {
-          headers: data.getHeaders(),
-        }
-      );
+      const response = await HTTP.put(`${this.url}?verbose=true`, data, {
+        headers: data.getHeaders(),
+      });
       this.parse(response.data);
       return true;
     } catch (err: any) {
-      this.handleException(`Failed to update File: ${this.name}`, err);
+      this.handleException(`Failed to update File: ${this.path}`, err);
     }
 
     return false;

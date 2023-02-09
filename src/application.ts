@@ -26,14 +26,18 @@ export default class Application extends Model implements Application21 {
     return ['name', 'name_identifier', 'version'];
   }
 
-  toJSON(): any {
-    const data = super.toJSON();
-    data.version = [];
-    for (let i = 0; i < this.version.length; i += 1) {
-      const ver = this.version[i];
-      if (typeof ver !== 'string') {
-        data.version.push(ver.toJSON());
+  toJSON(full: boolean = true): any {
+    const data = super.toJSON(full);
+    if (full) {
+      data.version = [];
+      for (let i = 0; i < this.version.length; i += 1) {
+        const ver = this.version[i];
+        if (typeof ver !== 'string') {
+          data.version.push(ver.toJSON());
+        }
       }
+    } else {
+      delete data.version;
     }
     return data;
   }
@@ -125,9 +129,7 @@ export default class Application extends Model implements Application21 {
 
   async get(): Promise<any> {
     try {
-      const response = await HTTP.get(
-        `${this.HOST}/${this.id}?expand=2&verbose=true`
-      );
+      const response = await HTTP.get(`${this.url}?expand=2&verbose=true`);
       return response.data;
     } catch (err) {
       this.handleException(`Failed to get application: ${this.id}`, err);
@@ -152,7 +154,7 @@ export default class Application extends Model implements Application21 {
   async createOauthExternal(oauth: any): Promise<void> {
     if (this.oauth_external.length === 0) {
       try {
-        await HTTP.post(`${this.HOST}/${this.id}/oauth_external`, oauth);
+        await HTTP.post(`${this.url}/oauth_external`, oauth);
         tui.showMessage('External OAuth created');
       } catch (err) {
         tui.showError('Failed to create OAuth External', err);
@@ -161,7 +163,7 @@ export default class Application extends Model implements Application21 {
       if (typeof this.oauth_external[0] !== 'string') {
         try {
           await HTTP.patch(
-            `${this.HOST}/${this.id}/oauth_external/${this.oauth_external[0].meta.id}`,
+            `${this.url}/oauth_external/${this.oauth_external[0].meta.id}`,
             oauth
           );
           tui.showMessage('External OAuth updated');
@@ -185,12 +187,12 @@ export default class Application extends Model implements Application21 {
       newOauth.path_access_token = [oauth.path_access_token];
     }
     try {
-      await HTTP.post(`${this.HOST}/${this.id}/oauth_client`, oauth);
+      await HTTP.post(`${this.url}/oauth_client`, oauth);
       tui.showMessage('OAuth Client created');
     } catch (err: any) {
       if (err.response.data.code === 500232) {
         try {
-          await HTTP.patch(`${this.HOST}/${this.id}/oauth_client`, oauth);
+          await HTTP.patch(`${this.url}/oauth_client`, oauth);
           tui.showMessage('OAuth Client updated');
         } catch (patchErr) {
           this.handleException('Failed to create OAuth Client', patchErr);

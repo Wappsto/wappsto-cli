@@ -106,7 +106,7 @@ export default class Installation extends Model implements Installation21 {
 
   async restart(): Promise<void> {
     try {
-      await HTTP.patch(`${this.HOST}/${this.id}`, {
+      await HTTP.patch(`${this.url}`, {
         restart: {
           new_process: true,
         },
@@ -118,7 +118,7 @@ export default class Installation extends Model implements Installation21 {
 
   async reinstall(): Promise<void> {
     try {
-      await HTTP.patch(`${this.HOST}/${this.id}`, {
+      await HTTP.patch(`${this.url}`, {
         restart: {
           new_process: true,
           new_user: true,
@@ -131,7 +131,7 @@ export default class Installation extends Model implements Installation21 {
 
   async stop(): Promise<boolean> {
     try {
-      await HTTP.patch(`${this.HOST}/${this.id}`, {
+      await HTTP.patch(`${this.url}`, {
         restart: {
           stop_background: true,
         },
@@ -145,7 +145,7 @@ export default class Installation extends Model implements Installation21 {
 
   async setExtSync(enableExtSync: boolean): Promise<void> {
     try {
-      await HTTP.patch(`${this.HOST}/${this.id}`, {
+      await HTTP.patch(`${this.url}`, {
         extsync: enableExtSync,
       });
     } catch (err) {
