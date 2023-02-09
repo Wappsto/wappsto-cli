@@ -727,15 +727,15 @@ export default class Wapp {
     }
   }
 
-  async getInstallationSession(): Promise<string | undefined> {
+  async getInstallationSession(): Promise<string> {
     const ret = await this.installation.fetchById(this.versionID);
     if (!ret) {
-      return;
+      return '';
     }
     if (this.sessionCallback) {
       this.sessionCallback(this.installation.session);
     }
-    return this.installation.session;
+    return this.installation.session || '';
   }
 
   getInstallationToken(): string {

@@ -12,6 +12,8 @@ import configure from './cmd/configure';
 import serve from './cmd/serve';
 import publish from './cmd/publish';
 import { startTrace } from './util/trace';
+import Config from './config';
+import Wapp from './wapp';
 
 const mainDefinitions = [{ name: 'command', defaultOption: true }];
 
@@ -51,47 +53,64 @@ const sections = [
   },
 ];
 
-let transaction;
+export function getHost() {
+  return Config.host();
+}
 
-(async () => {
-  try {
-    const mainOptions = commandLineArgs(mainDefinitions, {
-      stopAtFirstUnknown: true,
-    });
-    /* eslint-disable-next-line no-underscore-dangle */
-    const argv = mainOptions._unknown || [];
+let wapp_session: string = '';
 
-    transaction = startTrace(mainOptions.command);
-
-    switch (mainOptions.command) {
-      case 'create':
-        await create(argv);
-        break;
-      case 'update':
-        await update(argv);
-        break;
-      case 'configure':
-        await configure(argv);
-        break;
-      case 'publish':
-        await publish(argv);
-        break;
-      case 'delete':
-        await Delete(argv);
-        break;
-      case 'serve':
-        await serve(argv);
-        break;
-      case 'help':
-      default:
-        console.log(commandLineUsage(sections));
-        break;
-    }
-  } catch (e: any) {
-    Sentry.captureException(e);
-    console.error(e.message);
-    process.exit(-1);
-  } finally {
-    transaction?.finish();
+export async function getSession() {
+  if (!wapp_session) {
+    const wapp = new Wapp();
+    await wapp.init();
+    wapp_session = (await wapp.getInstallationSession()) || '';
   }
-})();
+  return wapp_session;
+}
+
+if (process.argv.length > 1 && process.argv[1].includes('wappsto-cli')) {
+  let transaction;
+
+  (async () => {
+    try {
+      const mainOptions = commandLineArgs(mainDefinitions, {
+        stopAtFirstUnknown: true,
+      });
+      /* eslint-disable-next-line no-underscore-dangle */
+      const argv = mainOptions._unknown || [];
+
+      transaction = startTrace(mainOptions.command);
+
+      switch (mainOptions.command) {
+        case 'create':
+          await create(argv);
+          break;
+        case 'update':
+          await update(argv);
+          break;
+        case 'configure':
+          await configure(argv);
+          break;
+        case 'publish':
+          await publish(argv);
+          break;
+        case 'delete':
+          await Delete(argv);
+          break;
+        case 'serve':
+          await serve(argv);
+          break;
+        case 'help':
+        default:
+          console.log(commandLineUsage(sections));
+          break;
+      }
+    } catch (e: any) {
+      Sentry.captureException(e);
+      console.error(e.message);
+      process.exit(-1);
+    } finally {
+      transaction?.finish();
+    }
+  })();
+}

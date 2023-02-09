@@ -94,6 +94,16 @@ npx wapp update
 
 This will upload all your files to Wappsto and download any new files created for your Wapp.
 
+### Publish
+
+To publish the Wapp to the Wappsto Store run the `wapp publish` using `npx`:
+
+```sh
+npx wapp publish
+```
+
+This will make your wapp available in the store for other people to use.
+
 ### Delete
 
 To delete the Wapp run the `wapp delete` using `npx`:
@@ -149,16 +159,13 @@ and creating a file `src/setupProxy.js` with this:
 
 ```js
 const { createProxyMiddleware } = require('http-proxy-middleware');
-const Wapp = require('wappsto-cli/lib/wapp');
+const wappsto = require('wappsto-cli');
 
-const wapp = new Wapp();
-
-const HOST = wapp.host;
+const HOST = wappsto.getHost();
 let sessionID = '';
 
 const run = async () => {
-  await wapp.init();
-  sessionID = await wapp.getInstallationSession();
+  sessionID = await wapp.getSession();
 };
 run();
 

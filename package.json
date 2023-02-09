@@ -3,9 +3,8 @@
   "description": "Command Line Interface for Wappsto",
   "version": "2.0.0",
   "license": "Apache-2.0",
-  "main": "dist/wappsto-cli.esm.js",
-  "module": "dist/wappsto-cli.esm.js",
-  "type": "module",
+  "main": "dist/index.js",
+  "type": "common",
   "author": {
     "name": "Seluxit A/S",
     "email": "developer@wappsto.com",
@@ -27,14 +26,16 @@
     "seluxit"
   ],
   "files": [
-    "dist/wappsto-cli.esm.js"
+    "dist/index.js",
+    "dist/wappsto-cli.cjs.development.js",
+    "dist/wappsto-cli.cjs.production.min.js"
   ],
   "bin": {
-    "wapp": "dist/wappsto-cli.esm.js"
+    "wapp": "dist/index.js"
   },
   "scripts": {
     "make:version": "echo 'const VERSION = \"'$npm_package_version'\";export { VERSION };' > src/util/version.ts",
-    "prepublish": "yarn sentry-cli releases new wappsto-cli@$npm_package_version && sentry-cli releases files wappsto-cli@$npm_package_version upload-sourcemaps dist/wappsto-cli.esm.js.map && yarn sentry-cli releases finalize wappsto-cli@$npm_package_version",
+    "prepublish": "yarn sentry-cli releases new wappsto-cli@$npm_package_version && sentry-cli releases files wappsto-cli@$npm_package_version upload-sourcemaps dist/*.map && yarn sentry-cli releases finalize wappsto-cli@$npm_package_version",
     "build": "yarn make:version; dts build",
     "lint": "dts lint src test",
     "lint:fix": "yarn lint --fix",
