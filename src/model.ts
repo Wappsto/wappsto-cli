@@ -61,7 +61,10 @@ export default class Model {
   }
 
   save(): void {
-    saveFile(`${this.cacheFolder}${this.meta.type}`, JSON.stringify(this.toJSON()));
+    saveFile(
+      `${this.cacheFolder}${this.meta.type}`,
+      JSON.stringify(this.toJSON())
+    );
   }
 
   load(): void {
