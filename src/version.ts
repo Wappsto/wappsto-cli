@@ -46,6 +46,10 @@ export default class Version extends Model implements Version21 {
     permit_to_send_sms?: boolean;
     [k: string]: unknown;
   };
+  executable?: {
+    engine?: 'node' | 'python';
+    version?: string;
+  };
 
   file: (File | string)[] = [];
   parent: Model;
@@ -68,6 +72,7 @@ export default class Version extends Model implements Version21 {
       'used_files',
       'file',
       'permission',
+      'executable',
     ];
   }
 
@@ -75,6 +80,11 @@ export default class Version extends Model implements Version21 {
     const fileData = data.file;
     delete data.file;
     super.parse(data);
+    if (this.supported_features?.includes('background') && !this.executable) {
+      this.executable = {
+        engine: 'node',
+      };
+    }
     if (fileData) {
       if (fileData.length > 0 && typeof fileData[0] !== 'string') {
         this.file = [];

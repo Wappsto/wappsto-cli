@@ -571,12 +571,14 @@ export default class Wapp {
 
     t = this.measure('Update version');
     status.setMessage('Loading version, please wait...');
-    await this.installation.fetchById(this.versionID);
+    const foundInstallation = await this.installation.fetchById(this.versionID);
 
-    if (reinstall) {
-      results.push(this.installation.reinstall());
-    } else {
-      results.push(this.installation.restart());
+    if (foundInstallation) {
+      if (reinstall) {
+        results.push(this.installation.reinstall());
+      } else {
+        results.push(this.installation.restart());
+      }
     }
     results.push(this.application.getVersion().fetch());
 

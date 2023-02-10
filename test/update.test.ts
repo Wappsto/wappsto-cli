@@ -1,7 +1,6 @@
 import axios from 'axios';
-import prompts from 'prompts';
 import { setup, teardown, createWapp } from './util/setup';
-import { applicationResponse, installationResponse } from './util/response';
+import { applicationResponse, installationResponse, versionResponse } from './util/response';
 import update from '../src/cmd/update';
 
 describe('Update', () => {
@@ -48,23 +47,23 @@ describe('Update', () => {
   it('can update a wapp', async () => {
     mockedAxios.get
       .mockResolvedValueOnce({
-        data: [],
+        data: versionResponse,
       })
       .mockResolvedValueOnce({
-        data: installationResponse,
+        data: [installationResponse],
       })
       .mockResolvedValueOnce({
-        data: [],
+        data: versionResponse,
       })
       .mockResolvedValueOnce({
-        data: [],
+        data: applicationResponse,
       });
     mockedAxios.patch
       .mockResolvedValueOnce({
-        data: {},
+        data: versionResponse,
       })
       .mockResolvedValueOnce({
-        data: {},
+        data: installationResponse,
       });
     mockedAxios.post
       .mockResolvedValueOnce({
@@ -75,8 +74,6 @@ describe('Update', () => {
       });
 
     createWapp();
-
-    prompts.inject([true, true, true]);
 
     await update([]);
 
@@ -110,7 +107,7 @@ describe('Update', () => {
     );
     expect(mockedAxios.patch).toHaveBeenNthCalledWith(
       2,
-      'https://wappsto.com/services/2.1/installation/a3c75f15-5d07-4b97-ae8b-91e0d435e49c',
+      'https://wappsto.com/services/2.1/installation/00ecb1bd-e794-42b1-b73f-9596319e5ac5',
       { restart: { new_process: true } },
       {}
     );

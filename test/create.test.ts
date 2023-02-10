@@ -224,6 +224,10 @@ describe('Create', () => {
             version: '',
             widget: '',
           },
+          executable: {
+            engine: 'node',
+            version: '12.16.3',
+          },
           max_number_installation: 1,
           supported_features: ['foreground'],
           version_app: '1.2.3',
