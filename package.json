@@ -1,7 +1,7 @@
 {
   "name": "wappsto-cli",
   "description": "Command Line Interface for Wappsto",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "license": "Apache-2.0",
   "main": "dist/index.js",
   "type": "common",
