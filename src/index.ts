@@ -68,7 +68,11 @@ export async function getSession() {
   return wapp_session;
 }
 
-if (process.argv.length > 1 && process.argv[1].includes('wappsto-cli')) {
+if (
+  process.argv.length > 1 &&
+  (process.argv[1].includes('wappsto-cli') ||
+    process.argv[1].includes('node_modules/.bin/wapp'))
+) {
   let transaction;
 
   (async () => {
