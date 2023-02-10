@@ -1,6 +1,0 @@
-{
-    "dependencies": {
-        "axios": "^0.26.0",
-        "wappsto-wapp": "0.8.1"
-    }
-}

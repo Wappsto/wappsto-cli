@@ -1,31 +1,23 @@
 {
   "name": "wappsto-cli",
-  "version": "1.6.1",
   "description": "Command Line Interface for Wappsto",
-  "scripts": {
-    "lint": "eslint --ignore-pattern examples --ignore-path .gitignore  .",
-    "lint:fix": "yarn lint --fix",
-    "pretest": "yarn lint:fix",
-    "test": "nyc ava -sv test/*.js",
-    "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "prepare": "husky install"
-  },
-  "type": "commonjs",
-  "engines": {
-    "node": ">=16.4.0"
-  },
-  "bin": {
-    "wapp": "./bin/wapp.js",
-    "create-wapp": "./bin/create.js",
-    "update-wapp": "./bin/update.js",
-    "delete-wapp": "./bin/delete.js",
-    "serve-wapp": "./bin/serve.js",
-    "configure-wapp": "./bin/configure.js"
+  "version": "2.0.0",
+  "license": "Apache-2.0",
+  "main": "dist/index.js",
+  "type": "common",
+  "author": {
+    "name": "Seluxit A/S",
+    "email": "developer@wappsto.com",
+    "url": "https://seluxit.com"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wappsto/wappsto-cli.git"
   },
+  "bugs": {
+    "url": "https://github.com/wappsto/wappsto-cli/issues"
+  },
+  "homepage": "https://github.com/wappsto/wappsto-cli#readme",
   "keywords": [
     "wappsto",
     "wapp",
@@ -33,72 +25,107 @@
     "iot",
     "seluxit"
   ],
-  "author": {
-    "name": "Seluxit A/S",
-    "email": "developer@wappsto.com",
-    "url": "https://wappsto.com"
-  },
   "files": [
-    "bin/*.js",
-    "lib/*.js",
-    "lib/cmd/*.js",
-    "examples/*"
+    "dist/index.js",
+    "dist/wappsto-cli.cjs.development.js",
+    "dist/wappsto-cli.cjs.production.min.js"
   ],
-  "directories": {
-    "bin": "./bin",
-    "lib": "./lib",
-    "example": "./examples",
-    "test": "test"
+  "bin": {
+    "wapp": "dist/index.js"
   },
-  "license": "Apache-2.0",
-  "bugs": {
-    "url": "https://github.com/wappsto/wappsto-cli/issues"
+  "scripts": {
+    "make:version": "echo \"const VERSION = '$npm_package_version';\nexport { VERSION };\" > src/util/version.ts",
+    "prepack": "yarn sentry-cli releases new wappsto-cli@$npm_package_version && sentry-cli releases files wappsto-cli@$npm_package_version upload-sourcemaps dist/*.map && yarn sentry-cli releases finalize wappsto-cli@$npm_package_version",
+    "build": "yarn run make:version; dts build",
+    "lint": "dts lint src test",
+    "lint:fix": "yarn run lint --fix",
+    "prettify": "yarn run prettier -w src/ test/",
+    "prepare": "yarn run build",
+    "start": "dts watch",
+    "test": "dts test",
+    "coverage": "dts test --coverage",
+    "test:coverage": "yarn run coverage",
+    "generate-types": "npx json2ts -i schemas -o src/types"
   },
-  "homepage": "https://github.com/wappsto/wappsto-cli#readme",
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn lint"
+    }
+  },
+  "prettier": {
+    "printWidth": 80,
+    "tabWidth": 2,
+    "semi": true,
+    "singleQuote": true,
+    "trailingComma": "es5"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "resetMocks": true,
+    "moduleNameMapper": {
+      "axios": "axios/dist/node/axios.cjs",
+      "./util/getDirName": "<rootDir>/test/util/getDirName.ts"
+    },
+    "coveragePathIgnorePatterns": [
+      "<rootDir>/node_modules",
+      "<rootDir>/test",
+      "<rootDir>/src/types",
+      "<rootDir>/src/util/getDirName.ts"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "lines": 50,
+        "statements": 50
+      }
+    }
+  },
+  "engines": {
+    "node": ">=16"
+  },
+  "devDependencies": {
+    "@jest/globals": "^29.4.2",
+    "@sentry/cli": "^2.12.0",
+    "@sentry/rollup-plugin": "^0.4.0",
+    "@tsconfig/recommended": "^1.0.2",
+    "@types/browser-sync": "^2.26.3",
+    "@types/command-line-args": "^5.2.0",
+    "@types/command-line-usage": "^5.0.2",
+    "@types/cross-spawn": "^6.0.2",
+    "@types/detect-port": "^1.3.2",
+    "@types/figlet": "^1.5.5",
+    "@types/inquirer": "^9.0.3",
+    "@types/jest": "^29.4.0",
+    "@types/lodash.pick": "^4.4.7",
+    "@types/node": "^18.13.0",
+    "@types/prompts": "^2.4.2",
+    "@types/ws": "^8.5.4",
+    "axios-mock-adapter": "^1.21.2",
+    "dts-cli": "^1.6.3",
+    "husky": "^8.0.3",
+    "jest": "^29.4.2",
+    "json-schema-to-typescript": "^11.0.3",
+    "ts-jest": "^29.0.5",
+    "ts-node": "^10.9.1",
+    "tslib": "^2.5.0",
+    "typescript": "^4.9.5"
+  },
   "dependencies": {
+    "@sentry/node": "^7.36.0",
+    "@sentry/tracing": "^7.36.0",
     "async-mutex": "^0.4.0",
-    "axios": "^0.27.2",
-    "browser-sync": "2.27.10",
-    "chalk": "^4.1.2",
+    "axios": "^1.3.2",
+    "browser-sync": "^2.27.11",
     "command-line-args": "^5.2.1",
     "command-line-usage": "^6.1.3",
     "cross-spawn": "^7.0.3",
     "detect-port": "^1.5.1",
-    "figlet": "^1.5.0",
+    "figlet": "^1.5.2",
     "form-data": "^4.0.0",
-    "http-proxy-middleware": "2.0.6",
-    "inquirer": "^8.2.1",
+    "kleur": "^4.1.5",
+    "lodash.pick": "^4.4.0",
     "node-watch": "^0.7.3",
-    "update-notifier": "^4.1.1",
-    "ws": "^8.11.0"
-  },
-  "devDependencies": {
-    "@ava/babel": "^2.0.0",
-    "ava": "^3.15.0",
-    "axios-mock-adapter": "^1.21.2",
-    "coveralls": "^3.1.0",
-    "eslint": "^8.29.0",
-    "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-plugin-ava": "^13.2.0",
-    "eslint-plugin-import": "^2.23.2",
-    "esm": "^3.2.25",
-    "husky": "^8.0.2",
-    "mock-inquirer": "^1.0.3",
-    "mock-require": "^3.0.3",
-    "nyc": "^15.1.0",
-    "sinon": "^15.0.0"
-  },
-  "ava": {
-    "babel": true,
-    "require": [
-      "esm",
-      "./test/mock/backend.js"
-    ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm test",
-      "pre-push": "npm test"
-    }
+    "prompts": "^2.4.2",
+    "simple-update-notifier": "^1.1.0",
+    "ws": "^8.12.0"
   }
 }
