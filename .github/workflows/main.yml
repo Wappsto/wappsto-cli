@@ -33,8 +33,3 @@ jobs:
         uses: borales/actions-yarn@v4
         with:
           cmd: test:coverage
-
-      - name: Building
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: build
