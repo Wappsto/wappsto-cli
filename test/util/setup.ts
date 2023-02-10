@@ -16,6 +16,7 @@ export async function setup(
     mkdtemp(join(tmpdir(), 'wappsto-cli-test-'), (err, directory) => {
       if (err) {
         reject(err);
+        return;
       }
 
       process.chdir(directory);

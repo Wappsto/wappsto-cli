@@ -40,7 +40,7 @@ export default class Model {
     return [];
   }
 
-  toJSON(full: boolean = true): any {
+  toJSON(full: boolean = true): Record<string, any> {
     const meta = Object.assign(
       {},
       pick(this.meta, ['id', 'type', 'version', 'revision', 'updated'])
@@ -55,17 +55,13 @@ export default class Model {
   parse(data: any): void {
     try {
       Object.assign(this, pick(data, this.getAttributes().concat(['meta'])));
-    } catch (err: any) {
+    } catch (err) {
       this.handleException(`Failed to parse data in ${this.meta.type}`, err);
     }
   }
 
   save(): void {
-    let data = this.toJSON();
-    if (typeof data !== 'string') {
-      data = JSON.stringify(data);
-    }
-    saveFile(`${this.cacheFolder}${this.meta.type}`, data);
+    saveFile(`${this.cacheFolder}${this.meta.type}`, JSON.stringify(this.toJSON()));
   }
 
   load(): void {
@@ -87,7 +83,7 @@ export default class Model {
       const response = await HTTP.get(`${this.url}?expand=2&verbose=true`);
       this.parse(response.data);
       return true;
-    } catch (err: any) {
+    } catch (err) {
       this.handleException(`Failed to fetch ${this.meta.type}`, err);
     }
 

@@ -743,11 +743,11 @@ export default class Wapp {
   }
 
   async handleStreamEvent(data: any): Promise<void> {
-    if (data && data.application !== this.application.id) {
+    if (data?.application !== this.application.id) {
       return;
     }
 
-    if (data && data.installation !== this.installation.id) {
+    if (data?.installation !== this.installation.id) {
       return;
     }
 

@@ -85,7 +85,7 @@ export default class Version extends Model implements Version21 {
     }
   }
 
-  toJSON(full: boolean = true): any {
+  toJSON(full: boolean = true): Record<string, any> {
     const data = super.toJSON(full);
     if (full) {
       data.file = [];

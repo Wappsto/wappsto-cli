@@ -26,7 +26,7 @@ export default class Application extends Model implements Application21 {
     return ['name', 'name_identifier', 'version'];
   }
 
-  toJSON(full: boolean = true): any {
+  toJSON(full: boolean = true): Record<string, any> {
     const data = super.toJSON(full);
     if (full) {
       data.version = [];

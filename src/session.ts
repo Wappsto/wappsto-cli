@@ -1,5 +1,6 @@
 import Model from './model';
 import HTTP from './util/http';
+import { saveFile } from './util/files';
 import { Session21 } from './types/session.d';
 
 export default class Session extends Model implements Session21 {
@@ -29,8 +30,12 @@ export default class Session extends Model implements Session21 {
     HTTP.removeHeader('x-session');
   }
 
-  toJSON(full: boolean = true): any {
-    return this.id;
+  toJSON(full: boolean = true): Record<string, any> {
+    return { id: this.id };
+  }
+
+  save(): void {
+    saveFile(`${this.cacheFolder}session`, this.id);
   }
 
   parse(data: any) {
