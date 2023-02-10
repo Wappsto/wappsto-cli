@@ -34,17 +34,17 @@
     "wapp": "dist/index.js"
   },
   "scripts": {
-    "uv": "echo \"const VERSION = '$npm_package_version';\nexport { VERSION };\" > src/util/version.ts",
+    "make:version": "echo \"const VERSION = '$npm_package_version';\nexport { VERSION };\" > src/util/version.ts",
     "prepack": "yarn sentry-cli releases new wappsto-cli@$npm_package_version && sentry-cli releases files wappsto-cli@$npm_package_version upload-sourcemaps dist/*.map && yarn sentry-cli releases finalize wappsto-cli@$npm_package_version",
-    "build": "yarn uv; dts build",
+    "build": "yarn run make:version; dts build",
     "lint": "dts lint src test",
-    "lint:fix": "yarn lint --fix",
+    "lint:fix": "yarn run lint --fix",
     "prettify": "yarn run prettier -w src/ test/",
-    "prepare": "yarn build",
+    "prepare": "yarn run build",
     "start": "dts watch",
     "test": "dts test",
     "coverage": "dts test --coverage",
-    "test:coverage": "yarn coverage",
+    "test:coverage": "yarn run coverage",
     "generate-types": "npx json2ts -i schemas -o src/types"
   },
   "husky": {
