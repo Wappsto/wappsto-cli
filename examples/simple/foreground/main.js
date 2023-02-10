@@ -1,3 +1,3 @@
 let wappsto = new Wappsto();
 
-console.log("Wapp Started");
+console.log('Wapp Started');

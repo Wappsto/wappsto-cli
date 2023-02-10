@@ -1,7 +1,5 @@
 const Wappsto = require('wappsto-wapp');
 
-Wappsto.startLogging();
-
 console.log('Background wapp started.');
 
 setInterval(() => {

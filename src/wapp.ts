@@ -274,7 +274,7 @@ export default class Wapp {
       createFolder(`${path}/.`);
 
       if (createExamples && exampleFiles[f]) {
-        const exPath = `${getDirName()}/../examples/simple/${f}`;
+        const exPath = `${getDirName()}/../examples/bare/${f}`;
 
         if (overwrite === undefined) {
           for (let j = 0; j < exampleFiles[f].length; j += 1) {
