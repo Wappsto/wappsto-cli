@@ -1,7 +1,0 @@
-language: node_js
-node_js:
-  - "16"
-  - "17"
-  - "18"
-  - "19"
-after_script: "yarn test:coverage"
