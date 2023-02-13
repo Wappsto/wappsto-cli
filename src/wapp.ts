@@ -43,7 +43,6 @@ export default class Wapp {
   ignore_file: string;
   wappStream?: Stream;
   userStream?: Stream;
-  sessionCallback: any;
 
   constructor(remote: boolean = true) {
     this.mutex = new Mutex();
@@ -738,9 +737,6 @@ export default class Wapp {
     if (!ret) {
       return '';
     }
-    if (this.sessionCallback) {
-      this.sessionCallback(this.installation.session);
-    }
     return this.installation.session || '';
   }
 
@@ -884,11 +880,7 @@ export default class Wapp {
     }
   }
 
-  async openStream(sessionCallback?: any): Promise<void> {
-    if (sessionCallback) {
-      this.sessionCallback = sessionCallback;
-    }
-
+  async openStream(): Promise<void> {
     this.userStream = new Stream(
       this.wappsto,
       ['/notification', '/installation'],
