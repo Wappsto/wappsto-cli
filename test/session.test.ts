@@ -45,7 +45,11 @@ describe('Session', () => {
 
     await wapp.init();
 
-    expect(loadFile(`${Config.cacheFolder()}/session`)).toEqual('session');
+    expect(loadFile(`${Config.cacheFolder()}/session`)).toEqual(
+      JSON.stringify({
+        meta: { id: 'session', type: 'session' },
+      })
+    );
 
     expect(mockedAxios.post).toHaveBeenCalledTimes(1);
     expect(mockedAxios.post).toHaveBeenCalledWith(
@@ -103,7 +107,11 @@ describe('Session', () => {
     const wapp = new Wapp();
     await wapp.init();
 
-    expect(loadFile(`${Config.cacheFolder()}/session`)).toEqual('session');
+    expect(loadFile(`${Config.cacheFolder()}/session`)).toEqual(
+      JSON.stringify({
+        meta: { id: 'session', type: 'session' },
+      })
+    );
 
     expect(mockedAxios.get).toHaveBeenCalledTimes(1);
     expect(mockedAxios.get).toHaveBeenCalledWith(
