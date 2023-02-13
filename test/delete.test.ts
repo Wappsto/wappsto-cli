@@ -38,6 +38,18 @@ describe('Delete', () => {
     console.log = org;
   });
 
+  it('will not delete when user breaks', async () => {
+    createWapp();
+
+    prompts.inject([new Error('abort')]);
+
+    await Delete([]);
+
+    expect(mockedAxios.post).toHaveBeenCalledTimes(0);
+    expect(mockedAxios.get).toHaveBeenCalledTimes(1);
+    expect(mockedAxios.delete).toHaveBeenCalledTimes(0);
+  });
+
   it('will not delete missing wapp', async () => {
     await Delete([]);
 
@@ -88,6 +100,47 @@ describe('Delete', () => {
 
     expect(directoryExists(Config.cacheFolder())).toBe(true);
     expect(fileExists(`${Config.cacheFolder()}/session`)).toBe(true);
+
+    expect(mockedAxios.post).toHaveBeenCalledTimes(0);
+    expect(mockedAxios.get).toHaveBeenCalledTimes(1);
+    expect(mockedAxios.delete).toHaveBeenCalledTimes(3);
+    expect(mockedAxios.delete).toHaveBeenNthCalledWith(
+      1,
+      'https://wappsto.com/services/2.1/version/98e68cd8-74a6-4841-bdd4-70c29f068056',
+      {}
+    );
+    expect(mockedAxios.delete).toHaveBeenNthCalledWith(
+      2,
+      'https://wappsto.com/services/2.1/installation?this_version_id=98e68cd8-74a6-4841-bdd4-70c29f068056',
+      {}
+    );
+    expect(mockedAxios.delete).toHaveBeenNthCalledWith(
+      3,
+      'https://wappsto.com/services/2.1/application/4c8ebb21-524b-4fc0-bbc5-015da2e5ca60',
+      {}
+    );
+  });
+
+  it('can handle deleting failed', async () => {
+    mockedAxios.get.mockResolvedValueOnce({
+      data: [],
+    });
+    mockedAxios.post
+      .mockResolvedValueOnce({
+        data: applicationResponse,
+      })
+      .mockResolvedValueOnce({
+        data: installationResponse,
+      });
+    mockedAxios.delete.mockRejectedValueOnce({
+      data: {}
+    });
+
+    createWapp();
+
+    prompts.inject([true, true, true]);
+
+    await Delete([]);
 
     expect(mockedAxios.post).toHaveBeenCalledTimes(0);
     expect(mockedAxios.get).toHaveBeenCalledTimes(1);

@@ -19,7 +19,6 @@ export default class PublishWapp extends Wapp {
 
     const answers = await questions.askPublishWapp(this.manifest.version_app);
     if (answers === false) {
-      /* istanbul ignore next */
       return;
     }
 

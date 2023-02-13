@@ -9,7 +9,6 @@ export default class DeleteWapp extends Wapp {
     const answers = await questions.deleteWapp();
     t.done();
     if (answers === false) {
-      /* istanbul ignore next */
       return;
     }
 
