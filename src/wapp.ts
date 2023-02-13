@@ -1,9 +1,5 @@
 import { Mutex } from 'async-mutex';
 import pick from 'lodash.pick';
-import Stream from './stream';
-import Installation from './installation';
-import Application from './application';
-import Version from './version';
 import Spinner from './util/spinner';
 import {
   loadJsonFile,
@@ -22,11 +18,16 @@ import {
 import tui from './util/tui';
 import questions from './util/questions';
 import Trace, { setUser } from './util/trace';
+import getDirName from './util/getDirName';
+import { compareVersions, validateFile } from './util/helpers';
+import { Manifest } from './types/custom.d';
+import Version from './version';
 import Wappsto from './wappsto';
 import Config from './config';
 import File from './file';
-import { compareVersions, validateFile } from './util/helpers';
-import getDirName from './util/getDirName';
+import Stream from './stream';
+import Installation from './installation';
+import Application from './application';
 
 export default class Wapp {
   mutex: Mutex;
@@ -38,7 +39,7 @@ export default class Wapp {
   wappsto: Wappsto;
   application: Application;
   installation: Installation;
-  manifest: Record<string, any>;
+  manifest: Manifest;
   ignore_file: string;
   wappStream?: Stream;
   userStream?: Stream;
@@ -61,7 +62,7 @@ export default class Wapp {
       loadJsonFile(`${this.cacheFolder}application`)
     );
     this.installation = new Installation();
-    this.manifest = loadJsonFile('manifest.json');
+    this.manifest = loadJsonFile('manifest.json') as Manifest;
     this.ignore_file = `${this.cacheFolder}\nnode_modules\n`;
   }
 
@@ -159,9 +160,9 @@ export default class Wapp {
         status.setMessage('Creating Wapp, please wait...');
         status.start();
 
-        if (this.manifest.meta) {
+        /*if (this.manifest.meta) {
           this.saveManifest();
-        }
+        }*/
 
         new_app = await Application.create(this.manifest);
         if (!new_app) {
@@ -597,7 +598,6 @@ export default class Wapp {
           });
         } catch (err) {
           ts.done(err);
-          /* istanbul ignore next */
           resolve();
         }
       }, 500);
@@ -627,7 +627,7 @@ export default class Wapp {
     status.setMessage('Publishing new version, please wait...');
     status.start();
 
-    const res = await this.application.publish(answers.version);
+    const res = await this.application.publish(answers.version, answers.change);
     if (res) {
       this.saveApplication();
       status.stop();
@@ -649,9 +649,9 @@ export default class Wapp {
 
     t = this.measure('Ask the human');
     const answer = await questions.configureWapp(
+      this.manifest,
       this.application.getOAuthExternal(),
-      this.application.getOAuthClient(),
-      this.manifest.permission
+      this.application.getOAuthClient()
     );
     t.done();
 
@@ -659,26 +659,30 @@ export default class Wapp {
       return;
     }
 
-    if (answer.extsync) {
-      t = this.measure('setExtSync');
-      this.installation.setExtSync(answer.extsync);
-      t.done();
-    } else if (answer.api_site) {
+    if (answer.api_site) {
       t = this.measure('createOauthExternal');
       this.application.createOauthExternal(answer);
-      t.done();
     } else if (answer.redirect_uri) {
       t = this.measure('createOauthClient');
       this.application.createOauthClient(answer);
-      t.done();
     } else if (answer.create) {
       t = this.measure('changePermission');
       this.manifest.permission = answer;
       this.saveManifest();
       this.application.getVersion().permission = answer;
       await this.application.getVersion().update();
-      t.done();
+    } else if (answer.general) {
+      t = this.measure('changeDescription');
+      this.manifest.name = answer.name;
+      this.manifest.author = answer.author;
+      this.manifest.description.general = answer.general;
+      this.manifest.description.foreground = answer.foreground;
+      this.manifest.description.background = answer.background;
+      this.saveManifest();
+      this.application.getVersion().parse(this.manifest);
+      await this.application.getVersion().update();
     }
+    t.done();
   }
 
   async delete(): Promise<void> {

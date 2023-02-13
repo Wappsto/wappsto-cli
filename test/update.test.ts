@@ -1,6 +1,10 @@
 import axios from 'axios';
 import { setup, teardown, createWapp } from './util/setup';
-import { applicationResponse, installationResponse, versionResponse } from './util/response';
+import {
+  applicationResponse,
+  installationResponse,
+  versionResponse,
+} from './util/response';
 import update from '../src/cmd/update';
 
 describe('Update', () => {

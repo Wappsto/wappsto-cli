@@ -74,16 +74,13 @@ export default class Wappsto {
         }
       );
     } catch (err: any) {
-      /* istanbul ignore next */
       switch (err.response.data.code) {
         case 9900071:
-          /* istanbul ignore next */
           setTimeout(async () => {
             await this.updateACL(id, addID, create, method);
           }, 100);
           break;
         default:
-          /* istanbul ignore next */
           tui.showError('Failed to update ACL', err);
       }
     }
@@ -106,7 +103,6 @@ export default class Wappsto {
         { restriction: aclRestriction }
       );
     } catch (err) {
-      /* istanbul ignore next */
       tui.showError('Failed to update ACL Restriction', err);
     }
   }
@@ -117,14 +113,13 @@ export default class Wappsto {
     method: string,
     quantity: string,
     notShared: string
-  ): Promise<any> {
+  ): Promise<Record<string, any>> {
     let result = {};
     try {
       const url = `${type}?expand=0&${search}&method=[${method}]&quantity=${quantity}&not_shared_with=${notShared}`;
       const response = await HTTP.get(`${this.HOST}/services/${url}`);
       result = response.data;
     } catch (err) {
-      /* istanbul ignore next */
       tui.showError('Failed to find', err);
     }
     return result;
@@ -139,13 +134,11 @@ export default class Wappsto {
         read: status,
       });
     } catch (err: any) {
-      /* istanbul ignore next */
       if (
         !err.response ||
         !err.response.data ||
         err.response.data.code !== 9900147
       ) {
-        /* istanbul ignore next */
         tui.showError('Failed to read notification', err);
       }
     }

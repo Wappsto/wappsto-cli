@@ -210,9 +210,12 @@ export default class Application extends Model implements Application21 {
     });
   }
 
-  async publish(newVersion: string): Promise<boolean> {
+  async publish(newVersion: string, change: string): Promise<boolean> {
     const version = this.getVersion();
     version.version_app = newVersion;
+    if (version.description) {
+      version.description.version = change;
+    }
     if (await version.update()) {
       return version.publish();
     }

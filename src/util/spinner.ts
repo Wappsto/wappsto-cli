@@ -2,7 +2,7 @@ import { clearLine, cursorTo } from 'node:readline';
 import tui from './tui';
 
 export default class Spinner {
-  timer: any;
+  timer?: ReturnType<typeof setInterval>;
   title: string;
   frames: string[] = ['|', '/', '-', '\\'];
 

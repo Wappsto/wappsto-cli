@@ -35,8 +35,8 @@ export default class Model {
     return `${this.HOST}/${this.id}`;
   }
 
-  /* istanbul ignore next */
   public getAttributes(): string[] {
+    /* istanbul ignore next */
     return [];
   }
 
@@ -111,7 +111,6 @@ export default class Model {
     try {
       await HTTP.delete(`${this.url}`);
     } catch (err: any) {
-      /* istanbul ignore next */
       switch (err.response.data.code) {
         case 300020:
           // Installation already deleted
@@ -122,7 +121,6 @@ export default class Model {
         case 300024:
           throw Error('Can not delete application that is published!');
         default:
-          /* istanbul ignore next */
           this.handleException(
             `Failed to delete ${this.meta.type}: ${this.id}`,
             err

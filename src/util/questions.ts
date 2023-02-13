@@ -1,6 +1,6 @@
-import prompt from 'prompts';
+import prompts from 'prompts';
 import tui from './tui';
-import { Permission } from '../types/custom.d';
+import { Manifest } from '../types/custom.d';
 import { OauthExternal21, OauthClient21 } from '../types/application.d';
 import Trace from './trace';
 
@@ -12,7 +12,7 @@ type Request = {
 };
 
 class Questions {
-  private async ask(questions: any): Promise<any | false> {
+  private async ask(questions: any[]): Promise<any | false> {
     const t = new Trace('User Input', questions[0].message);
     return new Promise<any | false>((resolve) => {
       const onCancel = () => {
@@ -20,7 +20,7 @@ class Questions {
         resolve(false);
         return false;
       };
-      prompt(questions, { onCancel }).then((answers) => {
+      prompts(questions, { onCancel }).then((answers) => {
         t.done();
         resolve(answers);
       });
@@ -57,7 +57,10 @@ class Questions {
   }
 
   async askForNewWapp(
-    wapps: any[],
+    wapps: {
+      title: string;
+      value: string;
+    }[],
     present: boolean
   ): Promise<Record<string, any> | false> {
     const choices = [
@@ -133,7 +136,7 @@ class Questions {
         message: 'Please enter the Version of your Wapp:',
         initial: '0.0.1',
         validate: (answer: string) => {
-          if (/^\d\.\d\.\d$/.test(answer)) {
+          if (/^\d+\.\d+\.\d+$/.test(answer)) {
             return true;
           }
           return 'Version must be in the format: 1.1.1';
@@ -195,9 +198,9 @@ class Questions {
   }
 
   async configureWapp(
+    manifest: Manifest,
     oauthExternal: OauthExternal21[],
-    oauthClient: OauthClient21[],
-    permissions: Permission
+    oauthClient: OauthClient21[]
   ): Promise<Record<string, any> | false> {
     const external = oauthExternal[0] || {};
     const client = oauthClient[0] || {};
@@ -208,10 +211,7 @@ class Questions {
         type: 'select' as const,
         message: 'What do you want to configure?',
         choices: [
-          {
-            title: 'ExtSync',
-            value: 'extsync',
-          },
+          { title: 'Description', value: 'description' },
           {
             title: 'External OAuth',
             value: 'external_oauth',
@@ -222,17 +222,52 @@ class Questions {
       },
     ]);
 
-    const extSyncQuestions = [
-      {
-        name: 'extsync',
-        type: 'confirm' as const,
-        message: 'Should ExtSync be enabled for your Wapp?',
-      },
-    ];
-
+    /* istanbul ignore next */
     function validateEmptyString(input: string) {
       return input.length > 0 ? true : 'You must enter a valid string';
     }
+
+    const descriptionQuestions = [
+      {
+        name: 'name',
+        validate: validateEmptyString,
+        type: 'text',
+        initial: manifest.name,
+        message: 'Name of the wapp:',
+      },
+      {
+        name: 'author',
+        validate: validateEmptyString,
+        type: 'text',
+        initial: manifest.author,
+        message: 'Name of the Author:',
+      },
+      {
+        name: 'general',
+        validate: validateEmptyString,
+        type: 'text',
+        initial: manifest.description.general,
+        message: 'General description of your wapp:',
+      },
+      {
+        name: 'foreground',
+        validate: validateEmptyString,
+        type:
+          manifest.supported_features.indexOf('foreground') !== -1
+            ? 'text'
+            : null,
+        message: 'Foreground description of your Wapp:',
+      },
+      {
+        name: 'background',
+        validate: validateEmptyString,
+        type:
+          manifest.supported_features.indexOf('background') !== -1
+            ? 'text'
+            : null,
+        message: 'Background description of your Wapp:',
+      },
+    ];
 
     const oauthExtQuestions = [
       {
@@ -333,27 +368,27 @@ class Questions {
           {
             title: 'Network',
             value: 'network',
-            selected: permissions?.create?.includes('network'),
+            selected: manifest.permission?.create?.includes('network'),
           },
           {
             title: 'Data',
             value: 'data',
-            selected: permissions?.create?.includes('data'),
+            selected: manifest.permission?.create?.includes('data'),
           },
           {
             title: 'stream',
             value: 'stream',
-            selected: permissions?.create?.includes('stream'),
+            selected: manifest.permission?.create?.includes('stream'),
           },
           {
             title: 'Analytic',
             value: 'analytic',
-            selected: permissions?.create?.includes('analytic'),
+            selected: manifest.permission?.create?.includes('analytic'),
           },
           {
             title: 'Notification',
             value: 'notification',
-            selected: permissions?.create?.includes('notification'),
+            selected: manifest.permission?.create?.includes('notification'),
           },
         ],
       },
@@ -361,13 +396,13 @@ class Questions {
         type: 'confirm' as const,
         name: 'permit_to_send_email',
         message: 'Do your Wapp need to send email?',
-        initial: permissions?.permit_to_send_email,
+        initial: manifest.permission?.permit_to_send_email,
       },
       {
         type: 'confirm' as const,
         name: 'permit_to_send_sms',
         message: 'Do your Wapp need to send SMS?',
-        initial: permissions?.permit_to_send_sms,
+        initial: manifest.permission?.permit_to_send_sms,
       },
     ];
 
@@ -378,9 +413,8 @@ class Questions {
         return this.ask(oauthClientQuestions);
       case 'permissions':
         return this.ask(permissionQuestions);
-      case 'extsync':
       default:
-        return this.ask(extSyncQuestions);
+        return this.ask(descriptionQuestions);
     }
   }
 
@@ -521,7 +555,9 @@ class Questions {
     ]);
   }
 
-  askPublishWapp(oldVersion: string): Promise<{ version: string } | false> {
+  askPublishWapp(
+    oldVersion: string
+  ): Promise<{ version: string; change: string } | false> {
     return this.ask([
       {
         name: 'version',
@@ -529,11 +565,16 @@ class Questions {
         initial: oldVersion,
         message: `The version of the wapp is ${oldVersion}, what is the new version`,
         validate: (answer: string) => {
-          if (/^\d\.\d\.\d$/.test(answer)) {
+          if (/^\d+\.\d+\.\d+$/.test(answer)) {
             return true;
           }
           return 'Version must be in the format: 1.1.1';
         },
+      },
+      {
+        name: 'change',
+        type: 'text',
+        message: 'What changed in this version',
       },
     ]);
   }

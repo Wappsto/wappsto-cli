@@ -63,7 +63,7 @@ describe('Publish', () => {
 
     createWapp();
 
-    prompts.inject(['2.2.2']);
+    prompts.inject(['2.2.2', 'the new verison']);
 
     await publish([]);
 
@@ -77,7 +77,7 @@ describe('Publish', () => {
         description: {
           foreground: 'Wapp Foreground',
           general: 'Wapp description',
-          version: '',
+          version: 'the new verison',
           widget: '',
         },
         max_number_installation: 1,

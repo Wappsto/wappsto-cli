@@ -66,7 +66,7 @@ export function loadFile(file: string): string {
   }
 }
 
-export function loadJsonFile(file: string): any {
+export function loadJsonFile(file: string): Record<string, any> {
   try {
     return JSON.parse(readFileSync(file, 'utf8'));
   } catch (err) {
@@ -78,7 +78,7 @@ export function saveFile(file: string, data: string) {
   writeFileSync(file, data);
 }
 
-export function saveJsonFile(file: string, data: any) {
+export function saveJsonFile(file: string, data: Record<string, any>) {
   writeFileSync(file, JSON.stringify(data, null, 4));
 }
 
