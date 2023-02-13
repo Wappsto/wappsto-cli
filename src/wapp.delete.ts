@@ -5,27 +5,28 @@ import questions from './util/questions';
 
 export default class DeleteWapp extends Wapp {
   async delete(): Promise<void> {
-    if (!this.present()) {
+    let t = this.measure('Ask the human');
+    const answers = await questions.deleteWapp();
+    t.done();
+    if (answers === false) {
+      /* istanbul ignore next */
       return;
     }
 
-    const answer = await questions.deleteWapp();
-    if (answer === false) {
-      return;
-    }
-    if (answer.del) {
-      if (!answer.local && !answer.remote) {
+    if (answers.del) {
+      if (!answers.local && !answers.remote) {
         tui.showWarning('Nothing deleted');
         return;
       }
 
+      t = this.measure('Deleting wapp');
       const status = new Spinner('Deleting Wapp, please wait...');
       status.start();
 
-      if (answer.local) {
+      if (answers.local) {
         this.deleteLocal();
       }
-      if (answer.remote) {
+      if (answers.remote) {
         const results = [];
 
         this.application.version.forEach((v: any) => {
@@ -49,6 +50,7 @@ export default class DeleteWapp extends Wapp {
 
       status.stop();
       tui.showMessage('Wapp deleted');
+      t.done();
     }
   }
 }

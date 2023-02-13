@@ -46,6 +46,18 @@ describe('Delete', () => {
     expect(mockedAxios.delete).toHaveBeenCalledTimes(0);
   });
 
+  it('will not delete when answering no', async () => {
+    createWapp();
+
+    prompts.inject([true, false, false]);
+
+    await Delete([]);
+
+    expect(mockedAxios.post).toHaveBeenCalledTimes(0);
+    expect(mockedAxios.get).toHaveBeenCalledTimes(1);
+    expect(mockedAxios.delete).toHaveBeenCalledTimes(0);
+  });
+
   it('can delete a wapp', async () => {
     mockedAxios.get.mockResolvedValueOnce({
       data: [],
@@ -57,6 +69,9 @@ describe('Delete', () => {
       .mockResolvedValueOnce({
         data: installationResponse,
       });
+    mockedAxios.delete.mockResolvedValue({
+      data: {}
+    });
 
     createWapp();
 

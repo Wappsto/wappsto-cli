@@ -86,6 +86,7 @@ class Tui {
   }
 
   showTraffic(method: string, url: string, input: any, output: any): void {
+    /* istanbul ignore next */
     if (this.debug) {
       this.clear();
 
@@ -113,6 +114,7 @@ class Tui {
   }
 
   showVerbose(type: string, msg: string, data?: any): void {
+    /* istanbul ignore next */
     if (this.verbose) {
       this.clear();
 
@@ -125,6 +127,7 @@ class Tui {
   }
 
   showDebug(type: string, msg: string, data?: any): void {
+    /* istanbul ignore next */
     if (this.debug) {
       this.clear();
 

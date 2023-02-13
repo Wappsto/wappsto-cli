@@ -57,8 +57,7 @@ describe('Configure', () => {
 
     await configure([]);
 
-    const manifest_file = loadJsonFile('./manifest.json');
-    expect(manifest_file).toEqual({
+    expect(loadJsonFile('./manifest.json')).toEqual({
       name: 'new name',
       author: 'new author',
       version_app: '1.2.3',
