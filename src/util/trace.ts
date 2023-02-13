@@ -4,6 +4,8 @@ import { VERSION } from './version';
 import Config from '../config';
 import Session from '../session';
 
+/* istanbul ignore file */
+
 let transaction: any;
 
 export function startTrace(command: string) {
