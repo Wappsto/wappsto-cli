@@ -1,6 +1,6 @@
 import commandLineArgs from 'command-line-args';
 import commandLineUsage from 'command-line-usage';
-import Wapp from '../wapp';
+import Wapp from '../wapp.configure';
 import tui from '../util/tui';
 
 const optionDefinitions = [

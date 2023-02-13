@@ -7,7 +7,7 @@ import watch from 'node-watch';
 import detect from 'detect-port';
 import spawn from 'cross-spawn';
 import browserSync from 'browser-sync';
-import Wapp from '../wapp';
+import Wapp from '../wapp.serve';
 import Config from '../config';
 import tui from '../util/tui';
 import { directoryExists, fileExists, loadFile } from '../util/files';
