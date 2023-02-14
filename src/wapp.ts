@@ -30,8 +30,10 @@ export default class Wapp {
   installation: Installation;
   manifest: Manifest;
   ignore_file: string;
+  remote: boolean = false;
 
   constructor(remote: boolean = true) {
+    this.remote = remote;
     this.mutex = new Mutex();
     this.cacheFolder = Config.cacheFolder();
     this.initCacheFolder();

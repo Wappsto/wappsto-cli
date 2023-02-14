@@ -162,7 +162,19 @@ export default class Stream {
 
   async parseStreamEvent(message: any, callback: any) {
     try {
-      const event = JSON.parse(message);
+      let event;
+      try {
+        if (typeof message === 'string') {
+          event = JSON.parse(message);
+        } else {
+          event = JSON.parse(message.toString());
+        }
+      } catch (err) {
+        console.log(err);
+        event = message;
+      }
+
+      tui.showStream(event);
 
       if (!event.meta || !event.meta.id) {
         return;
@@ -177,6 +189,11 @@ export default class Stream {
         return;
       }
       const { data } = event;
+
+      tui.showVerbose(
+        'STREAM',
+        `Got a ${event.event} event for ${event.meta_object.type}`
+      );
 
       switch (event.meta_object.type) {
         case 'state':

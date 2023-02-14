@@ -85,6 +85,17 @@ class Tui {
     this.showMessage(res);
   }
 
+  showStream(event: any): void {
+    /* istanbul ignore next */
+    if (this.debug) {
+      this.clear();
+
+      this.write(`${yellow('T')} ${yellow('STREAM')} - `);
+        this.write(JSON.stringify(event));
+        this.write('\n');
+    }
+  }
+
   showTraffic(method: string, url: string, input: any, output: any): void {
     /* istanbul ignore next */
     if (this.debug) {
