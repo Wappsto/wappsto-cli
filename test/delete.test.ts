@@ -82,7 +82,7 @@ describe('Delete', () => {
         data: installationResponse,
       });
     mockedAxios.delete.mockResolvedValue({
-      data: {}
+      data: {},
     });
 
     createWapp();
@@ -133,7 +133,7 @@ describe('Delete', () => {
         data: installationResponse,
       });
     mockedAxios.delete.mockRejectedValueOnce({
-      data: {}
+      data: {},
     });
 
     createWapp();

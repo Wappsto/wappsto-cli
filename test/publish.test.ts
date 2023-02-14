@@ -36,7 +36,35 @@ describe('Publish', () => {
     console.log = org;
   });
 
+  it('will not publish when user breaks', async () => {
+    mockedAxios.get.mockResolvedValueOnce({
+      data: [],
+    });
+
+    createWapp();
+
+    prompts.inject([new Error('abort')]);
+
+    await publish([]);
+
+    expect(mockedAxios.post).toHaveBeenCalledTimes(0);
+    expect(mockedAxios.get).toHaveBeenCalledTimes(2);
+    expect(mockedAxios.delete).toHaveBeenCalledTimes(0);
+  });
+
   it('will not publish missing wapp', async () => {
+    await publish([]);
+
+    expect(mockedAxios.patch).toHaveBeenCalledTimes(0);
+    expect(mockedAxios.post).toHaveBeenCalledTimes(0);
+    expect(mockedAxios.get).toHaveBeenCalledTimes(1);
+    expect(mockedAxios.delete).toHaveBeenCalledTimes(0);
+  });
+
+  it('will not publish when loading error', async () => {
+    mockedAxios.get.mockRejectedValueOnce({
+      data: [],
+    });
     await publish([]);
 
     expect(mockedAxios.patch).toHaveBeenCalledTimes(0);

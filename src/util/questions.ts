@@ -56,67 +56,11 @@ class Questions {
     ]);
   }
 
-  async askForNewWapp(
-    wapps: {
-      title: string;
-      value: string;
-    }[],
-    present: boolean
-  ): Promise<Record<string, any> | false> {
-    const choices = [
-      {
-        title: 'Create new Wapp',
-        value: 'new',
-      },
-    ];
-
-    if (wapps.length > 0) {
-      choices.push({
-        title: 'Download an existing Wapp',
-        value: 'download',
-      });
-    }
-    if (present) {
-      tui.showWarning('It seams like you already have a wapp in this folder!');
-      const override = await this.ask([
-        {
-          name: 'override',
-          type: 'confirm' as const,
-          initial: () => false,
-          message: 'Do you want to delete your local wapp?',
-        },
-      ]);
-      if (override === false) {
-        return false;
-      }
-      if (!override.override) {
-        choices.push({
-          title: 'Generate a new Wapp from existing wapp',
-          value: 'generate',
-        });
-      }
-    }
-
-    const ifNew = (values: any) =>
-      values.create === 'new' || values.create === undefined;
-
+  private askForNewWapp() {
     return this.ask([
       {
-        message: 'How do you want to create the Wapp?',
-        name: 'create',
-        type: present || wapps.length !== 0 ? 'select' : null,
-        choices,
-      },
-      {
-        name: 'wapp',
-        type: (prev: any, values: any) =>
-          values.create === 'download' ? 'select' : null,
-        message: 'Please choose the wapp to download:',
-        choices: wapps,
-      },
-      {
         name: 'name',
-        type: (prev: any, values: any) => (ifNew(values) ? 'text' : null),
+        type: 'text',
         message: 'Please enter the name of your Wapp:',
         validate: (answer: string) => {
           if (answer === '') {
@@ -127,12 +71,12 @@ class Questions {
       },
       {
         name: 'author',
-        type: (prev: any, values: any) => (ifNew(values) ? 'text' : null),
+        type: 'text',
         message: 'Please enter the Author of your Wapp:',
       },
       {
         name: 'version',
-        type: (prev: any, values: any) => (ifNew(values) ? 'text' : null),
+        type: 'text',
         message: 'Please enter the Version of your Wapp:',
         initial: '0.0.1',
         validate: (answer: string) => {
@@ -144,8 +88,7 @@ class Questions {
       },
       {
         name: 'features',
-        type: (prev: any, values: any) =>
-          ifNew(values) ? 'multiselect' : null,
+        type: 'multiselect',
         message: 'Please choose features for the Wapp:',
         choices: [
           {
@@ -167,34 +110,158 @@ class Questions {
       },
       {
         name: 'general',
-        type: (prev: any, values: any) => (ifNew(values) ? 'text' : null),
+        type: 'text',
         message: 'Please enter a general description about your Wapp:',
       },
       {
         name: 'foreground',
         type: (prev: any, values: any) =>
-          ifNew(values) && values.features.indexOf('foreground') !== -1
-            ? 'text'
-            : null,
+          values.features.indexOf('foreground') !== -1 ? 'text' : null,
         message:
           'Please enter a description about your foreground part of your Wapp:',
       },
       {
         name: 'background',
         type: (prev: any, values: any) =>
-          ifNew(values) && values.features.indexOf('background') !== -1
-            ? 'text'
-            : null,
+          values.features.indexOf('background') !== -1 ? 'text' : null,
         message:
           'Please enter a description about your background part of your Wapp:',
       },
       {
         name: 'examples',
-        type: (prev: any, values: any) => (ifNew(values) ? 'confirm' : null),
+        type: 'confirm',
         message: 'Generate example files for the Wapp?',
         initial: false,
       },
     ]);
+  }
+
+  async askCreateWapp(
+    wapps: {
+      title: string;
+      value: string;
+    }[],
+    present: boolean
+  ): Promise<Record<string, any> | false> {
+    let newWapp = true;
+    if (present) {
+      tui.showWarning('It seams like you already have a wapp in this folder!');
+      const override = await this.ask([
+        {
+          name: 'override',
+          type: 'confirm' as const,
+          initial: () => false,
+          message: 'Do you want to delete your local wapp?',
+        },
+      ]);
+      if (override === false) {
+        return false;
+      }
+      if (!override.override) {
+        newWapp = false;
+      }
+    }
+
+    if (newWapp) {
+      let createNew = true;
+
+      if (wapps.length > 0) {
+        const answer = await this.ask([
+          {
+            message: 'How do you want to create the Wapp?',
+            name: 'create',
+            type: present || wapps.length !== 0 ? 'select' : null,
+            choices: [
+              {
+                title: 'Create new Wapp',
+                value: 'new',
+              },
+              {
+                title: 'Download an existing Wapp',
+                value: 'download',
+              },
+            ],
+          },
+        ]);
+        if (answer === false) {
+          return false;
+        }
+        if (answer.create === 'download') {
+          createNew = false;
+        }
+      }
+
+      let answers;
+      if (createNew) {
+        answers = await this.askForNewWapp();
+      } else {
+        answers = await this.ask([
+          {
+            name: 'wapp',
+            type: 'select',
+            message: 'Please choose the wapp to download:',
+            choices: wapps,
+          },
+        ]);
+      }
+
+      if (answers !== false) {
+        answers.create = createNew ? 'new' : 'download';
+      }
+
+      return answers;
+    } else {
+      if (wapps.length > 0) {
+        const answer = await this.ask([
+          {
+            message: 'How do you want to use your current Wapp?',
+            name: 'create',
+            type: 'select',
+            choices: [
+              {
+                title: 'Generate a new Wapp from existing wapp',
+                value: 'generate',
+              },
+              {
+                title: 'Link your current wapp to an existing wapp',
+                value: 'link',
+              },
+            ],
+          },
+        ]);
+        if (answer !== false) {
+          if (answer.create === 'link') {
+            const wappAnswer = await this.ask([
+              {
+                name: 'wapp',
+                type: 'select',
+                message: 'Please choose the wapp to link with:',
+                choices: wapps,
+              },
+            ]);
+            if (wappAnswer === false) {
+              return false;
+            }
+            answer.wapp = wappAnswer.wapp;
+          }
+        }
+        return answer;
+      } else {
+        const answer = await this.ask([
+          {
+            name: 'create',
+            type: 'confirm',
+            message: 'Do you want to generate a new Wapp from existing wapp?',
+          },
+        ]);
+        if (answer === false || !answer.create) {
+          return false;
+        }
+        return {
+          create: 'generate',
+        };
+      }
+    }
   }
 
   async configureWapp(

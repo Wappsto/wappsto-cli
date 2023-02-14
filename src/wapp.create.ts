@@ -14,15 +14,13 @@ import {
 import Config from './config';
 import getDirName from './util/getDirName';
 
-
 export default class CreateWapp extends Wapp {
   async create(validate: boolean): Promise<void> {
     const listWapps: any[] = [];
     let updateFiles;
 
     let t = this.measure('Loading all applications');
-    const status = new Spinner('Loading Wapps, please wait...');
-    status.start();
+    const status = new Spinner('Loading Wapps');
 
     const wapps = await this.application.getAll();
     if (wapps.length) {
@@ -40,19 +38,21 @@ export default class CreateWapp extends Wapp {
     t.done();
 
     t = this.measure('Ask the human');
-    const newWapp = await questions.askForNewWapp(listWapps, this.present());
+    const newWapp = await questions.askCreateWapp(listWapps, this.present());
     if (newWapp === false) {
       return;
     }
     t.done();
 
+    let wapp;
     let new_app: Application | undefined;
     switch (newWapp.create) {
       case 'download':
         t = this.measure('Downloading wapp');
-        const wapp = wapps.find((w: Application) => w.id === newWapp.wapp);
+        wapp = wapps.find((w: Application) => w.id === newWapp.wapp);
         if (!wapp) {
           tui.showError('Failed to find Application from id');
+          t.done('not_found');
           return;
         }
         this.deleteLocal();
@@ -61,8 +61,7 @@ export default class CreateWapp extends Wapp {
         break;
       case 'generate':
         t = this.measure('Generating wapp');
-        status.setMessage('Creating Wapp, please wait...');
-        status.start();
+        status.setMessage('Creating Wapp,');
 
         new_app = await Application.create(this.manifest);
         if (!new_app) {
@@ -103,10 +102,35 @@ export default class CreateWapp extends Wapp {
         }
         t.done();
         break;
+      case 'link':
+        t = this.measure('Linking wapp');
+        status.setMessage('Linking Wapp');
+        wapp = wapps.find((w: Application) => w.id === newWapp.wapp);
+        if (!wapp) {
+          status.stop();
+          t.done('not_found');
+          tui.showError('Failed to find Application from id');
+          return;
+        }
+        this.application = wapp;
+
+        status.setMessage('Downloading installation');
+        if(await this.installation.fetchById(wapp.getVersion().id)) {
+          this.saveApplication();
+
+          status.stop();
+          tui.showMessage(`Wapp ${wapp.getVersion().name} linked`);
+        } else {
+          status.stop();
+        }
+
+        status.stop();
+        t.done();
+        break;
+      case 'new':
       default:
         t = this.measure('Creating wapp');
-        status.setMessage('Creating Wapp, please wait...');
-        status.start();
+        status.setMessage('Creating Wapp');
 
         new_app = await Application.create(newWapp);
         if (!new_app) {
@@ -156,9 +180,8 @@ export default class CreateWapp extends Wapp {
     }
   }
 
-  async downloadWapp(app: Application): Promise<void> {
+  private async downloadWapp(app: Application): Promise<void> {
     const status = new Spinner(`Downloading Wapp ${app.getVersion().name}`);
-    status.start();
 
     this.application = app;
     await this.createFolders();
@@ -169,22 +192,25 @@ export default class CreateWapp extends Wapp {
       const file = files[i];
 
       try {
-        status.setMessage(`Downloading ${file.name}, please wait...`);
+        status.setMessage(`Downloading ${file.path}`);
         await file.download();
       } catch (err) {
         file.deleteLocal();
       }
     }
 
-    status.setMessage('Downloading installation, please wait...');
-    await this.installation.fetchById(app.getVersion().id);
-    this.saveApplication();
+    status.setMessage('Downloading installation');
+    if(await this.installation.fetchById(app.getVersion().id)) {
+      this.saveApplication();
 
-    status.stop();
-    tui.showMessage(`Downloaded Wapp ${app.getVersion().name}`);
+      status.stop();
+      tui.showMessage(`Downloaded Wapp ${app.getVersion().name}`);
+    } else {
+      status.stop();
+    }
   }
 
-  async createFolders(
+  private async createFolders(
     folders?: string[],
     createExamples?: boolean,
     folderMapping?: { [key: string]: string }

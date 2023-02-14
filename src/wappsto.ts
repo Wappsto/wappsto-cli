@@ -15,8 +15,7 @@ export default class Wappsto {
   }
 
   async login(): Promise<void> {
-    const status = new Spinner('Authenticating you, please wait...');
-    status.start();
+    const status = new Spinner('Authenticating you');
 
     const validSession = await this.session.validate();
     status.stop();

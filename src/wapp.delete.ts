@@ -19,8 +19,7 @@ export default class DeleteWapp extends Wapp {
       }
 
       t = this.measure('Deleting wapp');
-      const status = new Spinner('Deleting Wapp, please wait...');
-      status.start();
+      const status = new Spinner('Deleting Wapp');
 
       if (answers.local) {
         this.deleteLocal();

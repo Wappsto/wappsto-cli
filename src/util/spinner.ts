@@ -2,20 +2,25 @@ import { clearLine, cursorTo } from 'node:readline';
 import tui from './tui';
 
 export default class Spinner {
-  timer?: ReturnType<typeof setInterval>;
-  title: string;
+  timer: ReturnType<typeof setInterval> | undefined;
+  title: string = '';
   frames: string[] = ['|', '/', '-', '\\'];
 
   constructor(title: string) {
-    this.title = title;
+    this.setMessage(title);
   }
 
   setMessage(message: string): void {
     tui.showVerbose('STATUS', message);
-    this.title = message;
+    this.title = `${message}, please wait...`;
+    this.start();
   }
 
   start(): void {
+    if (this.timer) {
+      return;
+    }
+
     const len = this.frames.length;
     let i = 0;
 
@@ -32,5 +37,6 @@ export default class Spinner {
     clearLine(process.stdout, 0);
     cursorTo(process.stdout, 0);
     clearInterval(this.timer);
+    this.timer = undefined;
   }
 }

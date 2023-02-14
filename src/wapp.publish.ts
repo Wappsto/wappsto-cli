@@ -9,11 +9,10 @@ export default class PublishWapp extends Wapp {
       return;
     }
 
-    const status = new Spinner('Loading application, please wait...');
-    status.start();
+    const status = new Spinner('Loading application');
     let res = await this.application.fetch();
     status.stop();
-    if(!res) {
+    if (!res) {
       return;
     }
 
@@ -22,8 +21,7 @@ export default class PublishWapp extends Wapp {
       return;
     }
 
-    status.setMessage('Publishing new version, please wait...');
-    status.start();
+    status.setMessage('Publishing new version');
 
     res = await this.application.publish(answers.version, answers.change);
     if (res) {

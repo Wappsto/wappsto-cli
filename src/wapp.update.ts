@@ -4,10 +4,7 @@ import Spinner from './util/spinner';
 import questions from './util/questions';
 import File from './file';
 import { compareVersions, validateFile } from './util/helpers';
-import {
-  getFileTimeISO,
-  getAllFiles,
-} from './util/files';
+import { getFileTimeISO, getAllFiles } from './util/files';
 
 export default class UpdateWapp extends Wapp {
   async update(reinstall?: boolean): Promise<File[]> {
@@ -25,10 +22,7 @@ export default class UpdateWapp extends Wapp {
     let t = this.measure('Compare versions');
     const localVersion = this.application.getVersion();
 
-    const status = new Spinner('Updating Wapp, please wait...');
-    status.start();
-
-    status.setMessage('Downloading version, please wait...');
+    const status = new Spinner('Downloading version');
     const remoteVersion = await localVersion.clone();
 
     if (
@@ -47,7 +41,7 @@ export default class UpdateWapp extends Wapp {
       }
     }
     if (upload) {
-      status.setMessage('Updating version, please wait...');
+      status.setMessage('Updating version');
       const version = this.application.getVersion();
       version.parse(this.manifest);
       if (!(await version.update())) {
@@ -151,20 +145,20 @@ export default class UpdateWapp extends Wapp {
 
       if ((rf && !lf) || (remoteUpdated && !locallyUpdated)) {
         try {
-          status.setMessage(`Downloading ${file.path}, please wait...`);
+          status.setMessage(`Downloading ${file.path}`);
           results.push(file.download());
           file.status = 'downloaded';
         } catch (err) {
           file.status = 'not downloaded';
         }
       } else if (!remoteUpdated && locallyUpdated) {
-        status.setMessage(`Uploading ${file.path}, please wait...`);
+        status.setMessage(`Uploading ${file.path}`);
         file.status = 'updated';
         results.push(file.update());
       } else if (lf && !fileTime) {
         file.status = 'deleted';
         if (rf) {
-          status.setMessage(`Deleting ${file.path}, please wait...`);
+          status.setMessage(`Deleting ${file.path}`);
           results.push(file.delete());
         }
       } else if (!rf && lf && !locallyUpdated) {
@@ -189,7 +183,7 @@ export default class UpdateWapp extends Wapp {
 
     for (let i = 0; i < localFiles.length; i += 1) {
       const filePath = localFiles[i];
-      status.setMessage(`Creating ${filePath}, please wait...`);
+      status.setMessage(`Creating ${filePath}`);
 
       // eslint-disable-next-line no-await-in-loop
       const newFile = await this.application.getVersion().createFile(filePath);
@@ -202,7 +196,7 @@ export default class UpdateWapp extends Wapp {
     t.done();
 
     t = this.measure('Update version');
-    status.setMessage('Loading version, please wait...');
+    status.setMessage('Loading version');
     const foundInstallation = await this.installation.fetchById(this.versionID);
 
     if (foundInstallation) {
@@ -215,7 +209,7 @@ export default class UpdateWapp extends Wapp {
     results.push(this.application.getVersion().fetch());
 
     await Promise.all(results);
-    status.setMessage('Loading application, please wait...');
+    status.setMessage('Loading application');
 
     await new Promise<void>((resolve) => {
       const ts = this.measure('Wait', 'Waiting for files to be updated');
