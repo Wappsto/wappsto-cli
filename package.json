@@ -1,7 +1,7 @@
 {
   "name": "wappsto-cli",
   "description": "Command Line Interface for Wappsto",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "license": "Apache-2.0",
   "main": "dist/wappsto-cli.cjs.production.min.js",
   "module": "dist/wappsto-cli.esm.js",
@@ -33,7 +33,7 @@
     "dist/wappsto-cli.cjs.production.min.js"
   ],
   "bin": {
-    "wapp": "dist/wappsto-cli.cjs.production.min.js"
+    "wapp": "dist/index.js"
   },
   "scripts": {
     "make:version": "echo \"const VERSION = '$npm_package_version';\nexport { VERSION };\" > src/util/version.ts",
