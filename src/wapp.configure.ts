@@ -1,9 +1,11 @@
 import Wapp from './wapp';
 import questions from './util/questions';
+import tui from './util/tui';
 
 export default class ConfigureWapp extends Wapp {
   async configure(): Promise<void> {
     if (!this.present()) {
+      tui.showError('No Wapp found in current folder');
       return;
     }
 

@@ -44,7 +44,7 @@ describe('Update', () => {
 
     expect(mockedAxios.patch).toHaveBeenCalledTimes(0);
     expect(mockedAxios.post).toHaveBeenCalledTimes(0);
-    expect(mockedAxios.get).toHaveBeenCalledTimes(1);
+    expect(mockedAxios.get).toHaveBeenCalledTimes(0);
     expect(mockedAxios.delete).toHaveBeenCalledTimes(0);
   });
 

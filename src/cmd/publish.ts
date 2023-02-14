@@ -1,34 +1,5 @@
-import commandLineArgs from 'command-line-args';
-import commandLineUsage from 'command-line-usage';
 import Wapp from '../wapp.publish';
-import tui from '../util/tui';
-
-const optionDefinitions = [
-  {
-    name: 'help',
-    description: 'Display this usage guide.',
-    alias: 'h',
-    type: Boolean,
-  },
-  {
-    name: 'verbose',
-    description: 'Enable verbose output.',
-    alias: 'v',
-    type: Boolean,
-  },
-  {
-    name: 'debug',
-    description: 'Enable debug output.',
-    alias: 'd',
-    type: Boolean,
-  },
-  {
-    name: 'quiet',
-    description: 'Do not print the header.',
-    alias: 'q',
-    type: Boolean,
-  },
-];
+import setup from '../util/setup_cli';
 
 const sections = [
   {
@@ -39,39 +10,15 @@ const sections = [
     header: 'Synopsis',
     content: ['$ wapp publish', '$ wapp publish {bold --help}'],
   },
-  {
-    header: 'Options',
-    optionList: optionDefinitions,
-  },
-  {
-    content: 'Project home: {underline https://github.com/wappsto/wappsto-cli}',
-  },
 ];
 
 export default async function publish(argv: string[]) {
-  let options;
-  try {
-    options = commandLineArgs(optionDefinitions, { argv });
-  } catch (err: any) {
-    tui.showError(err.message);
-    console.log(commandLineUsage(sections));
+  let options = setup('Publish Wapp', argv, [], sections);
+  if(!options) {
     return;
-  }
-
-  if (options.help) {
-    console.log(commandLineUsage(sections));
-    return;
-  }
-
-  tui.debug = options.debug;
-  tui.verbose = options.verbose;
-
-  if (!options.quiet) {
-    await tui.header('Publish Wapp');
   }
 
   const wapp = new Wapp();
   await wapp.init();
-
   await wapp.publish();
 }

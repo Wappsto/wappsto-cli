@@ -1,34 +1,6 @@
-import commandLineArgs from 'command-line-args';
-import commandLineUsage from 'command-line-usage';
 import Wapp from '../wapp.delete';
+import setup from '../util/setup_cli';
 import tui from '../util/tui';
-
-const optionDefinitions = [
-  {
-    name: 'help',
-    description: 'Display this usage guide.',
-    alias: 'h',
-    type: Boolean,
-  },
-  {
-    name: 'verbose',
-    description: 'Enable verbose output.',
-    alias: 'v',
-    type: Boolean,
-  },
-  {
-    name: 'debug',
-    description: 'Enable debug output.',
-    alias: 'd',
-    type: Boolean,
-  },
-  {
-    name: 'quiet',
-    description: 'Do not print the header.',
-    alias: 'q',
-    type: Boolean,
-  },
-];
 
 const sections = [
   {
@@ -43,42 +15,20 @@ const sections = [
       '$ wapp delete {bold --help}',
     ],
   },
-  {
-    header: 'Options',
-    optionList: optionDefinitions,
-  },
-  {
-    content: 'Project home: {underline https://github.com/wappsto/wappsto-cli}',
-  },
 ];
 
 export default async function Delete(argv: string[]) {
-  let options;
-  try {
-    options = commandLineArgs(optionDefinitions, { argv });
-  } catch (err: any) {
-    tui.showError(err.message);
-    console.log(commandLineUsage(sections));
+  let options = setup('Delete Wapp', argv, [], sections);
+  if(!options) {
     return;
-  }
-
-  if (options.help) {
-    console.log(commandLineUsage(sections));
-    return;
-  }
-
-  tui.debug = options.debug;
-  tui.verbose = options.verbose;
-
-  if (!options.quiet) {
-    await tui.header('Delete Wapp');
   }
 
   const wapp = new Wapp();
-  if (wapp.present()) {
-    await wapp.init();
-    await wapp.delete();
-  } else {
+  if (!wapp.present()) {
     tui.showError('No Wapp found in current folder');
+    return;
   }
+
+  await wapp.init();
+  await wapp.delete();
 }

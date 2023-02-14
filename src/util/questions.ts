@@ -289,6 +289,9 @@ class Questions {
       },
     ]);
 
+    if (type === false) {
+      return false;
+    }
     /* istanbul ignore next */
     function validateEmptyString(input: string) {
       return input.length > 0 ? true : 'You must enter a valid string';

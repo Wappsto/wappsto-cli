@@ -1,5 +1,3 @@
-import commandLineArgs from 'command-line-args';
-import commandLineUsage from 'command-line-usage';
 import url from 'url';
 import fs from 'fs';
 import path from 'path';
@@ -10,32 +8,15 @@ import browserSync from 'browser-sync';
 import Wapp from '../wapp.serve';
 import Config from '../config';
 import tui from '../util/tui';
+import setup from '../util/setup_cli';
 import { directoryExists, fileExists, loadFile } from '../util/files';
 
 const optionDefinitions = [
-  {
-    name: 'help',
-    description: 'Display this usage guide.',
-    alias: 'h',
-    type: Boolean,
-  },
   {
     name: 'port',
     description: 'Change the port that the foreground wapp is served on.',
     alias: 'p',
     type: Number,
-  },
-  {
-    name: 'verbose',
-    description: 'Enable verbose output.',
-    alias: 'v',
-    type: Boolean,
-  },
-  {
-    name: 'debug',
-    description: 'Enable debug output.',
-    alias: 'd',
-    type: Boolean,
   },
   {
     name: 'remote',
@@ -55,12 +36,6 @@ const optionDefinitions = [
     alias: 'i',
     type: Boolean,
   },
-  {
-    name: 'quiet',
-    description: 'Do not print the header.',
-    alias: 'q',
-    type: Boolean,
-  },
 ];
 
 const sections = [
@@ -78,35 +53,12 @@ const sections = [
       '$ wapp serve {bold --help}',
     ],
   },
-  {
-    header: 'Options',
-    optionList: optionDefinitions,
-  },
-  {
-    content: 'Project home: {underline https://github.com/wappsto/wappsto-cli}',
-  },
 ];
 
 export default async function serve(argv: string[]) {
-  let options: any;
-  try {
-    options = commandLineArgs(optionDefinitions, { argv });
-  } catch (err: any) {
-    tui.showError(err.message);
-    console.log(commandLineUsage(sections));
+  const options = setup('Serve Wapp', argv, optionDefinitions, sections);
+  if(!options) {
     return;
-  }
-
-  if (options.help) {
-    console.log(commandLineUsage(sections));
-    return;
-  }
-
-  tui.debug = options.debug;
-  tui.verbose = options.verbose;
-
-  if (!options.quiet) {
-    await tui.header('Serve Wapp');
   }
 
   let wapp: Wapp;
@@ -131,9 +83,11 @@ export default async function serve(argv: string[]) {
 
   async function startForegroundServer(
     sessionID: string,
-    tokenID: string
+    tokenID: string,
+    userPort?: number,
+    open?: boolean
   ): Promise<void> {
-    const port = options.port || Config.port();
+    const port = userPort || Config.port();
     const newPort = await detect(port);
 
     if (port !== newPort) {
@@ -207,7 +161,7 @@ export default async function serve(argv: string[]) {
 
       files: '*',
       browser: Config.browser(),
-      open: !options.nobrowser,
+      open,
       online: true,
     });
   }
@@ -372,7 +326,7 @@ export default async function serve(argv: string[]) {
 
   if (wapp.hasForeground) {
     if (isForegroundPresent()) {
-      startForegroundServer(sessionID, tokenID);
+      startForegroundServer(sessionID, tokenID, options.port, !options.nobrowser);
     } else {
       tui.showWarning(
         'No foreground files found, local webserver is not started'

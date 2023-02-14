@@ -6,6 +6,7 @@ import questions from './util/questions';
 export default class PublishWapp extends Wapp {
   async publish(): Promise<void> {
     if (!this.present()) {
+      tui.showError('No Wapp found in current folder');
       return;
     }
 

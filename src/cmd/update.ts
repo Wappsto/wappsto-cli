@@ -1,37 +1,12 @@
-import commandLineArgs from 'command-line-args';
-import commandLineUsage from 'command-line-usage';
 import Wapp from '../wapp.update';
+import setup from '../util/setup_cli';
 import tui from '../util/tui';
 
 const optionDefinitions = [
   {
-    name: 'help',
-    description: 'Display this usage guide.',
-    alias: 'h',
-    type: Boolean,
-  },
-  {
     name: 'reinstall',
     description: 'Trigger a reinstall of the background wapp.',
     alias: 'r',
-    type: Boolean,
-  },
-  {
-    name: 'verbose',
-    description: 'Enable verbose output.',
-    alias: 'v',
-    type: Boolean,
-  },
-  {
-    name: 'debug',
-    description: 'Enable debug output.',
-    alias: 'd',
-    type: Boolean,
-  },
-  {
-    name: 'quiet',
-    description: 'Do not print the header.',
-    alias: 'q',
     type: Boolean,
   },
 ];
@@ -49,40 +24,21 @@ const sections = [
       '$ wapp update {bold --help}',
     ],
   },
-  {
-    header: 'Options',
-    optionList: optionDefinitions,
-  },
-  {
-    content: 'Project home: {underline https://github.com/wappsto/wappsto-cli}',
-  },
 ];
 
 export default async function update(argv: string[]) {
-  let options;
-  try {
-    options = commandLineArgs(optionDefinitions, { argv });
-  } catch (err: any) {
-    tui.showError(err.message);
-    console.log(commandLineUsage(sections));
+  let options = setup('Update Wapp', argv, optionDefinitions, sections);
+  if (!options) {
     return;
-  }
-
-  if (options.help) {
-    console.log(commandLineUsage(sections));
-    return;
-  }
-
-  tui.debug = options.debug;
-  tui.verbose = options.verbose;
-
-  if (!options.quiet) {
-    await tui.header('Update Wapp');
   }
 
   const wapp = new Wapp();
-  await wapp.init();
+  if (!wapp.present()) {
+    tui.showError('No Wapp found in current folder');
+    return;
+  }
 
+  await wapp.init();
   const files = await wapp.update(options.reinstall);
 
   files.forEach((f) => {
