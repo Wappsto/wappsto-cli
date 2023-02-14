@@ -159,7 +159,7 @@ export default async function serve(argv: string[]) {
         }
       },
 
-      files: '*',
+      files: `${Config.foreground()}/*`,
       browser: Config.browser(),
       open,
       online: true,
