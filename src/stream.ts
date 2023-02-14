@@ -203,7 +203,7 @@ export default class Stream {
             /* istanbul ignore next */
             tui.showError(err);
             /* istanbul ignore next */
-            if(data.body) {
+            if (data.body) {
               callback(data.body);
             }
           }
@@ -226,7 +226,7 @@ export default class Stream {
           }
         // falls through
         default:
-          if(data) {
+          if (data) {
             callback(data);
           }
       }
