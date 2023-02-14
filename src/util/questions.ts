@@ -279,6 +279,7 @@ class Questions {
         message: 'What do you want to configure?',
         choices: [
           { title: 'Description', value: 'description' },
+          { title: 'Multiple Installations', value: 'multi_installations' },
           {
             title: 'External OAuth',
             value: 'external_oauth',

@@ -69,9 +69,14 @@ export default class Wapp {
   }
 
   async init(): Promise<void> {
-    const t = this.measure('Login', 'Validate session');
+    let t = this.measure('Login', 'Validate session');
     await this.wappsto.login();
     setUser(this.wappsto.session);
+    t.done();
+
+    t = this.measure('Upgrading');
+    await this.application.upgradeVersion();
+    await this.installation.upgradeVersion();
     t.done();
   }
 

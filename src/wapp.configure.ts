@@ -25,6 +25,8 @@ export default class ConfigureWapp extends Wapp {
       return;
     }
 
+    const version = this.application.getVersion();
+
     switch (answer.type) {
       case 'external_oauth':
         t = this.measure('createOauthExternal');
@@ -37,17 +39,15 @@ export default class ConfigureWapp extends Wapp {
       case 'permissions':
         t = this.measure('changePermission');
         delete answer.type;
-        this.manifest.permission = answer;
-        this.saveManifest();
-        this.application.getVersion().permission = answer;
-        await this.application.getVersion().update();
+        version.permission = answer;
+        await version.update();
+        this.saveApplication();
+        t.done();
         break;
       case 'multi_installations':
-        this.manifest.max_number_installation = answer.allow ? 99 : 1;
-        this.saveManifest();
-        this.application.getVersion().max_number_installation =
-          this.manifest.max_number_installation;
-        await this.application.getVersion().update();
+        version.max_number_installation = answer.allow ? 99 : 1;
+        await version.update();
+        this.saveApplication();
         break;
       case 'description':
       default:
@@ -60,6 +60,7 @@ export default class ConfigureWapp extends Wapp {
         this.saveManifest();
         this.application.getVersion().parse(this.manifest);
         await this.application.getVersion().update();
+        this.saveApplication();
         break;
     }
     t.done();

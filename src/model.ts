@@ -129,6 +129,18 @@ export default class Model {
     }
   }
 
+  async upgradeVersion(): Promise<boolean> {
+    if(this.meta.version === '2.0') {
+      tui.showWarning(`Upgrading ${this.meta.type} to version 2.1`);
+      if(await this.fetch()) {
+        this.save();
+      } else {
+        return false;
+      }
+    }
+    return true;
+  }
+
   private removeUndefined(obj: Record<string, any>, deep = 10) {
     if (obj && deep > 0) {
       Object.keys(obj).forEach((key) => {
