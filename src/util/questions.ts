@@ -452,9 +452,9 @@ class Questions {
             selected: manifest.permission?.create?.includes('stream'),
           },
           {
-            title: 'Analytic',
-            value: 'analytic',
-            selected: manifest.permission?.create?.includes('analytic'),
+            title: 'Analytics',
+            value: 'analytics',
+            selected: manifest.permission?.create?.includes('analytics'),
           },
           {
             title: 'Notification',
