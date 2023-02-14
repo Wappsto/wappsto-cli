@@ -80,17 +80,13 @@ export default async function update(argv: string[]) {
     await tui.header('Update Wapp');
   }
 
-  try {
-    const wapp = new Wapp();
-    await wapp.init();
+  const wapp = new Wapp();
+  await wapp.init();
 
-    const files = await wapp.update(options.reinstall);
+  const files = await wapp.update(options.reinstall);
 
-    files.forEach((f) => {
-      tui.showMessage(`File ${f.path} was ${f.status}`);
-    });
-    tui.showMessage('Wapp Updated');
-  } catch (err: any) {
-    tui.showError('Run error', err);
-  }
+  files.forEach((f) => {
+    tui.showMessage(`File ${f.path} was ${f.status}`);
+  });
+  tui.showMessage('Wapp Updated');
 }

@@ -70,12 +70,8 @@ export default async function publish(argv: string[]) {
     await tui.header('Publish Wapp');
   }
 
-  try {
-    const wapp = new Wapp();
-    await wapp.init();
+  const wapp = new Wapp();
+  await wapp.init();
 
-    await wapp.publish();
-  } catch (err: any) {
-    tui.showError('Run error', err);
-  }
+  await wapp.publish();
 }

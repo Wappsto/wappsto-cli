@@ -473,16 +473,39 @@ class Questions {
       },
     ];
 
+    const multiInstalltionsQuestions = [
+      {
+        name: 'allow',
+        type: 'confirm',
+        message: 'Is this wapp allowed to be installed multiple times',
+        initial: manifest.max_number_installation === 1 ? false : true,
+      },
+    ];
+
+    let answers;
     switch (type.config) {
       case 'external_oauth':
-        return this.ask(oauthExtQuestions);
+        answers = await this.ask(oauthExtQuestions);
+        break;
       case 'oauth_client':
-        return this.ask(oauthClientQuestions);
+        answers = await this.ask(oauthClientQuestions);
+        break;
       case 'permissions':
-        return this.ask(permissionQuestions);
+        answers = await this.ask(permissionQuestions);
+        break;
+      case 'multi_installations':
+        answers = await this.ask(multiInstalltionsQuestions);
+        break;
+      case 'description':
       default:
-        return this.ask(descriptionQuestions);
+        answers = await this.ask(descriptionQuestions);
+        break;
     }
+
+    if (answers !== false) {
+      answers.type = type.config;
+    }
+    return answers;
   }
 
   deleteWapp(): Promise<

@@ -354,60 +354,51 @@ export default async function serve(argv: string[]) {
     return;
   }
 
-  try {
-    await wapp.init();
+  await wapp.init();
 
-    if (wapp.hasBackground && options.reinstall) {
-      tui.showMessage('Reinstalling...');
-      await wapp.installation.reinstall();
-    }
+  if (wapp.hasBackground && options.reinstall) {
+    tui.showMessage('Reinstalling...');
+    await wapp.installation.reinstall();
+  }
 
-    const sessionID = await wapp.getInstallationSession();
-    if (!sessionID) {
-      tui.showError('Failed to get Session from Installation');
-      return;
-    }
-
-    const tokenID = wapp.getInstallationToken();
-    await wapp.openStream();
-
-    if (wapp.hasForeground) {
-      if (isForegroundPresent()) {
-        startForegroundServer(sessionID, tokenID);
-      } else {
-        tui.showWarning(
-          'No foreground files found, local webserver is not started'
-        );
-      }
-    }
-
-    if (wapp.hasBackground) {
-      if (isBackgroundPresent()) {
-        if (options.remote) {
-          const backgroundFiles = await wapp.update();
-          backgroundFiles.forEach((f) => {
-            tui.showMessage(`${f.name} was ${f.status}`);
-          });
-          startRemoteBackgroundRunner();
-        } else if (await wapp.installation.stop()) {
-          startLocalBackgroundRunner(sessionID, tokenID);
-        } else {
-          tui.showError(
-            'Failed to stop the background runner on the server. Not starting background runner'
-          );
-        }
-      } else {
-        tui.showWarning(
-          'No background files found, local background runner is not started'
-        );
-      }
-    }
-  } catch (err: any) {
-    if (err.message === 'LoginError') {
-      tui.showError('Failed to Login, please try again.');
-    } else {
-      tui.showError('Run error', err);
-    }
+  const sessionID = await wapp.getInstallationSession();
+  if (!sessionID) {
+    tui.showError('Failed to get Session from Installation');
     return;
+  }
+
+  const tokenID = wapp.getInstallationToken();
+  await wapp.openStream();
+
+  if (wapp.hasForeground) {
+    if (isForegroundPresent()) {
+      startForegroundServer(sessionID, tokenID);
+    } else {
+      tui.showWarning(
+        'No foreground files found, local webserver is not started'
+      );
+    }
+  }
+
+  if (wapp.hasBackground) {
+    if (isBackgroundPresent()) {
+      if (options.remote) {
+        const backgroundFiles = await wapp.update();
+        backgroundFiles.forEach((f) => {
+          tui.showMessage(`${f.name} was ${f.status}`);
+        });
+        startRemoteBackgroundRunner();
+      } else if (await wapp.installation.stop()) {
+        startLocalBackgroundRunner(sessionID, tokenID);
+      } else {
+        tui.showError(
+          'Failed to stop the background runner on the server. Not starting background runner'
+        );
+      }
+    } else {
+      tui.showWarning(
+        'No background files found, local background runner is not started'
+      );
+    }
   }
 }

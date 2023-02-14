@@ -115,7 +115,7 @@ export default class CreateWapp extends Wapp {
         this.application = wapp;
 
         status.setMessage('Downloading installation');
-        if(await this.installation.fetchById(wapp.getVersion().id)) {
+        if (await this.installation.fetchById(wapp.getVersion().id)) {
           this.saveApplication();
 
           status.stop();
@@ -200,7 +200,7 @@ export default class CreateWapp extends Wapp {
     }
 
     status.setMessage('Downloading installation');
-    if(await this.installation.fetchById(app.getVersion().id)) {
+    if (await this.installation.fetchById(app.getVersion().id)) {
       this.saveApplication();
 
       status.stop();

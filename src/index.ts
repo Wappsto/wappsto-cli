@@ -12,6 +12,7 @@ import configure from './cmd/configure';
 import serve from './cmd/serve';
 import publish from './cmd/publish';
 import { startTrace } from './util/trace';
+import tui from './util/tui';
 import Config from './config';
 import Wapp from './wapp';
 
@@ -74,6 +75,7 @@ if (
     process.argv[1].includes('node_modules/.bin/wapp'))
 ) {
   let transaction;
+  let command = 'unknown';
 
   (async () => {
     try {
@@ -84,8 +86,9 @@ if (
       const argv = mainOptions._unknown || [];
 
       transaction = startTrace(mainOptions.command);
+      command = mainOptions.command;
 
-      switch (mainOptions.command) {
+      switch (command) {
         case 'create':
           await create(argv);
           break;
@@ -109,9 +112,13 @@ if (
           console.log(commandLineUsage(sections));
           break;
       }
-    } catch (e: any) {
-      Sentry.captureException(e);
-      console.error(e.message);
+    } catch (err: any) {
+      if (err.message === 'LoginError') {
+        tui.showError('Failed to Login, please try again.');
+      } else {
+        tui.showError(`${command} error`, err);
+        Sentry.captureException(err);
+      }
       process.exit(-1);
     } finally {
       transaction?.finish();

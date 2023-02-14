@@ -23,28 +23,42 @@ export default class ConfigureWapp extends Wapp {
       return;
     }
 
-    if (answer.api_site) {
-      t = this.measure('createOauthExternal');
-      this.application.createOauthExternal(answer);
-    } else if (answer.redirect_uri) {
-      t = this.measure('createOauthClient');
-      this.application.createOauthClient(answer);
-    } else if (answer.create) {
-      t = this.measure('changePermission');
-      this.manifest.permission = answer;
-      this.saveManifest();
-      this.application.getVersion().permission = answer;
-      await this.application.getVersion().update();
-    } else if (answer.general) {
-      t = this.measure('changeDescription');
-      this.manifest.name = answer.name;
-      this.manifest.author = answer.author;
-      this.manifest.description.general = answer.general;
-      this.manifest.description.foreground = answer.foreground;
-      this.manifest.description.background = answer.background;
-      this.saveManifest();
-      this.application.getVersion().parse(this.manifest);
-      await this.application.getVersion().update();
+    switch (answer.type) {
+      case 'external_oauth':
+        t = this.measure('createOauthExternal');
+        this.application.createOauthExternal(answer);
+        break;
+      case 'oauth_client':
+        t = this.measure('createOauthClient');
+        this.application.createOauthClient(answer);
+        break;
+      case 'permissions':
+        t = this.measure('changePermission');
+        delete answer.type;
+        this.manifest.permission = answer;
+        this.saveManifest();
+        this.application.getVersion().permission = answer;
+        await this.application.getVersion().update();
+        break;
+      case 'multi_installations':
+        this.manifest.max_number_installation = answer.allow ? 99 : 1;
+        this.saveManifest();
+        this.application.getVersion().max_number_installation =
+          this.manifest.max_number_installation;
+        await this.application.getVersion().update();
+        break;
+      case 'description':
+      default:
+        t = this.measure('changeDescription');
+        this.manifest.name = answer.name;
+        this.manifest.author = answer.author;
+        this.manifest.description.general = answer.general;
+        this.manifest.description.foreground = answer.foreground;
+        this.manifest.description.background = answer.background;
+        this.saveManifest();
+        this.application.getVersion().parse(this.manifest);
+        await this.application.getVersion().update();
+        break;
     }
     t.done();
   }

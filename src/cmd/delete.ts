@@ -70,19 +70,15 @@ export default async function Delete(argv: string[]) {
   tui.debug = options.debug;
   tui.verbose = options.verbose;
 
-  try {
-    if (!options.quiet) {
-      await tui.header('Delete Wapp');
-    }
+  if (!options.quiet) {
+    await tui.header('Delete Wapp');
+  }
 
-    const wapp = new Wapp();
-    if (wapp.present()) {
-      await wapp.init();
-      await wapp.delete();
-    } else {
-      tui.showError('No Wapp found in current folder');
-    }
-  } catch (err: any) {
-    tui.showError('Run error', err);
+  const wapp = new Wapp();
+  if (wapp.present()) {
+    await wapp.init();
+    await wapp.delete();
+  } else {
+    tui.showError('No Wapp found in current folder');
   }
 }

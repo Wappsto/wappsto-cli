@@ -80,15 +80,7 @@ export default async function create(argv: string[]) {
     await tui.header('Create Wapp');
   }
 
-  try {
-    const wapp = new Wapp();
-    await wapp.init();
-    await wapp.create(options.validate);
-  } catch (err: any) {
-    if (err.message === 'LoginError') {
-      tui.showError('Failed to Login, please try again.');
-    } else {
-      tui.showError('Create error', err);
-    }
-  }
+  const wapp = new Wapp();
+  await wapp.init();
+  await wapp.create(options.validate);
 }

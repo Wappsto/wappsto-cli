@@ -74,12 +74,7 @@ export default async function configure(argv: string[]) {
     tui.header('Configure Wapp');
   }
 
-  try {
-    const wapp = new Wapp();
-    await wapp.init();
-
-    await wapp.configure();
-  } catch (err: any) {
-    tui.showError('Run error', err);
-  }
+  const wapp = new Wapp();
+  await wapp.init();
+  await wapp.configure();
 }
