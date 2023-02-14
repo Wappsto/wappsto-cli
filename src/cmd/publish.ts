@@ -14,7 +14,7 @@ const sections = [
 
 export default async function publish(argv: string[]) {
   let options = setup('Publish Wapp', argv, [], sections);
-  if(!options) {
+  if (!options) {
     return;
   }
 

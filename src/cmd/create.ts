@@ -27,7 +27,7 @@ const sections = [
 
 export default async function create(argv: string[]) {
   let options = setup('Create Wapp', argv, optionDefinitions, sections);
-  if(!options) {
+  if (!options) {
     return;
   }
 

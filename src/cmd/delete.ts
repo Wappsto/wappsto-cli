@@ -19,7 +19,7 @@ const sections = [
 
 export default async function Delete(argv: string[]) {
   let options = setup('Delete Wapp', argv, [], sections);
-  if(!options) {
+  if (!options) {
     return;
   }
 

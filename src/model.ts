@@ -130,9 +130,9 @@ export default class Model {
   }
 
   async upgradeVersion(): Promise<boolean> {
-    if(this.meta.version === '2.0') {
+    if (this.meta.version === '2.0') {
       tui.showWarning(`Upgrading ${this.meta.type} to version 2.1`);
-      if(await this.fetch()) {
+      if (await this.fetch()) {
         this.save();
       } else {
         return false;

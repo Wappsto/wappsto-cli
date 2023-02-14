@@ -44,13 +44,13 @@ describe('Configure', () => {
     mockedAxios.patch.mockResolvedValueOnce({
       data: Object.assign({}, versionResponse, {
         name: 'new name',
-      author: 'new author',
+        author: 'new author',
         description: {
-        general: 'general description',
-        foreground: 'foreground description',
-        version: '',
-        widget: '',
-      },
+          general: 'general description',
+          foreground: 'foreground description',
+          version: '',
+          widget: '',
+        },
       }),
     });
 
@@ -79,10 +79,10 @@ describe('Configure', () => {
         widget: '',
       },
       permission: {
-          create: ['data', 'stream'],
-          permit_to_send_email: false,
-          permit_to_send_sms: false,
-        },
+        create: ['data', 'stream'],
+        permit_to_send_email: false,
+        permit_to_send_sms: false,
+      },
     });
 
     expect(mockedAxios.put).toHaveBeenCalledTimes(0);
@@ -130,11 +130,13 @@ describe('Configure', () => {
       data: applicationResponse,
     });
     mockedAxios.patch.mockResolvedValueOnce({
-      data: Object.assign({}, versionResponse, {permission: {
-      create: [ 'network' ],
-      permit_to_send_email: true,
-      permit_to_send_sms: true
-    }})
+      data: Object.assign({}, versionResponse, {
+        permission: {
+          create: ['network'],
+          permit_to_send_email: true,
+          permit_to_send_sms: true,
+        },
+      }),
     });
 
     createWapp();

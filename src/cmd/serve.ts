@@ -57,7 +57,7 @@ const sections = [
 
 export default async function serve(argv: string[]) {
   const options = setup('Serve Wapp', argv, optionDefinitions, sections);
-  if(!options) {
+  if (!options) {
     return;
   }
 
@@ -326,7 +326,12 @@ export default async function serve(argv: string[]) {
 
   if (wapp.hasForeground) {
     if (isForegroundPresent()) {
-      startForegroundServer(sessionID, tokenID, options.port, !options.nobrowser);
+      startForegroundServer(
+        sessionID,
+        tokenID,
+        options.port,
+        !options.nobrowser
+      );
     } else {
       tui.showWarning(
         'No foreground files found, local webserver is not started'
