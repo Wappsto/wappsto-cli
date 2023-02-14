@@ -170,7 +170,7 @@ class Questions {
           {
             message: 'How do you want to create the Wapp?',
             name: 'create',
-            type: present || wapps.length !== 0 ? 'select' : null,
+            type: 'select',
             choices: [
               {
                 title: 'Create new Wapp',
