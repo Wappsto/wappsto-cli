@@ -3,8 +3,9 @@
   "description": "Command Line Interface for Wappsto",
   "version": "2.0.2",
   "license": "Apache-2.0",
-  "main": "dist/index.js",
-  "type": "common",
+  "main": "dist/wappsto-cli.cjs.production.min.js",
+  "module": "dist/wappsto-cli.esm.js",
+  "type": "commonjs",
   "author": {
     "name": "Seluxit A/S",
     "email": "developer@wappsto.com",
@@ -27,16 +28,17 @@
   ],
   "files": [
     "dist/index.js",
+    "wappsto-cli.esm.js",
     "dist/wappsto-cli.cjs.development.js",
     "dist/wappsto-cli.cjs.production.min.js"
   ],
   "bin": {
-    "wapp": "dist/index.js"
+    "wapp": "dist/wappsto-cli.cjs.production.min.js"
   },
   "scripts": {
     "make:version": "echo \"const VERSION = '$npm_package_version';\nexport { VERSION };\" > src/util/version.ts",
     "prepack": "yarn sentry-cli releases new wappsto-cli@$npm_package_version && sentry-cli releases files wappsto-cli@$npm_package_version upload-sourcemaps dist/*.map && yarn sentry-cli releases finalize wappsto-cli@$npm_package_version",
-    "build": "yarn run make:version && dts build --target node && sed -i '1i#!/usr/bin/env node' dist/index.js",
+    "build": "yarn run make:version && dts build --target esm node && sed -i '1i#!/usr/bin/env node' dist/index.js",
     "lint": "dts lint src test",
     "lint:fix": "yarn run lint --fix",
     "prettify": "yarn run prettier -w src/ test/",
