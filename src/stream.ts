@@ -203,7 +203,9 @@ export default class Stream {
             /* istanbul ignore next */
             tui.showError(err);
             /* istanbul ignore next */
-            callback(data.body);
+            if(data.body) {
+              callback(data.body);
+            }
           }
           break;
         case 'notification':
@@ -224,7 +226,9 @@ export default class Stream {
           }
         // falls through
         default:
-          callback(data);
+          if(data) {
+            callback(data);
+          }
       }
     } catch (err) {
       /* istanbul ignore next */
