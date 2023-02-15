@@ -230,7 +230,6 @@ export default class Stream {
           break;
         case 'console':
           if (event.type) {
-            console.log(event);
             let msg = data;
             if (event.extra && event.extra.output) {
               if (typeof msg !== 'string') {
@@ -243,7 +242,6 @@ export default class Stream {
               timestamp: event.timestamp,
             };
             consoleEvent[event.type] = msg;
-            console.log(consoleEvent);
             callback(consoleEvent);
             break;
           }
