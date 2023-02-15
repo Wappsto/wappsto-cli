@@ -12,7 +12,6 @@ describe('Publish', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
     teardown();
   });
 

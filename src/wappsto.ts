@@ -55,7 +55,7 @@ export default class Wappsto {
         methods[m] = true;
       });
       await HTTP.patch(
-        `${this.HOST}/services/2.0/acl?propagate=true&id=[${id}]`,
+        `${this.HOST}/services/2.1/acl?propagate=true&id=[${id}]`,
         {
           permission: [
             {
@@ -88,7 +88,7 @@ export default class Wappsto {
   async updateACLRestriction(id: string, collection: string[]): Promise<void> {
     try {
       const aclResponse = await HTTP.get(
-        `${this.HOST}/services/2.0/acl/${id}/permission/${id}`
+        `${this.HOST}/services/2.1/acl/${id}/permission/${id}`
       );
       const aclRestriction = aclResponse.data.installation;
 
@@ -98,7 +98,7 @@ export default class Wappsto {
       // Append the new service to the acl restriction for the installation
       aclRestriction[0].create.push(collection);
       await HTTP.patch(
-        `${this.HOST}/services/2.0/acl/${id}/permission/${id}?propagate=true`,
+        `${this.HOST}/services/2.1/acl/${id}/permission/${id}?propagate=true`,
         { restriction: aclRestriction }
       );
     } catch (err) {
@@ -126,7 +126,7 @@ export default class Wappsto {
 
   async readNotification(id: string, status: string = 'read'): Promise<void> {
     try {
-      await HTTP.patch(`${this.HOST}/services/2.0/notification/${id}`, {
+      await HTTP.patch(`${this.HOST}/services/2.1/notification/${id}`, {
         meta: {
           id,
         },

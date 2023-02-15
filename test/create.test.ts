@@ -18,7 +18,6 @@ describe('Create', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
     teardown();
   });
 

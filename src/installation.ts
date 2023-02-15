@@ -96,7 +96,7 @@ export default class Installation extends Model implements Installation21 {
         this.save();
         return true;
       } else {
-        tui.showError(`Failed to fetch installation by ID: ${id}`);
+        tui.showError(`Failed to find installation by version ID: ${id}`);
       }
     } catch (err) {
       this.handleException(`Failed to load installation: ${id}`, err);

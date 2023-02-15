@@ -13,7 +13,6 @@ describe('Session', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
     teardown();
   });
 

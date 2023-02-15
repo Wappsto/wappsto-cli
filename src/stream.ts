@@ -170,8 +170,8 @@ export default class Stream {
           event = JSON.parse(message.toString());
         }
       } catch (err) {
-        console.log(err);
-        event = message;
+        tui.showDebug('STREAM', 'Invalid stream message', message);
+        return;
       }
 
       tui.showStream(event);
@@ -229,16 +229,22 @@ export default class Stream {
           await this.handleNotification(data, callback);
           break;
         case 'console':
-          if (event.type === 'error') {
+          if (event.type) {
+            console.log(event);
             let msg = data;
             if (event.extra && event.extra.output) {
+              if (typeof msg !== 'string') {
+                msg = JSON.stringify(msg);
+              }
               msg += `\n${event.extra.output}`;
             }
-            callback({
-              error: msg,
+            const consoleEvent: Record<string, any> = {
               type: 'Background',
               timestamp: event.timestamp,
-            });
+            };
+            consoleEvent[event.type] = msg;
+            console.log(consoleEvent);
+            callback(consoleEvent);
             break;
           }
         // falls through

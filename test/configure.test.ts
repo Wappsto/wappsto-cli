@@ -13,7 +13,6 @@ describe('Configure', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
     teardown();
   });
 

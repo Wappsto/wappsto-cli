@@ -44,9 +44,31 @@ export default class Application extends Model implements Application21 {
 
   getVersion(): Version {
     if (this.version.length > 0) {
-      const last = this.version[this.version.length - 1];
-      if (typeof last !== 'string') {
-        return last;
+      const idleVersions = this.version
+        .filter((ver: Version | string) => {
+          if (typeof ver !== 'string') {
+            return ver.status === 'idle';
+          }
+          return false;
+        })
+        .sort((a, b) => {
+          if (typeof a === 'string' || typeof b === 'string') {
+            return 0;
+          }
+
+          // Asceding ordering
+          var d1 = new Date(a.meta.updated || '');
+          var d2 = new Date(b.meta.updated || '');
+          if (d1 < d2) {
+            return 1;
+          }
+
+          // d1 is greater than d2
+          return -1;
+        });
+
+      if (typeof idleVersions[0] !== 'string') {
+        return idleVersions[0];
       }
     }
     /* istanbul ignore next */

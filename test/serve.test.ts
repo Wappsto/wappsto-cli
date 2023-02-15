@@ -11,7 +11,6 @@ describe('Serve', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
     teardown();
   });
 

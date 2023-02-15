@@ -91,8 +91,8 @@ class Tui {
       this.clear();
 
       this.write(`${yellow('T')} ${yellow('STREAM')} - `);
-        this.write(JSON.stringify(event));
-        this.write('\n');
+      this.write(JSON.stringify(event));
+      this.write('\n');
     }
   }
 

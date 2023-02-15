@@ -14,7 +14,6 @@ describe('Delete', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
     teardown();
   });
 
