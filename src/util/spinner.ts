@@ -6,9 +6,6 @@ class Spinner {
   title: string = '';
   frames: string[] = ['|', '/', '-', '\\'];
 
-  constructor() {
-  }
-
   setMessage(message: string): void {
     tui.showVerbose('STATUS', message);
     this.title = `${message}, please wait...`;

@@ -14,7 +14,6 @@ export default class ConfigureWapp extends Wapp {
       return this.application.fetch();
     });
 
-
     const answers = await section('Wait for user input', () => {
       return questions.configureWapp(
         this.manifest,
@@ -41,7 +40,7 @@ export default class ConfigureWapp extends Wapp {
         });
         break;
       case 'permissions':
-        await section('Changing Permission', async () => {;
+        await section('Changing Permission', async () => {
           delete answers.type;
           version.permission = answers;
           await version.update();
@@ -53,7 +52,7 @@ export default class ConfigureWapp extends Wapp {
           version.max_number_installation = answers.allow ? 99 : 1;
           await version.update();
           this.saveApplication();
-         });
+        });
         break;
       case 'description':
       default:

@@ -220,7 +220,7 @@ describe('Update', () => {
       1,
       'https://wappsto.com/services/2.1/version/98e68cd8-74a6-4841-bdd4-70c29f068056/file/foreground?verbose=true',
       expect.objectContaining({}),
-      {headers: expect.objectContaining({})}
+      { headers: expect.objectContaining({}) }
     );
     expect(mockedAxios.get).toHaveBeenCalledTimes(5);
     expect(mockedAxios.get).toHaveBeenNthCalledWith(

@@ -8,7 +8,6 @@ import { getFileTimeISO, getAllFiles } from './util/files';
 import Version from './version';
 import File from './file';
 
-
 export default class UpdateWapp extends Wapp {
   async update(reinstall?: boolean): Promise<File[]> {
     if (!this.present()) {
@@ -53,7 +52,7 @@ export default class UpdateWapp extends Wapp {
           }
         }
       });
-    } catch(err) {
+    } catch (err) {
       return [];
     }
 
@@ -70,7 +69,8 @@ export default class UpdateWapp extends Wapp {
 
         const allFiles = remoteVersionFiles.concat(
           localVersionFiles.filter(
-            (item: any) => !remoteVersionFiles.find((file: File) => cmp(item, file))
+            (item: any) =>
+              !remoteVersionFiles.find((file: File) => cmp(item, file))
           )
         );
 
@@ -192,7 +192,9 @@ export default class UpdateWapp extends Wapp {
           Spinner.setMessage(`Creating ${filePath}`);
 
           // eslint-disable-next-line no-await-in-loop
-          const newFile = await this.application.getVersion().createFile(filePath);
+          const newFile = await this.application
+            .getVersion()
+            .createFile(filePath);
 
           if (newFile) {
             newFile.status = 'created';
@@ -200,12 +202,14 @@ export default class UpdateWapp extends Wapp {
           }
         }
       });
-    } catch(err) {
+    } catch (err) {
       return [];
     }
 
     await section('Update version', async () => {
-      const foundInstallation = await this.installation.fetchById(this.versionID);
+      const foundInstallation = await this.installation.fetchById(
+        this.versionID
+      );
 
       if (foundInstallation) {
         if (reinstall) {
