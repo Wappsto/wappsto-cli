@@ -15,10 +15,10 @@ export default class Wappsto {
   }
 
   async login(): Promise<void> {
-    const status = new Spinner('Authenticating you');
+    Spinner.setMessage('Authenticating you');
 
     const validSession = await this.session.validate();
-    status.stop();
+    Spinner.stop();
 
     if (validSession) {
       return;
@@ -32,13 +32,13 @@ export default class Wappsto {
       return;
     }
 
-    status.start();
+    Spinner.start();
 
     try {
       await this.session.login(creds.username, creds.password);
-      status.stop();
+      Spinner.stop();
     } catch (err) {
-      status.stop();
+      Spinner.stop();
       throw new Error('LoginError');
     }
   }

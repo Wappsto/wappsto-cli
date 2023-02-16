@@ -22,7 +22,7 @@ export default class UpdateWapp extends Wapp {
     let t = this.measure('Compare versions');
     const localVersion = this.application.getVersion();
 
-    const status = new Spinner('Downloading version');
+    Spinner.setMessage('Downloading version');
     const remoteVersion = await localVersion.clone();
 
     if (
@@ -30,9 +30,9 @@ export default class UpdateWapp extends Wapp {
       remoteVersion.revision !== localVersion.revision &&
       !compareVersions(this.manifest, remoteVersion.toJSON())
     ) {
-      status.stop();
+      Spinner.stop();
       const overide = await questions.remoteVersionUpdated();
-      status.start();
+      Spinner.start();
       if (overide === false) {
         return [];
       }
@@ -41,11 +41,11 @@ export default class UpdateWapp extends Wapp {
       }
     }
     if (upload) {
-      status.setMessage('Updating version');
+      Spinner.setMessage('Updating version');
       const version = this.application.getVersion();
       version.parse(this.manifest);
       if (!(await version.update())) {
-        status.stop();
+        Spinner.stop();
         t.done('unknown');
         return [];
       }
@@ -109,7 +109,7 @@ export default class UpdateWapp extends Wapp {
       }
 
       if (remoteUpdated && locallyUpdated) {
-        status.stop();
+        Spinner.stop();
         let run = true;
         while (run) {
           run = false;
@@ -138,34 +138,34 @@ export default class UpdateWapp extends Wapp {
             default:
           }
         }
-        status.start();
+        Spinner.start();
       }
 
       file.status = 'unknown';
 
       if ((rf && !lf) || (remoteUpdated && !locallyUpdated)) {
         try {
-          status.setMessage(`Downloading ${file.path}`);
+          Spinner.setMessage(`Downloading ${file.path}`);
           results.push(file.download());
           file.status = 'downloaded';
         } catch (err) {
           file.status = 'not downloaded';
         }
       } else if (!remoteUpdated && locallyUpdated) {
-        status.setMessage(`Uploading ${file.path}`);
+        Spinner.setMessage(`Uploading ${file.path}`);
         file.status = 'updated';
         results.push(file.update());
       } else if (lf && !fileTime) {
         file.status = 'deleted';
         if (rf) {
-          status.setMessage(`Deleting ${file.path}`);
+          Spinner.setMessage(`Deleting ${file.path}`);
           results.push(file.delete());
         }
       } else if (!rf && lf && !locallyUpdated) {
-        status.stop();
+        Spinner.stop();
         // eslint-disable-next-line no-await-in-loop
         const answers = await questions.askDeleteLocalFile(file.path);
-        status.start();
+        Spinner.start();
         if (answers === false) {
           /* istanbul ignore next */
           return [];
@@ -183,7 +183,7 @@ export default class UpdateWapp extends Wapp {
 
     for (let i = 0; i < localFiles.length; i += 1) {
       const filePath = localFiles[i];
-      status.setMessage(`Creating ${filePath}`);
+      Spinner.setMessage(`Creating ${filePath}`);
 
       // eslint-disable-next-line no-await-in-loop
       const newFile = await this.application.getVersion().createFile(filePath);
@@ -196,7 +196,7 @@ export default class UpdateWapp extends Wapp {
     t.done();
 
     t = this.measure('Update version');
-    status.setMessage('Loading version');
+    Spinner.setMessage('Loading version');
     const foundInstallation = await this.installation.fetchById(this.versionID);
 
     if (foundInstallation) {
@@ -209,7 +209,7 @@ export default class UpdateWapp extends Wapp {
     results.push(this.application.getVersion().fetch());
 
     await Promise.all(results);
-    status.setMessage('Loading application');
+    Spinner.setMessage('Loading application');
 
     await new Promise<void>((resolve) => {
       const ts = this.measure('Wait', 'Waiting for files to be updated');
@@ -228,7 +228,7 @@ export default class UpdateWapp extends Wapp {
       }, 500);
     });
 
-    status.stop();
+    Spinner.stop();
     t.done();
 
     return updateFiles;

@@ -10,9 +10,9 @@ export default class PublishWapp extends Wapp {
       return;
     }
 
-    const status = new Spinner('Loading application');
+    Spinner.setMessage('Loading application');
     let res = await this.application.fetch();
-    status.stop();
+    Spinner.stop();
     if (!res) {
       return;
     }
@@ -22,16 +22,16 @@ export default class PublishWapp extends Wapp {
       return;
     }
 
-    status.setMessage('Publishing new version');
+    Spinner.setMessage('Publishing new version');
 
     res = await this.application.publish(answers.version, answers.change);
     if (res) {
       this.saveApplication();
-      status.stop();
+      Spinner.stop();
 
       tui.showMessage(`Wapp published with version ${answers.version}`);
     } else {
-      status.stop();
+      Spinner.stop();
     }
   }
 }

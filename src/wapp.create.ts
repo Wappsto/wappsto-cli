@@ -19,25 +19,23 @@ export default class CreateWapp extends Wapp {
     const listWapps: any[] = [];
     let updateFiles;
 
-    let t = this.measure('Loading all applications');
-    const status = new Spinner('Loading Wapps');
+    const wapps = await this.section('Loading all applications', async () => {
+      const wapps = await this.application.getAll();
+      if (wapps.length) {
+        wapps.forEach((w: Application) => {
+          if (w.version && typeof w.version[0] !== 'string') {
+            const { name } = w.version[0];
+            listWapps.push({
+              title: `${name} (${w.id})`,
+              value: w.id,
+            });
+          }
+        });
+      }
+      return wapps;
+    });
 
-    const wapps = await this.application.getAll();
-    if (wapps.length) {
-      wapps.forEach((w: Application) => {
-        if (w.version && typeof w.version[0] !== 'string') {
-          const { name } = w.version[0];
-          listWapps.push({
-            title: `${name} (${w.id})`,
-            value: w.id,
-          });
-        }
-      });
-    }
-    status.stop();
-    t.done();
-
-    t = this.measure('Ask the human');
+    let t = this.measure('Ask the human');
     const newWapp = await questions.askCreateWapp(listWapps, this.present());
     if (newWapp === false) {
       return;
@@ -61,11 +59,11 @@ export default class CreateWapp extends Wapp {
         break;
       case 'generate':
         t = this.measure('Generating wapp');
-        status.setMessage('Creating Wapp,');
+        Spinner.setMessage('Creating Wapp,');
 
         new_app = await Application.create(this.manifest);
         if (!new_app) {
-          status.stop();
+          Spinner.stop();
           t.done('unknown');
           throw new Error('Failed to generate Application');
         }
@@ -73,7 +71,7 @@ export default class CreateWapp extends Wapp {
 
         await this.installation.create(this.versionID);
         this.saveApplication();
-        status.stop();
+        Spinner.stop();
 
         updateFiles = await this.update();
         updateFiles.forEach(async (f: File) => {
@@ -104,37 +102,37 @@ export default class CreateWapp extends Wapp {
         break;
       case 'link':
         t = this.measure('Linking wapp');
-        status.setMessage('Linking Wapp');
+        Spinner.setMessage('Linking Wapp');
         wapp = wapps.find((w: Application) => w.id === newWapp.wapp);
         if (!wapp) {
-          status.stop();
+          Spinner.stop();
           t.done('not_found');
           tui.showError('Failed to find Application from id');
           return;
         }
         this.application = wapp;
 
-        status.setMessage('Downloading installation');
+        Spinner.setMessage('Downloading installation');
         if (await this.installation.fetchById(wapp.getVersion().id)) {
           this.saveApplication();
 
-          status.stop();
+          Spinner.stop();
           tui.showMessage(`Wapp ${wapp.getVersion().name} linked`);
         } else {
-          status.stop();
+          Spinner.stop();
         }
 
-        status.stop();
+        Spinner.stop();
         t.done();
         break;
       case 'new':
       default:
         t = this.measure('Creating wapp');
-        status.setMessage('Creating Wapp');
+        Spinner.setMessage('Creating Wapp');
 
         new_app = await Application.create(newWapp);
         if (!new_app) {
-          status.stop();
+          Spinner.stop();
           t.done('unknown');
           throw new Error('Failed to create Application');
         }
@@ -144,17 +142,17 @@ export default class CreateWapp extends Wapp {
           foreground: Config.foreground(),
           background: Config.background(),
         };
-        status.stop();
+        Spinner.stop();
         await this.createFolders(
           newWapp.features,
           newWapp.examples,
           customFolders
         );
-        status.start();
+        Spinner.start();
         await this.installation.create(this.application.getVersion().id);
         this.saveApplication();
 
-        status.stop();
+        Spinner.stop();
 
         if (this.application) {
           tui.showMessage(`Wapp created with id: ${this.application.id}`);
@@ -181,7 +179,7 @@ export default class CreateWapp extends Wapp {
   }
 
   private async downloadWapp(app: Application): Promise<void> {
-    const status = new Spinner(`Downloading Wapp ${app.getVersion().name}`);
+    Spinner.setMessage(`Downloading Wapp ${app.getVersion().name}`);
 
     this.application = app;
     await this.createFolders();
@@ -192,21 +190,21 @@ export default class CreateWapp extends Wapp {
       const file = files[i];
 
       try {
-        status.setMessage(`Downloading ${file.path}`);
+        Spinner.setMessage(`Downloading ${file.path}`);
         await file.download();
       } catch (err) {
         file.deleteLocal();
       }
     }
 
-    status.setMessage('Downloading installation');
+    Spinner.setMessage('Downloading installation');
     if (await this.installation.fetchById(app.getVersion().id)) {
       this.saveApplication();
 
-      status.stop();
+      Spinner.stop();
       tui.showMessage(`Downloaded Wapp ${app.getVersion().name}`);
     } else {
-      status.stop();
+      Spinner.stop();
     }
   }
 

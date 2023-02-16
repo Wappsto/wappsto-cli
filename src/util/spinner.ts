@@ -1,13 +1,12 @@
 import { clearLine, cursorTo } from 'node:readline';
 import tui from './tui';
 
-export default class Spinner {
+class Spinner {
   timer: ReturnType<typeof setInterval> | undefined;
   title: string = '';
   frames: string[] = ['|', '/', '-', '\\'];
 
-  constructor(title: string) {
-    this.setMessage(title);
+  constructor() {
   }
 
   setMessage(message: string): void {
@@ -40,3 +39,6 @@ export default class Spinner {
     this.timer = undefined;
   }
 }
+
+const spinner = new Spinner();
+export default spinner;

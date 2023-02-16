@@ -10,6 +10,7 @@ import {
   saveJsonFile,
 } from './util/files';
 import Trace, { setUser } from './util/trace';
+import Spinner from './util/spinner';
 import { Manifest } from './types/custom.d';
 import Version from './version';
 import Wappsto from './wappsto';
@@ -144,5 +145,21 @@ export default class Wapp {
 
   measure(name: string, description?: string, data?: any): Trace {
     return new Trace(name, description, data);
+  }
+
+  async section(name: string, code: () => Promise<any>): Promise<any | null> {
+    let t = this.measure(name);
+    Spinner.setMessage(name);
+    try {
+      const res = await code();
+      t.done();
+      return res;
+    } catch(err) {
+      t.done('unknown');
+      throw err;
+    } finally {
+      Spinner.stop();
+    }
+    return null;
   }
 }

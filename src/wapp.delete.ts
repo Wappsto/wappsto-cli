@@ -27,7 +27,7 @@ export default class DeleteWapp extends Wapp {
     }
 
     t = this.measure('Deleting wapp');
-    const status = new Spinner('Deleting Wapp');
+    Spinner.setMessage('Deleting Wapp');
 
     if (answers.local) {
       this.deleteLocal();
@@ -49,13 +49,13 @@ export default class DeleteWapp extends Wapp {
       try {
         await Promise.all(results);
       } catch (err) {
-        status.stop();
+        Spinner.stop();
         tui.showError(`Failed to delete application: ${err}`);
         return;
       }
     }
 
-    status.stop();
+    Spinner.stop();
     tui.showMessage('Wapp deleted');
     t.done();
   }
