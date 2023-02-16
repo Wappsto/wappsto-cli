@@ -1,12 +1,7 @@
-//import axios from 'axios';
 import { setup, teardown } from './util/setup';
 import serve from '../src/cmd/serve';
-
 describe('Serve', () => {
-  //let mockedAxios: jest.Mocked<typeof axios>;
-
   beforeEach(async () => {
-    //mockedAxios = await setup();
     await setup();
   });
 

@@ -131,11 +131,10 @@ export default class Wapp {
   }
 
   async getInstallationSession(): Promise<string> {
-    const ret = await this.installation.fetchById(this.versionID);
-    if (!ret) {
-      return '';
+    if(await this.installation.fetchById(this.versionID)) {
+      return this.installation.session || '';
     }
-    return this.installation.session || '';
+    return '';
   }
 
   getInstallationToken(): string {

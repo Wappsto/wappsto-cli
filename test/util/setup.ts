@@ -2,7 +2,7 @@ import axios from 'axios';
 import { join } from 'path';
 import { tmpdir } from 'node:os';
 import { mkdtemp, rmSync, mkdirSync, writeFileSync } from 'node:fs';
-import { saveJsonFile } from '../../src/util/files';
+import { saveJsonFile, createFolders, saveFile } from '../../src/util/files';
 import Config from '../../src/config';
 
 //jest.mock("../../src/util/getDirName.ts");
@@ -47,12 +47,12 @@ export function teardown() {
   }
 }
 
-export function createWapp() {
+export function createWapp(foreground?: boolean, background?: boolean) {
   saveJsonFile('manifest.json', {
     name: 'Wapp name',
     author: 'Wapp Author',
     version_app: '1.2.3',
-    supported_features: ['foreground'],
+    supported_features: background ? ['foreground', 'background']: ['foreground'],
     max_number_installation: 1,
     description: {
       general: 'Wapp description',
@@ -87,7 +87,7 @@ export function createWapp() {
           widget: '',
         },
         max_number_installation: 1,
-        supported_features: ['foreground'],
+        supported_features: background ? ['foreground', 'background']: ['foreground'],
         version_app: '1.2.3',
         name: 'Wapp name',
         file: [],
@@ -104,8 +104,20 @@ export function createWapp() {
     },
     token_installation:
       '22a06c7ff5ceab0ef412495f248f5e7f50ca88c26eb8c8ab57852da7f792d77aeec40c87ee7b25875b8624e5c4a6a2842192801e7641c2b78809d70bbe73d470',
-    supported_features: ['background', 'foreground'],
+    supported_features: background ? ['foreground', 'background']: ['foreground'],
     application: '866ee500-6c8d-4ccb-a41e-ace97c7b2243',
     version_id: 'c07cb6b3-a1e2-4007-ba55-92887925f34d',
   });
+
+  if(foreground) {
+    const testFile = `${Config.foreground()}/index.html`;
+    createFolders(testFile);
+    saveFile(testFile, 'test fore data');
+  }
+
+  if(background) {
+    const testFile = `${Config.background()}/main.js`;
+    createFolders(testFile);
+    saveFile(testFile, 'test back data');
+  }
 }

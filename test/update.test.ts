@@ -6,8 +6,6 @@ import {
   versionResponse,
 } from './util/response';
 import update from '../src/cmd/update';
-import { saveFile, createFolders } from '../src/util/files';
-import Config from '../src/config';
 
 describe('Update', () => {
   let mockedAxios: jest.Mocked<typeof axios>;
@@ -172,11 +170,7 @@ describe('Update', () => {
         data: installationResponse,
       });
 
-    createWapp();
-
-    const testFile = `${Config.foreground()}/test_file.js`;
-    createFolders(testFile);
-    saveFile(testFile, 'test file data');
+    createWapp(true);
 
     await update([]);
 
