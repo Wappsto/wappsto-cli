@@ -2,6 +2,7 @@ import Wapp from './wapp.update';
 import tui from './util/tui';
 import Spinner from './util/spinner';
 import questions from './util/questions';
+import { section } from './util/trace';
 import Application from './application';
 import File from './file';
 import {
@@ -19,7 +20,7 @@ export default class CreateWapp extends Wapp {
     const listWapps: any[] = [];
     let updateFiles;
 
-    const wapps = await this.section('Loading all applications', async () => {
+    const wapps = await section('Loading all applications', async () => {
       const wapps = await this.application.getAll();
       if (wapps.length) {
         wapps.forEach((w: Application) => {
@@ -35,129 +36,110 @@ export default class CreateWapp extends Wapp {
       return wapps;
     });
 
-    let t = this.measure('Ask the human');
-    const newWapp = await questions.askCreateWapp(listWapps, this.present());
+    const newWapp = await section('Wait for user input', () => {
+      return questions.askCreateWapp(listWapps, this.present());
+    });
+
     if (newWapp === false) {
       return;
     }
-    t.done();
 
     let wapp;
     let new_app: Application | undefined;
     switch (newWapp.create) {
       case 'download':
-        t = this.measure('Downloading wapp');
-        wapp = wapps.find((w: Application) => w.id === newWapp.wapp);
-        if (!wapp) {
-          tui.showError('Failed to find Application from id');
-          t.done('not_found');
-          return;
-        }
-        this.deleteLocal();
-        await this.downloadWapp(wapp);
-        t.done();
+        await section('Downloading wapp', async () => {
+          wapp = wapps.find((w: Application) => w.id === newWapp.wapp);
+          if (!wapp) {
+            tui.showError('Failed to find Application from id');
+            throw new Error('not_found');
+          }
+          this.deleteLocal();
+          await this.downloadWapp(wapp);
+        });
         break;
       case 'generate':
-        t = this.measure('Generating wapp');
-        Spinner.setMessage('Creating Wapp,');
+        await section('Generating wapp', async () => {
+          new_app = await Application.create(this.manifest);
+          if (!new_app) {
+            throw new Error('Failed to generate Application');
+          }
+          this.application = new_app;
 
-        new_app = await Application.create(this.manifest);
-        if (!new_app) {
+          await this.installation.create(this.versionID);
+          this.saveApplication();
           Spinner.stop();
-          t.done('unknown');
-          throw new Error('Failed to generate Application');
-        }
-        this.application = new_app;
 
-        await this.installation.create(this.versionID);
-        this.saveApplication();
-        Spinner.stop();
+          updateFiles = await this.update();
+          updateFiles.forEach(async (f: File) => {
+            if (validate) {
+              const tmpFile = `${this.cacheFolder}file/${f.name}`;
+              await f.download(tmpFile);
 
-        updateFiles = await this.update();
-        updateFiles.forEach(async (f: File) => {
-          if (validate) {
-            const tmpFile = `${this.cacheFolder}file/${f.name}`;
-            await f.download(tmpFile);
+              const localFile = loadFile(f.path);
+              const remoteFile = loadFile(tmpFile);
 
-            const localFile = loadFile(f.path);
-            const remoteFile = loadFile(tmpFile);
+              if (localFile && remoteFile) {
+                const localBuff = Buffer.from(localFile);
+                const remoteBuff = Buffer.from(remoteFile);
 
-            if (localFile && remoteFile) {
-              const localBuff = Buffer.from(localFile);
-              const remoteBuff = Buffer.from(remoteFile);
-
-              if (localBuff.compare(remoteBuff) !== 0) {
-                tui.showError(`${f.name} was not uploaded correctly`);
-                return;
+                if (localBuff.compare(remoteBuff) !== 0) {
+                  tui.showError(`${f.name} was not uploaded correctly`);
+                  return;
+                }
               }
             }
-          }
-          tui.showMessage(`${f.name} was ${f.status}`);
+            tui.showMessage(`${f.name} was ${f.status}`);
+          });
         });
 
         if (this.application && this.installation.id) {
           tui.showMessage(`Wapp created with id: ${this.application.id}`);
         }
-        t.done();
         break;
       case 'link':
-        t = this.measure('Linking wapp');
-        Spinner.setMessage('Linking Wapp');
-        wapp = wapps.find((w: Application) => w.id === newWapp.wapp);
-        if (!wapp) {
-          Spinner.stop();
-          t.done('not_found');
-          tui.showError('Failed to find Application from id');
-          return;
-        }
-        this.application = wapp;
+        await section('Linking wapp', async () => {
+          wapp = wapps.find((w: Application) => w.id === newWapp.wapp);
+          if (!wapp) {
+            tui.showError('Failed to find Application from id');
+            throw new Error('not_found');
+          }
+          this.application = wapp;
 
-        Spinner.setMessage('Downloading installation');
-        if (await this.installation.fetchById(wapp.getVersion().id)) {
-          this.saveApplication();
-
-          Spinner.stop();
-          tui.showMessage(`Wapp ${wapp.getVersion().name} linked`);
-        } else {
-          Spinner.stop();
-        }
-
-        Spinner.stop();
-        t.done();
+          Spinner.setMessage('Downloading installation');
+          if (await this.installation.fetchById(wapp.getVersion().id)) {
+            this.saveApplication();
+            tui.showMessage(`Wapp ${wapp.getVersion().name} linked`);
+          }
+        });
         break;
       case 'new':
       default:
-        t = this.measure('Creating wapp');
-        Spinner.setMessage('Creating Wapp');
+        await section('Creating wapp', async () => {
+          new_app = await Application.create(newWapp);
+          if (!new_app) {
+            throw new Error('Failed to create Application');
+          }
 
-        new_app = await Application.create(newWapp);
-        if (!new_app) {
+          this.application = new_app;
+          const customFolders = {
+            foreground: Config.foreground(),
+            background: Config.background(),
+          };
           Spinner.stop();
-          t.done('unknown');
-          throw new Error('Failed to create Application');
-        }
-
-        this.application = new_app;
-        const customFolders = {
-          foreground: Config.foreground(),
-          background: Config.background(),
-        };
-        Spinner.stop();
-        await this.createFolders(
-          newWapp.features,
-          newWapp.examples,
-          customFolders
-        );
-        Spinner.start();
-        await this.installation.create(this.application.getVersion().id);
-        this.saveApplication();
-
-        Spinner.stop();
+          await this.createFolders(
+            newWapp.features,
+            newWapp.examples,
+            customFolders
+          );
+          Spinner.start();
+          await this.installation.create(this.application.getVersion().id);
+          this.saveApplication();
+        });
 
         if (this.application) {
           tui.showMessage(`Wapp created with id: ${this.application.id}`);
         }
-        t.done();
         break;
     }
 

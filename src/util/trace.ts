@@ -1,6 +1,7 @@
 import * as Sentry from '@sentry/node';
 import '@sentry/tracing';
 import { VERSION } from './version';
+import Spinner from './spinner';
 import Config from '../config';
 import Session from '../session';
 
@@ -81,4 +82,28 @@ export default class Trace {
       this.span.finish();
     }
   }
+}
+
+export function measure(name: string, description?: string, data?: any): Trace {
+  return new Trace(name, description, data);
+}
+
+export async function section(name: string, code: () => Promise<any>): Promise<any | null> {
+  let t = new Trace('Section', name);
+  Spinner.setMessage(name);
+  try {
+    const res = await code();
+    t.done();
+    return res;
+  } catch(err: any) {
+    if(err.message === 'not_found') {
+      t.done('not_found');
+    } else {
+      t.done('unknown');
+      throw err;
+    }
+  } finally {
+    Spinner.stop();
+  }
+  return null;
 }

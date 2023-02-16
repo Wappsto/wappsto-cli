@@ -9,8 +9,7 @@ import {
   deleteFolder,
   saveJsonFile,
 } from './util/files';
-import Trace, { setUser } from './util/trace';
-import Spinner from './util/spinner';
+import { setUser, measure } from './util/trace';
 import { Manifest } from './types/custom.d';
 import Version from './version';
 import Wappsto from './wappsto';
@@ -72,12 +71,12 @@ export default class Wapp {
   }
 
   async init(): Promise<void> {
-    let t = this.measure('Login', 'Validate session');
+    let t = measure('Login', 'Validate session');
     await this.wappsto.login();
     setUser(this.wappsto.session);
     t.done();
 
-    t = this.measure('Upgrading');
+    t = measure('Upgrading');
     await this.application.upgradeVersion();
     await this.installation.upgradeVersion();
     t.done();
@@ -141,25 +140,5 @@ export default class Wapp {
 
   getInstallationToken(): string {
     return this.installation.token;
-  }
-
-  measure(name: string, description?: string, data?: any): Trace {
-    return new Trace(name, description, data);
-  }
-
-  async section(name: string, code: () => Promise<any>): Promise<any | null> {
-    let t = this.measure(name);
-    Spinner.setMessage(name);
-    try {
-      const res = await code();
-      t.done();
-      return res;
-    } catch(err) {
-      t.done('unknown');
-      throw err;
-    } finally {
-      Spinner.stop();
-    }
-    return null;
   }
 }

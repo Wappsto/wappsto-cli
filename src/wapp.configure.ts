@@ -1,6 +1,7 @@
 import Wapp from './wapp';
 import questions from './util/questions';
 import tui from './util/tui';
+import { section } from './util/trace';
 
 export default class ConfigureWapp extends Wapp {
   async configure(): Promise<void> {
@@ -9,60 +10,65 @@ export default class ConfigureWapp extends Wapp {
       return;
     }
 
-    let t = this.measure('Load application');
-    await this.application.fetch();
-    t.done();
+    await section('Load application', () => {
+      return this.application.fetch();
+    });
 
-    t = this.measure('Ask the human');
-    const answer = await questions.configureWapp(
-      this.manifest,
-      this.application.getOAuthExternal(),
-      this.application.getOAuthClient()
-    );
-    t.done();
 
-    if (answer === false) {
+    const answers = await section('Wait for user input', () => {
+      return questions.configureWapp(
+        this.manifest,
+        this.application.getOAuthExternal(),
+        this.application.getOAuthClient()
+      );
+    });
+
+    if (answers === false) {
       return;
     }
 
     const version = this.application.getVersion();
 
-    switch (answer.type) {
+    switch (answers.type) {
       case 'external_oauth':
-        t = this.measure('createOauthExternal');
-        this.application.createOauthExternal(answer);
+        await section('Creating OAuth External', () => {
+          return this.application.createOauthExternal(answers);
+        });
         break;
       case 'oauth_client':
-        t = this.measure('createOauthClient');
-        this.application.createOauthClient(answer);
+        await section('Creating OAuth Client', async () => {
+          return this.application.createOauthClient(answers);
+        });
         break;
       case 'permissions':
-        t = this.measure('changePermission');
-        delete answer.type;
-        version.permission = answer;
-        await version.update();
-        this.saveApplication();
-        t.done();
+        await section('Changing Permission', async () => {;
+          delete answers.type;
+          version.permission = answers;
+          await version.update();
+          this.saveApplication();
+        });
         break;
       case 'multi_installations':
-        version.max_number_installation = answer.allow ? 99 : 1;
-        await version.update();
-        this.saveApplication();
+        await section('Changing Installation count', async () => {
+          version.max_number_installation = answers.allow ? 99 : 1;
+          await version.update();
+          this.saveApplication();
+         });
         break;
       case 'description':
       default:
-        t = this.measure('changeDescription');
-        this.manifest.name = answer.name;
-        this.manifest.author = answer.author;
-        this.manifest.description.general = answer.general;
-        this.manifest.description.foreground = answer.foreground;
-        this.manifest.description.background = answer.background;
-        this.saveManifest();
-        this.application.getVersion().parse(this.manifest);
-        await this.application.getVersion().update();
-        this.saveApplication();
+        await section('Changing Description', async () => {
+          this.manifest.name = answers.name;
+          this.manifest.author = answers.author;
+          this.manifest.description.general = answers.general;
+          this.manifest.description.foreground = answers.foreground;
+          this.manifest.description.background = answers.background;
+          this.saveManifest();
+          this.application.getVersion().parse(this.manifest);
+          await this.application.getVersion().update();
+          this.saveApplication();
+        });
         break;
     }
-    t.done();
   }
 }

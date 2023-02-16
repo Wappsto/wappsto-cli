@@ -16,7 +16,7 @@ class Spinner {
   }
 
   start(): void {
-    if (this.timer) {
+    if (this.timer || this.title === '') {
       return;
     }
 

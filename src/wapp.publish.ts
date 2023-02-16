@@ -1,6 +1,6 @@
 import Wapp from './wapp';
 import tui from './util/tui';
-import Spinner from './util/spinner';
+import { section } from './util/trace';
 import questions from './util/questions';
 
 export default class PublishWapp extends Wapp {
@@ -10,28 +10,29 @@ export default class PublishWapp extends Wapp {
       return;
     }
 
-    Spinner.setMessage('Loading application');
-    let res = await this.application.fetch();
-    Spinner.stop();
+    let res = await section('Loading application', () => {
+      return this.application.fetch();
+    });
+
     if (!res) {
       return;
     }
 
-    const answers = await questions.askPublishWapp(this.manifest.version_app);
+    const answers = await section('Wait for user input', () => {
+      return questions.askPublishWapp(this.manifest.version_app);
+    });
+
     if (answers === false) {
       return;
     }
 
-    Spinner.setMessage('Publishing new version');
+    res = await section('Publishing new version', () => {
+      return this.application.publish(answers.version, answers.change);
+    });
 
-    res = await this.application.publish(answers.version, answers.change);
     if (res) {
       this.saveApplication();
-      Spinner.stop();
-
       tui.showMessage(`Wapp published with version ${answers.version}`);
-    } else {
-      Spinner.stop();
     }
   }
 }

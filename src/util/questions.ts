@@ -2,7 +2,7 @@ import prompts from 'prompts';
 import tui from './tui';
 import { Manifest } from '../types/custom.d';
 import { OauthExternal21, OauthClient21 } from '../types/application.d';
-import Trace from './trace';
+import Spinner from './spinner';
 
 type Request = {
   collection: string;
@@ -13,15 +13,15 @@ type Request = {
 
 class Questions {
   private async ask(questions: any[]): Promise<any | false> {
-    const t = new Trace('User Input', questions[0].message);
+    Spinner.stop();
     return new Promise<any | false>((resolve) => {
       const onCancel = () => {
-        t.done('unknown');
+        Spinner.start();
         resolve(false);
         return false;
       };
       prompts(questions, { onCancel }).then((answers) => {
-        t.done();
+        Spinner.start();
         resolve(answers);
       });
     });

@@ -1,7 +1,7 @@
 import Wapp from './wapp';
 import tui from './util/tui';
-import Spinner from './util/spinner';
 import questions from './util/questions';
+import { section } from './util/trace';
 
 export default class DeleteWapp extends Wapp {
   async delete(): Promise<void> {
@@ -10,53 +10,46 @@ export default class DeleteWapp extends Wapp {
       return;
     }
 
-    let t = this.measure('Ask the human');
-    const answers = await questions.deleteWapp();
-    t.done();
-    if (answers === false) {
-      return;
-    }
+    const answers = await section('Wait for user input', () => {
+      return questions.deleteWapp();
+    });
 
-    if (!answers.del) {
+    if (answers === false || !answers.del) {
       return;
     }
 
     if (!answers.local && !answers.remote) {
-      tui.showWarning('Nothing deleted');
+      tui.showWarning('Nothing to delete');
       return;
     }
 
-    t = this.measure('Deleting wapp');
-    Spinner.setMessage('Deleting Wapp');
+    section('Deleting wapp', async () => {
+      if (answers.local) {
+        this.deleteLocal();
+      }
 
-    if (answers.local) {
-      this.deleteLocal();
-    }
+      if (answers.remote) {
+        const results = [];
 
-    if (answers.remote) {
-      const results = [];
+        this.application.version.forEach((v: any) => {
+          if (v.id) {
+            results.push(v.delete());
+            results.push(this.installation.deleteById(v.id));
+          }
+        });
 
-      this.application.version.forEach((v: any) => {
-        if (v.id) {
-          results.push(v.delete());
-          results.push(this.installation.deleteById(v.id));
+        if (this.application.id) {
+          results.push(this.application.delete());
         }
-      });
-
-      if (this.application.id) {
-        results.push(this.application.delete());
+        try {
+          await Promise.all(results);
+        } catch (err) {
+          tui.showError(`Failed to delete wapp: ${err}`);
+          return;
+        }
       }
-      try {
-        await Promise.all(results);
-      } catch (err) {
-        Spinner.stop();
-        tui.showError(`Failed to delete application: ${err}`);
-        return;
-      }
-    }
+    });
 
-    Spinner.stop();
     tui.showMessage('Wapp deleted');
-    t.done();
   }
 }
