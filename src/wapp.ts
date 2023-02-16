@@ -9,7 +9,7 @@ import {
   deleteFolder,
   saveJsonFile,
 } from './util/files';
-import { setUser, measure } from './util/trace';
+import { setUser, section } from './util/trace';
 import { Manifest } from './types/custom.d';
 import Version from './version';
 import Wappsto from './wappsto';
@@ -71,15 +71,15 @@ export default class Wapp {
   }
 
   async init(): Promise<void> {
-    let t = measure('Login', 'Validate session');
-    await this.wappsto.login();
-    setUser(this.wappsto.session);
-    t.done();
+    await section('Validate session', async () => {
+      await this.wappsto.login();
+      setUser(this.wappsto.session);
+    });
 
-    t = measure('Upgrading');
-    await this.application.upgradeVersion();
-    await this.installation.upgradeVersion();
-    t.done();
+    await section('Upgrading', async () => {
+      await this.application.upgradeVersion();
+      await this.installation.upgradeVersion();
+    });
   }
 
   initCacheFolder(): void {

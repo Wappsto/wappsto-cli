@@ -1,5 +1,4 @@
 import HTTP from './util/http';
-import Spinner from './util/spinner';
 import tui from './util/tui';
 import questions from './util/questions';
 import Config from './config';
@@ -15,10 +14,7 @@ export default class Wappsto {
   }
 
   async login(): Promise<void> {
-    Spinner.setMessage('Authenticating you');
-
     const validSession = await this.session.validate();
-    Spinner.stop();
 
     if (validSession) {
       return;
@@ -32,13 +28,9 @@ export default class Wappsto {
       return;
     }
 
-    Spinner.start();
-
     try {
       await this.session.login(creds.username, creds.password);
-      Spinner.stop();
     } catch (err) {
-      Spinner.stop();
       throw new Error('LoginError');
     }
   }
