@@ -1,10 +1,12 @@
 import axios from 'axios';
 import prompts from 'prompts';
-import { setup, teardown } from './util/setup';
+import { setup, teardown, createWapp } from './util/setup';
 import {
   applicationResponse,
   installationResponse,
-  allApplicationsResponse,
+    allApplicationsResponse,
+    applicationJson,
+    versionResponse,
 } from './util/response';
 import { loadJsonFile, loadFile } from '../src/util/files';
 import Config from '../src/config';
@@ -65,8 +67,6 @@ describe('Create', () => {
 
     await create([]);
 
-    const application_file = loadJsonFile(`${Config.cacheFolder()}application`);
-
     expect(mockedAxios.get).toHaveBeenCalledTimes(2);
     expect(mockedAxios.get).toHaveBeenNthCalledWith(
       2,
@@ -113,46 +113,7 @@ describe('Create', () => {
       {}
     );
 
-    expect(application_file).toEqual({
-      meta: {
-        id: '4c8ebb21-524b-4fc0-bbc5-015da2e5ca60',
-        revision: 1,
-        type: 'application',
-        version: '2.1',
-        updated: '2023-01-24T09:53:15.128304Z',
-      },
-      name: 'Wapp name',
-      version: [
-        {
-          meta: {
-            id: '98e68cd8-74a6-4841-bdd4-70c29f068056',
-            revision: 1,
-            type: 'version',
-            version: '2.1',
-            updated: '2023-01-24T09:53:15.128304Z',
-          },
-          author: 'Wapp Author',
-          status: 'idle',
-          description: {
-            foreground: 'Wapp Foreground',
-            general: 'Wapp description',
-            version: '',
-            widget: '',
-          },
-          max_number_installation: 1,
-          supported_features: ['foreground'],
-          version_app: '1.2.3',
-          name: 'Wapp name',
-          file: [],
-          used_files: {},
-          permission: {
-            create: ['data', 'stream'],
-            permit_to_send_email: false,
-            permit_to_send_sms: false,
-          },
-        },
-      ],
-    });
+    expect(loadJsonFile(`${Config.cacheFolder()}application`)).toEqual(applicationJson);
 
     const manifest_file = loadJsonFile('./manifest.json');
     expect(manifest_file).toEqual({
@@ -199,8 +160,7 @@ describe('Create', () => {
 
     await create([]);
 
-    const application_file = loadJsonFile(`${Config.cacheFolder()}application`);
-    expect(application_file).toEqual({
+    expect(loadJsonFile(`${Config.cacheFolder()}application`)).toEqual({
       meta: {
         id: '866ee500-6c8d-4ccb-a41e-ace97c7b2243',
         revision: 1,
@@ -299,6 +259,8 @@ describe('Create', () => {
       },
     });
 
+      expect(mockedAxios.put).toHaveBeenCalledTimes(0);
+      expect(mockedAxios.patch).toHaveBeenCalledTimes(0);
     expect(mockedAxios.post).toHaveBeenCalledTimes(0);
     expect(mockedAxios.get).toHaveBeenCalledTimes(6);
     expect(mockedAxios.get).toHaveBeenNthCalledWith(
@@ -333,4 +295,169 @@ describe('Create', () => {
       {}
     );
   });
+
+  it('can generate a new wapp from an old wapp', async () => {
+    mockedAxios.get.mockResolvedValueOnce({
+      data: [],
+    }).mockResolvedValueOnce({
+        data: versionResponse,
+    }).mockResolvedValueOnce({
+        data: installationResponse,
+    }).mockResolvedValueOnce({
+        data: versionResponse,
+    }).mockResolvedValueOnce({
+        data: applicationResponse,
+    });
+    mockedAxios.post
+      .mockResolvedValueOnce({
+          data: applicationResponse,
+      })
+      .mockResolvedValueOnce({
+        data: installationResponse,
+      }).mockResolvedValueOnce({
+        data: {},
+      });
+    mockedAxios.patch.mockResolvedValueOnce({
+        data: versionResponse,
+    });
+
+        prompts.inject([false, 'generate']);
+
+        createWapp(true);
+
+    await create([]);
+
+      expect(mockedAxios.put).toHaveBeenCalledTimes(0);
+      expect(mockedAxios.patch).toHaveBeenCalledTimes(1);
+    expect(mockedAxios.patch).toHaveBeenNthCalledWith(
+      1,
+        'https://wappsto.com/services/2.1/version/98e68cd8-74a6-4841-bdd4-70c29f068056',
+     {
+       "author": "Wapp Author",
+       "description":  {
+         "foreground": "Wapp Foreground",
+         "general": "Wapp description",
+         "version": "",
+         "widget": "",
+       },
+       "max_number_installation": 1,
+       "meta":  {
+         "id": "98e68cd8-74a6-4841-bdd4-70c29f068056",
+         "revision": 1,
+         "type": "version",
+         "updated": "2023-01-24T09:53:15.128304Z",
+         "version": "2.1",
+       },
+       "name": "Wapp name",
+       "permission":  {
+         "create": [
+           "data",
+           "stream",
+         ],
+         "permit_to_send_email": false,
+         "permit_to_send_sms": false,
+       },
+       "status": "idle",
+       "supported_features": [
+         "foreground",
+       ],
+       "used_files":  {},
+       "version_app": "1.2.3",
+     },
+     {}
+    );
+
+    expect(mockedAxios.get).toHaveBeenCalledTimes(6);
+    expect(mockedAxios.get).toHaveBeenNthCalledWith(
+      2,
+      'https://wappsto.com/services/2.1/application?expand=2&verbose=true',
+      {}
+    );
+    expect(mockedAxios.get).toHaveBeenNthCalledWith(
+      3,
+      'https://wappsto.com/services/2.1/version/98e68cd8-74a6-4841-bdd4-70c29f068056?expand=2&verbose=true',
+      {}
+    );
+    expect(mockedAxios.get).toHaveBeenNthCalledWith(
+      4,
+      "https://wappsto.com/services/2.1/installation?expand=2&this_version_id=98e68cd8-74a6-4841-bdd4-70c29f068056",
+      {}
+    );
+    expect(mockedAxios.get).toHaveBeenNthCalledWith(
+      5,
+        "https://wappsto.com/services/2.1/version/98e68cd8-74a6-4841-bdd4-70c29f068056?expand=2&verbose=true",
+      {}
+    );
+    expect(mockedAxios.get).toHaveBeenNthCalledWith(
+      6,
+        "https://wappsto.com/services/2.1/application/4c8ebb21-524b-4fc0-bbc5-015da2e5ca60?expand=2&verbose=true",
+      {}
+    );
+
+    expect(mockedAxios.post).toHaveBeenCalledTimes(3);
+    expect(mockedAxios.post).toHaveBeenNthCalledWith(
+      1,
+      'https://wappsto.com/services/2.1/application?verbose=true',
+      {
+        version: [
+          {
+            author: 'Wapp Author',
+            description: {
+              foreground: 'Wapp Foreground',
+              general: 'Wapp description',
+              version: '',
+              widget: '',
+            },
+            executable: {
+              engine: 'node',
+            },
+              "max_number_installation": 1,
+            name: 'Wapp name',
+            supported_features: ['foreground'],
+            version_app: '1.2.3',
+          },
+        ],
+      },
+      {}
+    );
+    expect(mockedAxios.post).toHaveBeenNthCalledWith(
+      2,
+      'https://wappsto.com/services/2.1/installation',
+      {
+        application: '98e68cd8-74a6-4841-bdd4-70c29f068056',
+      },
+      {}
+    );
+    expect(mockedAxios.post).toHaveBeenNthCalledWith(
+      3,
+        'https://wappsto.com/services/2.1/version/98e68cd8-74a6-4841-bdd4-70c29f068056/file/foreground?verbose=true',
+            expect.objectContaining({}),
+      { headers: expect.objectContaining({}) }
+    );
+
+    expect(loadJsonFile(`${Config.cacheFolder()}application`)).toEqual(applicationJson);
+
+    const manifest_file = loadJsonFile('./manifest.json');
+    expect(manifest_file).toEqual({
+      name: 'Wapp name',
+      author: 'Wapp Author',
+      version_app: '1.2.3',
+      supported_features: ['foreground'],
+      max_number_installation: 1,
+      description: {
+        general: 'Wapp description',
+        foreground: 'Wapp Foreground',
+        version: '',
+        widget: '',
+      },
+      permission: {
+        create: ['data', 'stream'],
+        permit_to_send_email: false,
+        permit_to_send_sms: false,
+      },
+    });
+
+    expect(loadFile('.gitignore')).toEqual(".wappsto-cli-cache/\nnode_modules\n");
+  });
+
 });

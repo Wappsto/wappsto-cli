@@ -385,8 +385,50 @@ const downloadInstallationResponse = [
   },
 ];
 
+const applicationJson = {
+      meta: {
+        id: '4c8ebb21-524b-4fc0-bbc5-015da2e5ca60',
+        revision: 1,
+        type: 'application',
+        version: '2.1',
+        updated: '2023-01-24T09:53:15.128304Z',
+      },
+      name: 'Wapp name',
+      version: [
+        {
+          meta: {
+            id: '98e68cd8-74a6-4841-bdd4-70c29f068056',
+            revision: 1,
+            type: 'version',
+            version: '2.1',
+            updated: '2023-01-24T09:53:15.128304Z',
+          },
+          author: 'Wapp Author',
+          status: 'idle',
+          description: {
+            foreground: 'Wapp Foreground',
+            general: 'Wapp description',
+            version: '',
+            widget: '',
+          },
+          max_number_installation: 1,
+          supported_features: ['foreground'],
+          version_app: '1.2.3',
+          name: 'Wapp name',
+          file: [],
+          used_files: {},
+          permission: {
+            create: ['data', 'stream'],
+            permit_to_send_email: false,
+            permit_to_send_sms: false,
+          },
+        },
+      ],
+};
+
 export {
-  applicationResponse,
+    applicationResponse,
+    applicationJson,
   versionResponse,
   installationResponse,
   downloadInstallationResponse,
