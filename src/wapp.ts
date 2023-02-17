@@ -134,7 +134,7 @@ export default class Wapp {
   }
 
   async getInstallationSession(): Promise<string> {
-    if(await this.installation.fetchById(this.versionID)) {
+    if (await this.installation.fetchById(this.versionID)) {
       return this.installation.session || '';
     }
     return '';

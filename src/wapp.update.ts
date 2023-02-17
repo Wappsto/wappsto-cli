@@ -150,19 +150,27 @@ export default class UpdateWapp extends Wapp {
 
           file.status = 'unknown';
 
-          const runAsync = (type: string, file: File, code: (file: File) => Promise<void | boolean>) => {
-            results.push(new Promise<void>((resolve, reject) => {
-              code(file).then(() => {
-                tui.showVerbose('UPDATE', `${file.path} ${type}ed`);
-                file.status = `${type}ed`;
-                resolve();
-              }).catch(() => {
-                tui.showVerbose('UPDATE', `Failed to ${type} ${file.path}`);
-                file.status = `not $type}ed`;
-                reject();
-              });
-            }));
-          }
+          const runAsync = (
+            type: string,
+            file: File,
+            code: (file: File) => Promise<void | boolean>
+          ) => {
+            results.push(
+              new Promise<void>((resolve, reject) => {
+                code(file)
+                  .then(() => {
+                    tui.showVerbose('UPDATE', `${file.path} ${type}ed`);
+                    file.status = `${type}ed`;
+                    resolve();
+                  })
+                  .catch(() => {
+                    tui.showVerbose('UPDATE', `Failed to ${type} ${file.path}`);
+                    file.status = `not $type}ed`;
+                    reject();
+                  });
+              })
+            );
+          };
 
           if ((rf && !lf) || (remoteUpdated && !locallyUpdated)) {
             runAsync('download', file, (file: File) => {
