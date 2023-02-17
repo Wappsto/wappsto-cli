@@ -27,8 +27,9 @@
     "seluxit"
   ],
   "files": [
+    "examples",
     "dist/index.js",
-    "wappsto-cli.esm.js",
+    "dist/wappsto-cli.esm.js",
     "dist/wappsto-cli.cjs.development.js",
     "dist/wappsto-cli.cjs.production.min.js"
   ],
