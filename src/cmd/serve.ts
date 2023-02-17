@@ -11,6 +11,7 @@ import Wapp from '../wapp.serve';
 import Config from '../config';
 import tui from '../util/tui';
 import setup from '../util/setup_cli';
+import { getFileType} from '../util/helpers';
 import { directoryExists, fileExists, loadFile } from '../util/files';
 
 const optionDefinitions = [
@@ -150,6 +151,7 @@ export default async function serve(argv: string[]) {
           } else {
             // check if requested file exists locally
             if (haveFile(Config.foreground(), request)) {
+              response.writeHead(200, { 'Content-Type': getFileType(request.url) });
               response.end(loadFile(`${Config.foreground()}/${request.url}`));
             } else {
               response.writeHead(404, { 'Content-Type': 'text/plain' });
