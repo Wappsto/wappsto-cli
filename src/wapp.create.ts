@@ -16,7 +16,7 @@ import Config from './config';
 import getDirName from './util/getDirName';
 
 export default class CreateWapp extends Wapp {
-  async create(validate: boolean): Promise<void> {
+  async create(): Promise<void> {
     const listWapps: any[] = [];
     let updateFiles;
 
@@ -72,23 +72,6 @@ export default class CreateWapp extends Wapp {
 
           updateFiles = await this.update();
           updateFiles.forEach(async (f: File) => {
-            if (validate) {
-              const tmpFile = `${this.cacheFolder}file/${f.name}`;
-              await f.download(tmpFile);
-
-              const localFile = loadFile(f.path);
-              const remoteFile = loadFile(tmpFile);
-
-              if (localFile && remoteFile) {
-                const localBuff = Buffer.from(localFile);
-                const remoteBuff = Buffer.from(remoteFile);
-
-                if (localBuff.compare(remoteBuff) !== 0) {
-                  tui.showError(`${f.name} was not uploaded correctly`);
-                  return;
-                }
-              }
-            }
             tui.showMessage(`${f.name} was ${f.status}`);
           });
         });
