@@ -66,7 +66,6 @@ export default class Application extends Model implements Application21 {
           // d1 is greater than d2
           return -1;
         });
-
       if (typeof idleVersions[0] !== 'string') {
         return idleVersions[0];
       }
@@ -100,7 +99,9 @@ export default class Application extends Model implements Application21 {
     const vs = this.version || [];
     this.version = [];
     vs.forEach((v: any) => {
-      this.version.push(new Version(v, this));
+      if (typeof v !== 'string') {
+        this.version.push(new Version(v, this));
+      }
     });
   }
 

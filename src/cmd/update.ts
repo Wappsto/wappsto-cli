@@ -42,7 +42,11 @@ export default async function update(argv: string[]) {
   const files = await wapp.update(options.reinstall);
 
   files.forEach((f) => {
-    tui.showMessage(`File ${f.path} was ${f.status}`);
+    if (f.status.includes('not ')) {
+      tui.showError(`File ${f.path} was ${f.status}`);
+    } else {
+      tui.showMessage(`File ${f.path} was ${f.status}`);
+    }
   });
   tui.showMessage('Wapp Updated');
 }

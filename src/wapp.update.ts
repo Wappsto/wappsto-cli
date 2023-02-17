@@ -104,7 +104,10 @@ export default class UpdateWapp extends Wapp {
             }
             if (fileTime && lf.modified !== fileTime) {
               locallyUpdated = true;
-              tui.showVerbose('FILE', `${file.path} is changed on disk`);
+              tui.showVerbose('FILE', `${file.path} is changed on disk`, {
+                version: lf.modified,
+                file: fileTime,
+              });
             }
           }
 
@@ -115,7 +118,6 @@ export default class UpdateWapp extends Wapp {
           }
 
           if (remoteUpdated && locallyUpdated) {
-            Spinner.stop();
             let run = true;
             while (run) {
               run = false;
@@ -144,43 +146,49 @@ export default class UpdateWapp extends Wapp {
                 default:
               }
             }
-            Spinner.start();
           }
 
           file.status = 'unknown';
 
-          if ((rf && !lf) || (remoteUpdated && !locallyUpdated)) {
-            try {
-              Spinner.setMessage(`Downloading ${file.path}`);
-              results.push(file.download());
-              file.status = 'downloaded';
-            } catch (err) {
-              file.status = 'not downloaded';
-            }
-          } else if (!remoteUpdated && locallyUpdated) {
-            Spinner.setMessage(`Uploading ${file.path}`);
-            file.status = 'updated';
-            results.push(file.update());
-          } else if (lf && !fileTime) {
-            file.status = 'deleted';
-            if (rf) {
-              Spinner.setMessage(`Deleting ${file.path}`);
-              results.push(file.delete());
-            }
-          } else if (!rf && lf && !locallyUpdated) {
-            Spinner.stop();
-            // eslint-disable-next-line no-await-in-loop
-            const answers = await questions.askDeleteLocalFile(file.path);
-            Spinner.start();
-            if (answers === false) {
-              /* istanbul ignore next */
-              throw new Error('User aborted');
-            }
+          const runAsync = (type: string, file: File, code: (file: File) => Promise<void | boolean>) => {
+            results.push(new Promise<void>((resolve, reject) => {
+              code(file).then(() => {
+                tui.showVerbose('UPDATE', `${file.path} ${type}ed`);
+                file.status = `${type}ed`;
+                resolve();
+              }).catch(() => {
+                tui.showVerbose('UPDATE', `Failed to ${type} ${file.path}`);
+                file.status = `not $type}ed`;
+                reject();
+              });
+            }));
+          }
 
-            if (answers.delete) {
-              file.status = 'deleted';
-              file.deleteLocal();
-            }
+          if ((rf && !lf) || (remoteUpdated && !locallyUpdated)) {
+            runAsync('download', file, (file: File) => {
+              return file.download();
+            });
+          } else if (!remoteUpdated && locallyUpdated) {
+            runAsync('update', file, (file: File) => {
+              return file.update();
+            });
+          } else if (lf && !fileTime) {
+            runAsync('delete', file, (file: File) => {
+              return file.delete();
+            });
+          } else if (!rf && lf && !locallyUpdated) {
+            runAsync('delete', file, async (file: File) => {
+              const answers = await questions.askDeleteLocalFile(file.path);
+              if (answers === false) {
+                /* istanbul ignore next */
+                throw new Error('User aborted');
+              }
+
+              if (answers.delete) {
+                file.status = 'deleted';
+                file.deleteLocal();
+              }
+            });
           }
           if (file.status !== 'unknown') {
             updateFiles.push(file);

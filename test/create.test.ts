@@ -6,7 +6,7 @@ import {
   installationResponse,
   allApplicationsResponse,
 } from './util/response';
-import { loadJsonFile } from '../src/util/files';
+import { loadJsonFile, loadFile } from '../src/util/files';
 import Config from '../src/config';
 import create from '../src/cmd/create';
 
@@ -173,6 +173,8 @@ describe('Create', () => {
         permit_to_send_sms: false,
       },
     });
+
+    expect(loadFile('.gitignore')).toEqual(".wappsto-cli-cache/\nnode_modules\n");
   });
 
   it('can download a old wapp', async () => {

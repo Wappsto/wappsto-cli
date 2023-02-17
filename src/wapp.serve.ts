@@ -7,6 +7,7 @@ export default class ServeWapp extends UpdateWapp {
   wappStream?: Stream;
   userStream?: Stream;
 
+  /* istanbul ignore next */
   async uploadFile(filePath: string): Promise<void> {
     const localVersion = this.application.getVersion();
     const localFile = localVersion.findFile(filePath);

@@ -44,6 +44,7 @@ const applicationResponse = {
         tag: [],
       },
     },
+    '6258baed-c3fb-4b9d-97f7-001ffca8e0b5'
   ],
   oauth_client: [],
   oauth_external: [],
@@ -230,6 +231,7 @@ const allApplicationsResponse = [
           tag: [],
         },
       },
+      '6258baed-c3fb-4b9d-97f7-001ffca8e0b5'
     ],
     oauth_client: [],
     oauth_external: [],

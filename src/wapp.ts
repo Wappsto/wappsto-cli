@@ -54,6 +54,7 @@ export default class Wapp {
     this.ignore_file = `${this.cacheFolder}\nnode_modules\n`;
   }
 
+  /* istanbul ignore next */
   get host(): string {
     return this.wappsto.HOST;
   }
@@ -62,10 +63,12 @@ export default class Wapp {
     return this.application.getVersion().id;
   }
 
+  /* istanbul ignore next */
   get hasForeground(): boolean {
     return this.installation.hasForeground;
   }
 
+  /* istanbul ignore next */
   get hasBackground(): boolean {
     return this.installation.hasBackground;
   }
@@ -137,6 +140,7 @@ export default class Wapp {
     return '';
   }
 
+  /* istanbul ignore next */
   getInstallationToken(): string {
     return this.installation.token;
   }
