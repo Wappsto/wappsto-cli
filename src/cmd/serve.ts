@@ -160,9 +160,7 @@ export default async function serve(argv: string[]) {
           tui.showError('Failed to serve local file', e);
         }
       },
-      server: {
-        baseDir: Config.foreground()
-      },
+      cwd: Config.foreground(),
       files: `${Config.foreground()}/*`,
       browser: Config.browser(),
       open,
