@@ -8,7 +8,7 @@ import {
   applicationJson,
   versionResponse,
 } from './util/response';
-import { loadJsonFile, loadFile } from '../src/util/files';
+import { loadJsonFile, loadFile, saveFile } from '../src/util/files';
 import Config from '../src/config';
 import create from '../src/cmd/create';
 
@@ -117,8 +117,7 @@ describe('Create', () => {
       applicationJson
     );
 
-    const manifest_file = loadJsonFile('./manifest.json');
-    expect(manifest_file).toEqual({
+    expect(loadJsonFile('./manifest.json')).toEqual({
       name: 'Wapp name',
       author: 'Wapp Author',
       version_app: '1.2.3',
@@ -162,7 +161,13 @@ describe('Create', () => {
 
     prompts.inject(['download', '866ee500-6c8d-4ccb-a41e-ace97c7b2243']);
 
+      saveFile('.gitignore', "node_modules\ntest");
+
     await create([]);
+
+      expect(loadFile('.gitignore')).toEqual(
+          'node_modules\ntest\n.wappsto-cli-cache/\n'
+      );
 
     expect(loadJsonFile(`${Config.cacheFolder()}application`)).toEqual({
       meta: {

@@ -11,6 +11,7 @@ import Delete from './cmd/delete';
 import configure from './cmd/configure';
 import serve from './cmd/serve';
 import publish from './cmd/publish';
+import logout from './cmd/logout';
 import { startTrace } from './util/trace';
 import tui from './util/tui';
 import Config from './config';
@@ -47,6 +48,7 @@ const sections = [
         summary: 'Publish a new version of your wapp to wappsto.',
       },
       { name: 'delete', summary: 'Delete the Wapp on Wappsto.' },
+      { name: 'logout', summary: 'Delete your current session to Wappsto.' },
     ],
   },
   {
@@ -107,6 +109,9 @@ if (
         case 'serve':
           await serve(argv);
           break;
+        case 'logout':
+          await logout(argv);
+          break;
         case 'help':
         default:
           console.log(commandLineUsage(sections));
@@ -115,8 +120,10 @@ if (
     } catch (err: any) {
       if (err.message === 'LoginError') {
         tui.showError('Failed to Login, please try again.');
+      } else if(err.message === 'UpgradeError') {
+        tui.showError('Failed to upgrade old versions, are you sure that they are valid?');
       } else {
-        tui.showError(`${command} error`, err);
+        tui.showError(`Fatal error when running ${command} command`, err);
         Sentry.captureException(err);
       }
       process.exit(-1);

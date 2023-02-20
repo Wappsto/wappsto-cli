@@ -165,7 +165,11 @@ export default class Model {
   }
 
   handleException(msg: string, err: any): void {
-    Model.handleException(msg, err);
+    if(this.meta.type === 'session') {
+      tui.showError(msg, err);
+    } else {
+      Model.handleException(msg, err);
+    }
   }
 
   static handleException(msg: string, err: any): void {
