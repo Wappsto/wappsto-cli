@@ -79,17 +79,23 @@ export default class Wapp {
       setUser(this.wappsto.session);
     });
 
-    if(!await section('Upgrading', async () => {
-      if(!await this.application.upgradeVersion()) {
-        return false;
-      }
-      if(!await this.installation.upgradeVersion()) {
-        return false;
-      }
-      return true;
-    })) {
+    if (
+      !(await section('Upgrading', async () => {
+        if (!(await this.application.upgradeVersion())) {
+          return false;
+        }
+        if (!(await this.installation.upgradeVersion())) {
+          return false;
+        }
+        return true;
+      }))
+    ) {
       throw new Error('UpgradeError');
     }
+
+    await section('Validating application', async () => {
+      await this.application.validate();
+    });
   }
 
   initCacheFolder(): void {

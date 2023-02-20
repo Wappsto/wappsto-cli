@@ -165,7 +165,7 @@ export default class Model {
   }
 
   handleException(msg: string, err: any): void {
-    if(this.meta.type === 'session') {
+    if (this.meta.type === 'session') {
       tui.showError(msg, err);
     } else {
       Model.handleException(msg, err);

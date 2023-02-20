@@ -161,13 +161,13 @@ describe('Create', () => {
 
     prompts.inject(['download', '866ee500-6c8d-4ccb-a41e-ace97c7b2243']);
 
-      saveFile('.gitignore', "node_modules\ntest");
+    saveFile('.gitignore', 'node_modules\ntest');
 
     await create([]);
 
-      expect(loadFile('.gitignore')).toEqual(
-          'node_modules\ntest\n.wappsto-cli-cache/\n'
-      );
+    expect(loadFile('.gitignore')).toEqual(
+      'node_modules\ntest\n.wappsto-cli-cache/\n'
+    );
 
     expect(loadJsonFile(`${Config.cacheFolder()}application`)).toEqual({
       meta: {

@@ -42,34 +42,54 @@ export default class Application extends Model implements Application21 {
     return data;
   }
 
-  getVersion(): Version {
+  private findIdleVersion(): Version | null {
     if (this.version.length > 0) {
-      const idleVersions = this.version
-        .filter((ver: Version | string) => {
-          if (typeof ver !== 'string') {
-            return ver.status === 'idle';
-          }
-          return false;
-        })
-        .sort((a, b) => {
-          if (typeof a === 'string' || typeof b === 'string') {
-            return 0;
-          }
+      const findIdle = () => {
+        return this.version
+          .filter((ver: Version | string) => {
+            if (typeof ver !== 'string') {
+              return ver.status === 'idle';
+            }
+            return false;
+          })
+          .sort((a, b) => {
+            if (typeof a === 'string' || typeof b === 'string') {
+              return 0;
+            }
 
-          // Asceding ordering
-          var d1 = new Date(a.meta.updated || '');
-          var d2 = new Date(b.meta.updated || '');
-          if (d1 < d2) {
-            return 1;
-          }
+            // Asceding ordering
+            var d1 = new Date(a.meta.updated || '');
+            var d2 = new Date(b.meta.updated || '');
+            if (d1 < d2) {
+              return 1;
+            }
 
-          // d1 is greater than d2
-          return -1;
-        });
-      if (typeof idleVersions[0] !== 'string') {
+            // d1 is greater than d2
+            return -1;
+          });
+      };
+      const idleVersions = findIdle();
+      if (idleVersions.length && typeof idleVersions[0] !== 'string') {
         return idleVersions[0];
       }
     }
+    return null;
+  }
+
+  async validate() {
+    if (this.id && this.findIdleVersion() === null) {
+      tui.showWarning('Failed to find idle version, refresing application');
+      await this.fetch();
+      this.save();
+    }
+  }
+
+  getVersion(): Version {
+    const idleVersion = this.findIdleVersion();
+    if (idleVersion) {
+      return idleVersion;
+    }
+
     /* istanbul ignore next */
     return new Version({}, this);
   }

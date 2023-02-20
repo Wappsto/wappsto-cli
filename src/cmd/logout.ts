@@ -25,5 +25,5 @@ export default async function logout(argv: string[]) {
 
   const session = new Session();
   session.clear();
-  tui.showMessage("Session cleared");
+  tui.showMessage('Session cleared');
 }

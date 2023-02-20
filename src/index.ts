@@ -120,8 +120,10 @@ if (
     } catch (err: any) {
       if (err.message === 'LoginError') {
         tui.showError('Failed to Login, please try again.');
-      } else if(err.message === 'UpgradeError') {
-        tui.showError('Failed to upgrade old versions, are you sure that they are valid?');
+      } else if (err.message === 'UpgradeError') {
+        tui.showError(
+          'Failed to upgrade old versions, are you sure that they are valid?'
+        );
       } else {
         tui.showError(`Fatal error when running ${command} command`, err);
         Sentry.captureException(err);
