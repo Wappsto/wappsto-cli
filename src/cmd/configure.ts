@@ -1,5 +1,6 @@
 import Wapp from '../wapp.configure';
 import setup from '../util/setup_cli';
+import tui from '../util/tui';
 
 const sections = [
   {
@@ -23,6 +24,11 @@ export default async function configure(argv: string[]) {
   }
 
   const wapp = new Wapp();
+  if (!wapp.present()) {
+    tui.showError('No Wapp found in current folder');
+    return;
+  }
+
   await wapp.init();
   await wapp.configure();
 }

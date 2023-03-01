@@ -2,7 +2,6 @@ import { yellow, magenta, green, blue, red, white, bold } from 'kleur/colors';
 import figlet from 'figlet';
 import { clearLine, cursorTo } from 'readline';
 import updateNotifier from 'simple-update-notifier';
-import config from '../config';
 import { VERSION } from './version';
 
 class Tui {
@@ -182,9 +181,6 @@ class Tui {
       if (data) {
         if (data.code === 117000000) {
           // do not print invalid session error
-        } else if (data.code === 300098) {
-          strMsg += `${red(data.message)}\n`;
-          strMsg += `Please visit ${config.host()}/pricing for more information`;
         } else {
           strErr = `${JSON.stringify(data)}\n`;
         }

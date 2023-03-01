@@ -10,9 +10,14 @@ export default class ConfigureWapp extends Wapp {
       return;
     }
 
-    await section('Load application', () => {
-      return this.application.fetch();
-    });
+    if (
+      !(await section('Load application', () => {
+        return this.application.fetch();
+      }))
+    ) {
+      tui.showError("Can't configure wapp, without valid application");
+      return;
+    }
 
     const answers = await section('Wait for user input', () => {
       return questions.configureWapp(

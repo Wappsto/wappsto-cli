@@ -36,6 +36,11 @@ describe('Configure', () => {
     console.log = org;
   });
 
+  it('can handle missing wapp', async () => {
+    await configure([]);
+    expect(mockedAxios.get).toHaveBeenCalledTimes(0);
+  });
+
   it('can handle change the description', async () => {
     mockedAxios.get.mockResolvedValueOnce({
       data: applicationResponse,

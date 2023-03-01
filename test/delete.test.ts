@@ -131,7 +131,7 @@ describe('Delete', () => {
       .mockResolvedValueOnce({
         data: installationResponse,
       });
-    mockedAxios.delete.mockRejectedValueOnce({
+    mockedAxios.delete.mockRejectedValue({
       data: {},
     });
 

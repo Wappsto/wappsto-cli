@@ -170,16 +170,6 @@ export default class Application extends Model implements Application21 {
     return result;
   }
 
-  async get(): Promise<any> {
-    try {
-      const response = await HTTP.get(`${this.url}?expand=2&verbose=true`);
-      return response.data;
-    } catch (err) {
-      this.handleException(`Failed to get application: ${this.id}`, err);
-    }
-    return {};
-  }
-
   async getAll(): Promise<Application[]> {
     let result: Application[] = [];
     try {

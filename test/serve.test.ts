@@ -1,8 +1,12 @@
+import axios from 'axios';
 import { setup, teardown } from './util/setup';
 import serve from '../src/cmd/serve';
+
 describe('Serve', () => {
+  let mockedAxios: jest.Mocked<typeof axios>;
+
   beforeEach(async () => {
-    await setup();
+    mockedAxios = await setup();
   });
 
   afterEach(() => {
@@ -27,5 +31,10 @@ describe('Serve', () => {
     expect(console.log).toHaveBeenCalledTimes(1);
 
     console.log = org;
+  });
+
+  it('can handle missing wapp', async () => {
+    await serve([]);
+    expect(mockedAxios.get).toHaveBeenCalledTimes(0);
   });
 });

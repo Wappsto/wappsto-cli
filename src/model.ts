@@ -86,7 +86,7 @@ export default class Model {
       const response = await HTTP.get(`${this.url}?expand=2&verbose=true`);
       this.parse(response.data);
       return true;
-    } catch (err) {
+    } catch (err: any) {
       this.handleException(`Failed to fetch ${this.meta.type}`, err);
     }
 
@@ -111,21 +111,10 @@ export default class Model {
     try {
       await HTTP.delete(`${this.url}`);
     } catch (err: any) {
-      switch (err.response.data.code) {
-        case 300020:
-          // Installation already deleted
-          break;
-        case 9900067:
-          // Already deleted
-          break;
-        case 300024:
-          throw Error('Can not delete application that is published!');
-        default:
-          this.handleException(
-            `Failed to delete ${this.meta.type}: ${this.id}`,
-            err
-          );
-      }
+      this.handleException(
+        `Failed to delete ${this.meta.type}: ${this.id}`,
+        err
+      );
     }
   }
 
@@ -168,7 +157,34 @@ export default class Model {
     if (this.meta.type === 'session') {
       tui.showError(msg, err);
     } else {
-      Model.handleException(msg, err);
+      switch (err.response?.data?.code) {
+        case 117000000:
+          // do not print invalid session error
+          break;
+        case 300020:
+          // Installation already deleted
+          break;
+        case 9900067:
+          // Already deleted
+          break;
+        case 300098:
+          tui.showError(`${err.response.data.message}`);
+          tui.showError(
+            `Please visit ${Config.host()}/pricing for more information`
+          );
+          break;
+        case 9900147:
+          tui.showError(`${msg} because it was not found on Wappsto`);
+          break;
+        case 300024:
+          throw Error('Can not delete application that is published!');
+        case 400006:
+          tui.showError('You do not have permission to this wapp.');
+          tui.showError('Try to logout and login with the correct user');
+          break;
+        default:
+          Model.handleException(msg, err);
+      }
     }
   }
 
