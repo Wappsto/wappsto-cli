@@ -1,7 +1,7 @@
 {
   "name": "wappsto-cli",
   "description": "Command Line Interface for Wappsto",
-  "version": "2.0.13",
+  "version": "2.0.14",
   "license": "Apache-2.0",
   "main": "dist/wappsto-cli.cjs.production.min.js",
   "module": "dist/wappsto-cli.esm.js",
@@ -48,7 +48,9 @@
     "test": "dts test",
     "coverage": "dts test --coverage",
     "test:coverage": "yarn run coverage",
-    "generate-types": "npx json2ts -i schemas -o src/types"
+    "generate-types": "npx json2ts -i schemas -o src/types",
+    "release": "npm-github-release",
+    "postpublish": "PACKAGE_VERSION=$(cat package.json | grep \\\"version\\\" | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]') && git tag v$PACKAGE_VERSION && git push --tags"
   },
   "husky": {
     "hooks": {
@@ -107,6 +109,7 @@
     "husky": "^8.0.3",
     "jest": "^29.4.3",
     "json-schema-to-typescript": "^11.0.3",
+    "npm-github-release": "^0.13.0",
     "ts-jest": "^29.0.5",
     "ts-node": "^10.9.1",
     "tslib": "^2.5.0",
