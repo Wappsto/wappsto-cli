@@ -1,4 +1,4 @@
-import Wapp from './wapp';
+import Wapp from './wapp.update';
 import tui from './util/tui';
 import { section } from './util/trace';
 import questions from './util/questions';
@@ -27,6 +27,10 @@ export default class PublishWapp extends Wapp {
     if (answers === false) {
       return;
     }
+
+    res = await section('Updating version', () => {
+      return this.update();
+    });
 
     res = await section('Publishing new version', () => {
       return this.application.publish(answers.version, answers.change);
