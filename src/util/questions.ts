@@ -14,15 +14,20 @@ type Request = {
 class Questions {
   private async ask(questions: any[]): Promise<any | false> {
     Spinner.stop();
+    let done = false;
     return new Promise<any | false>((resolve) => {
       const onCancel = () => {
         Spinner.start();
+        done = true;
         resolve(false);
         return false;
       };
       prompts(questions, { onCancel }).then((answers) => {
-        Spinner.start();
-        resolve(answers);
+        if (!done) {
+          done = true;
+          Spinner.start();
+          resolve(answers);
+        }
       });
     });
   }
@@ -649,9 +654,25 @@ class Questions {
     ]);
   }
 
-  askPublishWapp(
-    oldVersion: string
+  async askPublishWapp(
+    oldVersion: string,
+    pendingVersion: boolean
   ): Promise<{ version: string; change: string } | false> {
+    if (pendingVersion) {
+      const override = await this.ask([
+        {
+          name: 'override',
+          type: 'confirm',
+          initial: () => true,
+          message:
+            'You already have a published version pending for review, do you want to unpublish this version?',
+        },
+      ]);
+      if (override === false || !override.override) {
+        return false;
+      }
+    }
+
     return this.ask([
       {
         name: 'version',

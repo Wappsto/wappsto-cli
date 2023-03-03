@@ -16,13 +16,15 @@ import { startTrace } from './util/trace';
 import tui from './util/tui';
 import Config from './config';
 import Wapp from './wapp';
+import { VERSION } from './util/version';
 
 const mainDefinitions = [{ name: 'command', defaultOption: true }];
 
 const sections = [
   {
     header: 'wappsto-cli',
-    content: 'Script to create and maintain wapps on {underline wappsto.com}',
+    content:
+      'Script to create and maintain wapps on {underline https://wappsto.com}',
   },
   {
     header: 'Synopsis',
@@ -52,7 +54,14 @@ const sections = [
     ],
   },
   {
-    content: 'Project home: {underline https://github.com/wappsto/wappsto-cli}',
+    header: 'Information',
+    content: [
+      {
+        name: 'Project',
+        summary: `{underline https://github.com/wappsto/wappsto-cli}`,
+      },
+      { name: 'Version', summary: VERSION },
+    ],
   },
 ];
 

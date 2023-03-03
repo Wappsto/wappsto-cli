@@ -1,6 +1,7 @@
 import commandLineArgs from 'command-line-args';
 import commandLineUsage from 'command-line-usage';
 import tui from '../util/tui';
+import { VERSION } from './version';
 
 export default function setupCLI(
   name: string,
@@ -14,6 +15,12 @@ export default function setupCLI(
       name: 'help',
       description: 'Display this usage guide.',
       alias: 'h',
+      type: Boolean,
+    },
+    {
+      name: 'version',
+      description: 'Display this current verison.',
+      alias: 'V',
       type: Boolean,
     },
     {
@@ -43,8 +50,14 @@ export default function setupCLI(
       optionList: definitions,
     },
     {
-      content:
-        'Project home: {underline https://github.com/wappsto/wappsto-cli}',
+      header: 'Information',
+      content: [
+        {
+          name: 'Project',
+          summary: `{underline https://github.com/wappsto/wappsto-cli}`,
+        },
+        { name: 'Version', summary: VERSION },
+      ],
     },
   ]);
 
@@ -58,6 +71,11 @@ export default function setupCLI(
 
   if (options.help) {
     console.log(commandLineUsage(sections));
+    return false;
+  }
+
+  if (options.version) {
+    console.log(`Wappsto CLI by Seluxit A/S - Version: ${VERSION}`);
     return false;
   }
 

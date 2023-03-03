@@ -172,4 +172,20 @@ export default class Version extends Model implements Version21 {
     }
     return false;
   }
+
+  async unpublish(): Promise<boolean> {
+    try {
+      const response = await HTTP.patch(`${this.url}`, {
+        status: 'uncommit',
+      });
+      this.parse(response.data);
+      return true;
+    } catch (err) {
+      this.handleException(
+        `Failed to update ${this.meta.type}: ${this.id}`,
+        err
+      );
+    }
+    return false;
+  }
 }

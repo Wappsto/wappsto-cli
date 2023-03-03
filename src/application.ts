@@ -42,13 +42,13 @@ export default class Application extends Model implements Application21 {
     return data;
   }
 
-  private findIdleVersion(): Version | null {
+  private findVersionByStatus(status: string): Version | null {
     if (this.version.length > 0) {
       const findIdle = () => {
         return this.version
           .filter((ver: Version | string) => {
             if (typeof ver !== 'string') {
-              return ver.status === 'idle';
+              return ver.status === status;
             }
             return false;
           })
@@ -77,7 +77,7 @@ export default class Application extends Model implements Application21 {
   }
 
   async validate() {
-    if (this.id && this.findIdleVersion() === null) {
+    if (this.id && this.findVersionByStatus('idle') === null) {
       tui.showWarning('Failed to find idle version, refresing application');
       await this.fetch();
       this.save();
@@ -85,13 +85,17 @@ export default class Application extends Model implements Application21 {
   }
 
   getVersion(): Version {
-    const idleVersion = this.findIdleVersion();
+    const idleVersion = this.findVersionByStatus('idle');
     if (idleVersion) {
       return idleVersion;
     }
 
     /* istanbul ignore next */
     return new Version({}, this);
+  }
+
+  getPendingVersion() {
+    return this.findVersionByStatus('pending');
   }
 
   getOAuthExternal(): OauthExternal21[] {
@@ -244,6 +248,10 @@ export default class Application extends Model implements Application21 {
   }
 
   async publish(newVersion: string, change: string): Promise<boolean> {
+    const pending = this.getPendingVersion();
+    if (pending) {
+      await pending.unpublish();
+    }
     const version = this.getVersion();
     version.version_app = newVersion;
     if (version.description) {

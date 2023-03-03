@@ -18,8 +18,10 @@ export default class PublishWapp extends Wapp {
       return;
     }
 
+    const pendig = this.application.getPendingVersion();
+
     const answers = await section('Wait for user input', () => {
-      return questions.askPublishWapp(this.manifest.version_app);
+      return questions.askPublishWapp(this.manifest.version_app, !!pendig);
     });
 
     if (answers === false) {

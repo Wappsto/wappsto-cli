@@ -173,6 +173,11 @@ export default class Model {
             `Please visit ${Config.host()}/pricing for more information`
           );
           break;
+        case 500089:
+          tui.showError(
+            `${msg} because you cannot publish a new version, before you old version have been aproved.`
+          );
+          break;
         case 9900147:
           tui.showError(`${msg} because it was not found on Wappsto`);
           break;
