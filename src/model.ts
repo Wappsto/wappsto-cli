@@ -157,6 +157,7 @@ export default class Model {
     if (this.meta.type === 'session') {
       tui.showError(msg, err);
     } else {
+      const errMsg = err.response.data.message || '';
       switch (err.response?.data?.code) {
         case 117000000:
           // do not print invalid session error
@@ -168,7 +169,7 @@ export default class Model {
           // Already deleted
           break;
         case 300098:
-          tui.showError(`${err.response.data.message}`);
+          tui.showError(`${errMsg}`);
           tui.showError(
             `Please visit ${Config.host()}/pricing for more information`
           );
@@ -177,6 +178,9 @@ export default class Model {
           tui.showError(
             `${msg} because you cannot publish a new version, before you old version have been aproved.`
           );
+          break;
+        case 500090:
+          tui.showError(`Failed to publish your wapp, because ${errMsg.toLowerCase()}`);
           break;
         case 9900147:
           tui.showError(`${msg} because it was not found on Wappsto`);
