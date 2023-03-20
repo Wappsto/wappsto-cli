@@ -1,7 +1,11 @@
 import axios from 'axios';
 import prompts from 'prompts';
 import { setup, teardown, createWapp } from './util/setup';
-import { installationResponse, applicationResponse, versionResponse } from './util/response';
+import {
+  installationResponse,
+  applicationResponse,
+  versionResponse,
+} from './util/response';
 import publish from '../src/cmd/publish';
 
 describe('Publish', () => {
@@ -139,13 +143,13 @@ describe('Publish', () => {
     );
     expect(mockedAxios.patch).toHaveBeenNthCalledWith(
       2,
-      "https://wappsto.com/services/2.1/installation/00ecb1bd-e794-42b1-b73f-9596319e5ac5",
+      'https://wappsto.com/services/2.1/installation/00ecb1bd-e794-42b1-b73f-9596319e5ac5',
       {
-               "restart": {
-                 "new_process": true,
-                }
-              },
-       {},
+        restart: {
+          new_process: true,
+        },
+      },
+      {}
     );
     expect(mockedAxios.patch).toHaveBeenNthCalledWith(
       3,
@@ -168,14 +172,11 @@ describe('Publish', () => {
           type: 'version',
           version: '2.1',
         }),
-        "permission": {
-                 "create": [
-                   "data",
-                   "stream",
-                 ],
-                 "permit_to_send_email": false,
-                 "permit_to_send_sms": false,
-               },
+        permission: {
+          create: ['data', 'stream'],
+          permit_to_send_email: false,
+          permit_to_send_sms: false,
+        },
 
         status: 'idle',
         used_files: {},
@@ -193,7 +194,7 @@ describe('Publish', () => {
 
     expect(mockedAxios.post).toHaveBeenCalledTimes(0);
     expect(mockedAxios.get).toHaveBeenCalledTimes(6);
-     expect(mockedAxios.get).toHaveBeenNthCalledWith(
+    expect(mockedAxios.get).toHaveBeenNthCalledWith(
       2,
       'https://wappsto.com/services/2.1/application/4c8ebb21-524b-4fc0-bbc5-015da2e5ca60?expand=2&verbose=true',
       {}
@@ -218,7 +219,6 @@ describe('Publish', () => {
       'https://wappsto.com/services/2.1/application/4c8ebb21-524b-4fc0-bbc5-015da2e5ca60?expand=2&verbose=true',
       {}
     );
-
 
     expect(mockedAxios.delete).toHaveBeenCalledTimes(0);
   });

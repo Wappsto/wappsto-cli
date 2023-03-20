@@ -180,7 +180,9 @@ export default class Model {
           );
           break;
         case 500090:
-          tui.showError(`Failed to publish your wapp, because ${errMsg.toLowerCase()}`);
+          tui.showError(
+            `Failed to publish your wapp, because ${errMsg.toLowerCase()}`
+          );
           break;
         case 9900147:
           tui.showError(`${msg} because it was not found on Wappsto`);

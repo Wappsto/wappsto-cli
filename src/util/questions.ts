@@ -349,7 +349,10 @@ class Questions {
       {
         name: 'oauth_version',
         type: 'select' as const,
-        choices: [{ title: '1.0', value: '1.0' }, { title: '2.0', value: '2.0' }],
+        choices: [
+          { title: '1.0', value: '1.0' },
+          { title: '2.0', value: '2.0' },
+        ],
         initial: external.oauth_version === '2.0' ? 1 : 0,
         message: 'Version:',
       },
