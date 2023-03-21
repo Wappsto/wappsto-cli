@@ -161,11 +161,13 @@ export default class UpdateWapp extends Wapp {
                   .then(() => {
                     tui.showVerbose('UPDATE', `${file.path} ${type}ed`);
                     file.status = `${type}ed`;
+                    updateFiles.push(file);
                     resolve();
                   })
                   .catch(() => {
                     tui.showVerbose('UPDATE', `Failed to ${type} ${file.path}`);
                     file.status = `not $type}ed`;
+                    updateFiles.push(file);
                     reject();
                   });
               })
@@ -197,9 +199,6 @@ export default class UpdateWapp extends Wapp {
                 file.deleteLocal();
               }
             });
-          }
-          if (file.status !== 'unknown') {
-            updateFiles.push(file);
           }
         }
 
