@@ -110,3 +110,7 @@ export function snooze(ms: number): Promise<void> {
     setTimeout(resolve, ms);
   });
 }
+
+export function past(name: string) {
+  return name.endsWith('e') ? `${name}d` : `${name}ed`;
+}

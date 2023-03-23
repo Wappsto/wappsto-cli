@@ -3,7 +3,7 @@ import tui from './util/tui';
 import Spinner from './util/spinner';
 import { section, measure } from './util/trace';
 import questions from './util/questions';
-import { compareVersions, validateFile } from './util/helpers';
+import { compareVersions, validateFile, past } from './util/helpers';
 import { getFileTimeISO, getAllFiles } from './util/files';
 import Version from './version';
 import File from './file';
@@ -53,7 +53,7 @@ export default class UpdateWapp extends Wapp {
         }
       });
     } catch (err) {
-      return [];
+      throw err;
     }
 
     try {
@@ -159,14 +159,14 @@ export default class UpdateWapp extends Wapp {
               new Promise<void>((resolve, reject) => {
                 code(file)
                   .then(() => {
-                    tui.showVerbose('UPDATE', `${file.path} ${type}ed`);
-                    file.status = `${type}ed`;
+                    tui.showVerbose('UPDATE', `${file.path} ${past(type)}`);
+                    file.status = `${past(type)}`;
                     updateFiles.push(file);
                     resolve();
                   })
                   .catch(() => {
                     tui.showVerbose('UPDATE', `Failed to ${type} ${file.path}`);
-                    file.status = `not $type}ed`;
+                    file.status = `not ${past(type)}`;
                     updateFiles.push(file);
                     reject();
                   });
@@ -218,7 +218,7 @@ export default class UpdateWapp extends Wapp {
         }
       });
     } catch (err) {
-      return [];
+      throw err;
     }
 
     await section('Update version', async () => {

@@ -39,14 +39,19 @@ export default async function update(argv: string[]) {
   }
 
   await wapp.init();
-  const files = await wapp.update(options.reinstall);
 
-  files.forEach((f) => {
-    if (f.status.includes('not ')) {
-      tui.showError(`File ${f.path} was ${f.status}`);
-    } else {
-      tui.showMessage(`File ${f.path} was ${f.status}`);
-    }
-  });
-  tui.showMessage('Wapp Updated');
+  try {
+    const files = await wapp.update(options.reinstall);
+
+    files.forEach((f) => {
+      if (f.status.includes('not ')) {
+        tui.showError(`File ${f.path} was ${f.status}`);
+      } else {
+        tui.showMessage(`File ${f.path} was ${f.status}`);
+      }
+    });
+    tui.showMessage('Wapp Updated');
+  } catch(err) {
+    tui.showError('Failed to update Wapp');
+  }
 }

@@ -16,7 +16,7 @@ export function startTrace(command: string) {
 
       // We recommend adjusting this value in production, or using tracesSampler
       // for finer control
-      tracesSampleRate: 1.0,
+      tracesSampleRate: 0.2,
       environment: Config.env(),
       release: `wappsto-cli@${VERSION}`,
     });
