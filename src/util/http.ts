@@ -1,10 +1,15 @@
 import axios from 'axios';
 import tui from './tui';
 import Trace from './trace';
+import { VERSION } from './version';
 
 type Methods = 'head' | 'options' | 'put' | 'post' | 'patch' | 'delete' | 'get';
 
 export default class HTTP {
+  constructor() {
+    axios.defaults.headers.common['User-Agent'] = `Wappsto-cli/${VERSION} (axios/${axios.VERSION})`;
+  }
+
   static trace(method: string, url: string, data?: any): Trace {
     return new Trace(`HTTP ${method}`, url, data);
   }
