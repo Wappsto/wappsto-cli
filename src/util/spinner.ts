@@ -21,19 +21,26 @@ class Spinner {
     let i = 0;
 
     this.timer = setInterval(() => {
-      const str = this.frames[i % len];
-      i += 1;
-      clearLine(process.stdout, 0);
-      cursorTo(process.stdout, 0);
-      tui.write(`${str} ${this.title}`);
+      if (this.timer) {
+        const str = this.frames[i % len];
+        i += 1;
+        clearLine(process.stdout, 0);
+        cursorTo(process.stdout, 0);
+        tui.write(`${str} ${this.title}`);
+      }
     }, 80);
   }
 
-  stop(): void {
+  stop(): boolean {
+    if (!this.timer) {
+      return false;
+    }
+
     clearLine(process.stdout, 0);
     cursorTo(process.stdout, 0);
     clearInterval(this.timer);
     this.timer = undefined;
+    return true;
   }
 }
 

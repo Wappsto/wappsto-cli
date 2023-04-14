@@ -20,8 +20,12 @@ class Tui {
   }
 
   clear(): void {
-    clearLine(process.stdout, 0);
-    cursorTo(process.stdout, 0);
+    if (this.blocked) {
+      this.blocked.push('');
+    } else {
+      clearLine(process.stdout, 0);
+      cursorTo(process.stdout, 0);
+    }
   }
 
   header(text: string): Promise<void> {
@@ -50,8 +54,13 @@ class Tui {
 
     if (tmp) {
       tmp.forEach((item) => {
-        /* istanbul ignore next */
-        this.write(item);
+        if (item === '') {
+          /* istanbul ignore next */
+          this.clear();
+        } else {
+          /* istanbul ignore next */
+          this.write(item);
+        }
       });
     }
   }

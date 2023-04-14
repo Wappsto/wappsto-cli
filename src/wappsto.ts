@@ -98,6 +98,28 @@ export default class Wappsto {
     }
   }
 
+  async updateACLAccess(
+    modelID: string,
+    installationID: string
+  ): Promise<void> {
+    try {
+      // Append the new user to the acl restriction for the item
+      await HTTP.patch(
+        `${this.HOST}/services/2.1/acl?id=${modelID}&propagate=true`,
+        {
+          permission: [
+            {
+              meta: { id: installationID },
+              restriction: [{ method: { retrieve: true } }],
+            },
+          ],
+        }
+      );
+    } catch (err) {
+      tui.showError('Failed to update ACL Access', err);
+    }
+  }
+
   async find(
     type: string,
     search: string,
@@ -133,5 +155,19 @@ export default class Wappsto {
         tui.showError('Failed to read notification', err);
       }
     }
+  }
+
+  async getModel(
+    type: string,
+    id: string
+  ): Promise<Record<string, any> | undefined> {
+    let result = undefined;
+    try {
+      const response = await HTTP.get(`${this.HOST}/services/${type}/${id}`);
+      result = response.data;
+    } catch (err) {
+      tui.showError('Failed to get model', err);
+    }
+    return result;
   }
 }

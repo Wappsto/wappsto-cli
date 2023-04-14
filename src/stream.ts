@@ -151,6 +151,9 @@ export default class Stream {
       case 1100006:
       case 1100004:
         break;
+      case 1100011:
+        callback({ status: `Notification: ${data.custom.message}` });
+        break;
       default:
         callback(data);
     }

@@ -149,29 +149,35 @@ export default class ServeWapp extends UpdateWapp {
             );
           }
         } else if (data.req.collection) {
-          const answers = await questions.precisePermissionRequest(data.req);
+          const answers = await questions.precisePermissionRequest(data.req, this.wappsto);
           if (answers === false) {
             /* istanbul ignore next */
             return;
           }
 
           if (answers.accept) {
-            if (data.req.method[0] === 'add') {
-              await this.wappsto.updateACLRestriction(
-                data.installation,
-                data.req.collection
-              );
-            } else {
-              tui.showWarning(
-                `Unknown '${data.req.method[0]}' permission request`
-              );
+            switch(data.req.method[0]) {
+              case 'add': 
+                await this.wappsto.updateACLRestriction(
+                  data.installation,
+                  data.req.collection
+                );
+                break;
+              case 'retrieve':
+                await this.wappsto.updateACLAccess(data.req.data[0].meta.id, data.installation);
+                break;
+              default:
+                tui.showWarning(
+                  `Unknown '${data.req.method[0]}' permission request`
+                );
+                break;
             }
             await this.wappsto.readNotification(data.id, 'accepted');
           } else {
             await this.wappsto.readNotification(data.id, 'denied');
           }
         } else if (data.req.name_installation) {
-          const answers = await questions.precisePermissionRequest(data.req);
+          const answers = await questions.precisePermissionRequest(data.req, this.wappsto);
           if (answers === false) {
             /* istanbul ignore next */
             return;

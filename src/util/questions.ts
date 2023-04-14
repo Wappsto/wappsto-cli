@@ -3,21 +3,26 @@ import tui from './tui';
 import { Manifest } from '../types/custom.d';
 import { OauthExternal21, OauthClient21 } from '../types/application.d';
 import Spinner from './spinner';
+import Wappsto from '../wappsto';
 
 type Request = {
+  method: string[],
   collection: string;
   message: string;
+  data?: Record<string, any>[],
   name_installation: string;
   type: string;
 };
 
 class Questions {
   private async ask(questions: any[]): Promise<any | false> {
-    Spinner.stop();
+    const start = Spinner.stop();
     let done = false;
     return new Promise<any | false>((resolve) => {
       const onCancel = () => {
-        Spinner.start();
+        if (start) {
+          Spinner.start();
+        }
         done = true;
         resolve(false);
         return false;
@@ -25,7 +30,9 @@ class Questions {
       prompts(questions, { onCancel }).then((answers) => {
         if (!done) {
           done = true;
-          Spinner.start();
+          if (start) {
+            Spinner.start();
+          }
           resolve(answers);
         }
       });
@@ -543,8 +550,9 @@ class Questions {
     ]);
   }
 
-  precisePermissionRequest(
-    request: Request
+  async precisePermissionRequest(
+    request: Request,
+    wappsto: Wappsto,
   ): Promise<{ accept: boolean } | false> {
     let msg = '';
     let type = 'data';
@@ -556,7 +564,27 @@ class Questions {
     if (request.message) {
       msg = request.message;
     } else {
-      msg = `${request.name_installation} would like to save ${type} under your account. Allow?`;
+      const method = request.method?.length ? request.method[0] : 'save';
+      msg = `${request.name_installation} would like to ${method} ${type} under your account. Allow?`;
+      if (method === 'retrieve') {
+        if (request.data) {
+          const type = request.data[0].meta.type;
+          const id = request.data[0].meta.id;
+          const model = await wappsto.getModel(type, id);
+          if (model) {
+            if(model.name) {
+              msg = `${request.name_installation} would like access to the ${type} ${model.name} (${id}). Allow?`;
+            } else {
+              msg = `${request.name_installation} would like access to the ${type} with id ${id}. Allow?`;
+            }
+          } else {
+            Spinner.stop();
+            tui.unblock();
+            tui.showError(`Failed to find a ${type} with id ${id}`);
+            return false;
+          }
+        }
+      }
     }
 
     return this.ask([
