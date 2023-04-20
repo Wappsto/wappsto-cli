@@ -91,7 +91,7 @@
     "@sentry/cli": "^2.17.1",
     "@sentry/rollup-plugin": "^0.6.0",
     "@tsconfig/recommended": "^1.0.2",
-    "@types/browser-sync": "file:local-types/browser-sync",
+    "@types/browser-sync": "^2.27.0",
     "@types/command-line-args": "^5.2.0",
     "@types/command-line-usage": "^5.0.2",
     "@types/cross-spawn": "^6.0.2",
