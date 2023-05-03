@@ -6,10 +6,10 @@ import Spinner from './spinner';
 import Wappsto from '../wappsto';
 
 type Request = {
-  method: string[],
+  method: string[];
   collection: string;
   message: string;
-  data?: Record<string, any>[],
+  data?: Record<string, any>[];
   name_installation: string;
   type: string;
 };
@@ -492,7 +492,7 @@ class Questions {
       },
     ];
 
-    const multiInstalltionsQuestions = [
+    const multiInstallationsQuestions = [
       {
         name: 'allow',
         type: 'confirm',
@@ -513,7 +513,7 @@ class Questions {
         answers = await this.ask(permissionQuestions);
         break;
       case 'multi_installations':
-        answers = await this.ask(multiInstalltionsQuestions);
+        answers = await this.ask(multiInstallationsQuestions);
         break;
       case 'description':
       default:
@@ -552,7 +552,7 @@ class Questions {
 
   async precisePermissionRequest(
     request: Request,
-    wappsto: Wappsto,
+    wappsto: Wappsto
   ): Promise<{ accept: boolean } | false> {
     let msg = '';
     let type = 'data';
@@ -572,7 +572,7 @@ class Questions {
           const id = request.data[0].meta.id;
           const model = await wappsto.getModel(type, id);
           if (model) {
-            if(model.name) {
+            if (model.name) {
               msg = `${request.name_installation} would like access to the ${type} ${model.name} (${id}). Allow?`;
             } else {
               msg = `${request.name_installation} would like access to the ${type} with id ${id}. Allow?`;

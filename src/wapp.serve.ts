@@ -149,14 +149,17 @@ export default class ServeWapp extends UpdateWapp {
             );
           }
         } else if (data.req.collection) {
-          const answers = await questions.precisePermissionRequest(data.req, this.wappsto);
+          const answers = await questions.precisePermissionRequest(
+            data.req,
+            this.wappsto
+          );
           if (answers === false) {
             /* istanbul ignore next */
             return;
           }
 
           if (answers.accept) {
-            switch(data.req.method[0]) {
+            switch (data.req.method[0]) {
               case 'add': 
                 await this.wappsto.updateACLRestriction(
                   data.installation,
@@ -164,7 +167,10 @@ export default class ServeWapp extends UpdateWapp {
                 );
                 break;
               case 'retrieve':
-                await this.wappsto.updateACLAccess(data.req.data[0].meta.id, data.installation);
+                await this.wappsto.updateACLAccess(
+                  data.req.data[0].meta.id,
+                  data.installation
+                );
                 break;
               default:
                 tui.showWarning(
@@ -177,7 +183,10 @@ export default class ServeWapp extends UpdateWapp {
             await this.wappsto.readNotification(data.id, 'denied');
           }
         } else if (data.req.name_installation) {
-          const answers = await questions.precisePermissionRequest(data.req, this.wappsto);
+          const answers = await questions.precisePermissionRequest(
+            data.req,
+            this.wappsto
+          );
           if (answers === false) {
             /* istanbul ignore next */
             return;

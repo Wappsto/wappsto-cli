@@ -57,7 +57,7 @@ export default class Application extends Model implements Application21 {
               return 0;
             }
 
-            // Asceding ordering
+            // Ascending ordering
             var d1 = new Date(a.meta.updated || '');
             var d2 = new Date(b.meta.updated || '');
             if (d1 < d2) {
@@ -78,7 +78,7 @@ export default class Application extends Model implements Application21 {
 
   async validate() {
     if (this.id && this.findVersionByStatus('idle') === null) {
-      tui.showWarning('Failed to find idle version, refresing application');
+      tui.showWarning('Failed to find idle version, refreshing application');
       await this.fetch();
       this.save();
     }

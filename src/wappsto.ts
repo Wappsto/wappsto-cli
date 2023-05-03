@@ -20,16 +20,16 @@ export default class Wappsto {
       return;
     }
 
-    const creds = await questions.askWappstoCredentials(
+    const credentials = await questions.askWappstoCredentials(
       Config.isCustomHost() ? this.HOST : 'Wappsto'
     );
 
-    if (creds === false) {
+    if (credentials === false) {
       return;
     }
 
     try {
-      await this.session.login(creds.username, creds.password);
+      await this.session.login(credentials.username, credentials.password);
     } catch (err) {
       throw new Error('LoginError');
     }
