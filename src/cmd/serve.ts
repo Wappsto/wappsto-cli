@@ -66,6 +66,8 @@ export default async function serve(argv: string[]) {
 
   let wapp: Wapp;
 
+  const PACKAGE = `${Config.background()}/package.json`;
+
   function isForegroundPresent(): boolean {
     const index = path.join(Config.foreground(), 'index.html');
     if (!fs.existsSync(index)) {
@@ -126,7 +128,7 @@ export default async function serve(argv: string[]) {
       https: false,
       proxy: {
         target: `${Config.host()}`,
-        ws: true, // proxy websockets
+        ws: true, // proxy websocket
         proxyReq: [
           (req: any) => {
             req.setHeader('x-session', sessionID);
@@ -165,7 +167,7 @@ export default async function serve(argv: string[]) {
         }
       },
       cwd: Config.foreground(),
-      files: `${Config.foreground()}/*`,
+      files: '*',
       browser: Config.browser(),
       open,
       online: true,
@@ -210,11 +212,17 @@ export default async function serve(argv: string[]) {
     sessionID: string,
     tokenID: string
   ): Promise<void> {
+    return;
     tui.showMessage('Starting the background wapp locally');
     async function install() {
+      if (!fileExists(PACKAGE)) {
+        tui.showWarning(`Not installing packages - ${PACKAGE} is missing!`);
+        return;
+      }
       return new Promise<void>((resolve, reject) => {
         const npm = spawn('npm', ['install'], {
           cwd: Config.background(),
+          env: process.env,
         });
 
         npm.on('exit', (code) => {
@@ -226,8 +234,11 @@ export default async function serve(argv: string[]) {
           }
         });
 
-        npm.stderr?.on('data', (data) => {
-          tui.showError(data);
+        npm.stderr?.on('data', (data: string) => {
+          data
+            .toString()
+            .split('\n')
+            .forEach((msg) => tui.showError(data));
         });
       });
     }
@@ -236,6 +247,7 @@ export default async function serve(argv: string[]) {
       const runner = spawn('node', ['main.js'], {
         cwd: Config.background(),
         env: {
+          ...process.env,
           baseUrl: `${Config.host()}/services`,
           sessionID,
           tokenID,
@@ -256,12 +268,12 @@ export default async function serve(argv: string[]) {
       });
 
       function printLog(data: any, type: string) {
-        tui.showLog(
-          data.toString().replace(/^\s+|\s+$/g, ''),
-          'Background',
-          '',
-          type
-        );
+        data
+          .toString()
+          .split('\n')
+          .forEach((msg: string) =>
+            tui.showLog(msg.replace(/^\s+|\s+$/g, ''), 'Background', '', type)
+          );
       }
 
       runner.stdout?.on('data', (data) => {
@@ -279,7 +291,7 @@ export default async function serve(argv: string[]) {
     function stop(runner: any) {
       if (!runner) return;
 
-      tui.showWarning('Restarting Background Runner ');
+      tui.showWarning('Restarting Background Runner');
       runner.kill();
     }
 
@@ -293,7 +305,7 @@ export default async function serve(argv: string[]) {
 
     registerBackgroundWatcher(async (name: string) => {
       stop(runner);
-      if (name === `${Config.background()}/package.json`) {
+      if (name === PACKAGE) {
         install()
           .then(() => {
             runner = start();
