@@ -212,7 +212,6 @@ export default async function serve(argv: string[]) {
     sessionID: string,
     tokenID: string
   ): Promise<void> {
-    return;
     tui.showMessage('Starting the background wapp locally');
     async function install() {
       if (!fileExists(PACKAGE)) {
