@@ -35,11 +35,11 @@ export default class UpdateWapp extends Wapp {
           remoteVersion.revision !== localVersion.revision &&
           !compareVersions(this.manifest, remoteVersion.toJSON())
         ) {
-          const overide = await questions.remoteVersionUpdated();
-          if (overide === false) {
+          const override = await questions.remoteVersionUpdated();
+          if (override === false) {
             throw new Error();
           }
-          if (overide.local) {
+          if (override.local) {
             upload = false;
           }
         }

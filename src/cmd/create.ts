@@ -10,7 +10,7 @@ const sections = [
     header: 'Synopsis',
     content: [
       '$ wapp create',
-      '$ wapp create {bold --vervose}',
+      '$ wapp create {bold --verbose}',
       '$ wapp create {bold --help}',
     ],
   },

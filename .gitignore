@@ -8,6 +8,7 @@ dist/*
 
 .wappsto-cli-cache/
 manifest.json
+wappsto.json
 foreground
 background
 icon
@@ -17,3 +18,5 @@ old_ava
 \#*\#
 .\#*
 *.tgz
+.vscode
+package-lock.json

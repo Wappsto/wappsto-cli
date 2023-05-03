@@ -32,7 +32,7 @@ describe('Logout', () => {
     console.log = org;
   });
 
-  it('can remove the sesison', async () => {
+  it('can remove the session', async () => {
     createWapp();
 
     await logout([]);

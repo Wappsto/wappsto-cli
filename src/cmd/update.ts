@@ -51,7 +51,7 @@ export default async function update(argv: string[]) {
       }
     });
     tui.showMessage('Wapp Updated');
-  } catch(err) {
+  } catch (err) {
     tui.showError('Failed to update Wapp');
   }
 }

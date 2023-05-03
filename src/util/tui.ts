@@ -71,6 +71,9 @@ class Tui {
     timestamp: string,
     logType?: string
   ): void {
+    if (!msg) {
+      return;
+    }
     let res = '';
     if (timestamp) {
       res = `${magenta(`${timestamp}:`)} `;

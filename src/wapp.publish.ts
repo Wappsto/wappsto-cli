@@ -28,6 +28,18 @@ export default class PublishWapp extends Wapp {
       return;
     }
 
+    let identifier = this.manifest.name_identifier;
+    if (!identifier) {
+      const newName = await section('Wait for user input', () => {
+        return questions.askForNameIdentifier();
+      });
+
+      if (newName === false) {
+        return;
+      }
+
+      identifier = newName.identifier;
+    }
     res = await section('Updating version', () => {
       return this.update();
     });

@@ -19,7 +19,7 @@ export default function setupCLI(
     },
     {
       name: 'version',
-      description: 'Display this current verison.',
+      description: 'Display this current version.',
       alias: 'V',
       type: Boolean,
     },

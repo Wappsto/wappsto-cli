@@ -58,7 +58,7 @@ npx wapp create
 ```
 
 It will ask for your 'username' and 'password' to Wappsto, unless you are already logged in.
-Here you get the option to download any exsisting Wapps or create a new Wapp.
+Here you get the option to download any existing Wapps or create a new Wapp.
 
 This will generate a file called manifest.json where you can modify the description of your wapp.
 
@@ -77,7 +77,7 @@ If you want to run your background files on the server, you can use the `--remot
 
 ### Configure
 
-To configure your wapp you can run `wapp configure` using `npx`, to chaange some settings for your wapp.
+To configure your wapp you can run `wapp configure` using `npx`, to change some settings for your wapp.
 This is also where you can create OAuth configurations for your wapp.
 
 ```sh
