@@ -65,6 +65,10 @@ class Config {
   browser(): string {
     return this.custom.browser || 'default';
   }
+
+  userSession(): boolean {
+    return this.custom.userSession || false;
+  }
 }
 
 const config = new Config();

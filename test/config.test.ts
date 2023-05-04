@@ -22,6 +22,7 @@ describe('config', () => {
     expect(Config.isCustomHost()).toEqual(false);
     expect(Config.browser()).toEqual('default');
     expect(Config.env()).toEqual('production');
+    expect(Config.userSession()).toEqual(false);
   });
 
   it('can have custom parameters', () => {
@@ -32,6 +33,7 @@ describe('config', () => {
       port: 4000,
       cacheFolder: 'customFolder',
       browser: 'customBrowser',
+      userSession: true,
     };
 
     saveJsonFile('wappsto.json', data);
@@ -47,6 +49,7 @@ describe('config', () => {
     expect(Config.isCustomHost()).toEqual(true);
     expect(Config.browser()).toEqual(data.browser);
     expect(Config.env()).toEqual('testing');
+    expect(Config.userSession()).toEqual(true);
   });
 
   it('have default parameters after reload', () => {
@@ -60,5 +63,6 @@ describe('config', () => {
     expect(Config.port()).toEqual(3000);
     expect(Config.cacheFolder()).toEqual('.wappsto-cli-cache/');
     expect(Config.isCustomHost()).toEqual(false);
+    expect(Config.userSession()).toEqual(false);
   });
 });

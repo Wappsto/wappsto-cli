@@ -332,7 +332,13 @@ export default async function serve(argv: string[]) {
     await wapp.installation.reinstall();
   }
 
-  const sessionID = await wapp.getInstallationSession();
+  let sessionID;
+  if (Config.userSession()) {
+    tui.showWarning("Using USER session");
+    sessionID = wapp.wappsto.session.id;
+  } else {
+    sessionID = await wapp.getInstallationSession();
+  }
   if (!sessionID) {
     tui.showError('Failed to get Session from Installation');
     return;
