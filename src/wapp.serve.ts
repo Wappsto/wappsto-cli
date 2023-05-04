@@ -14,7 +14,6 @@ export default class ServeWapp extends UpdateWapp {
 
     if (localFile) {
       await localFile.update();
-
       await this.installation.restart();
 
       tui.showMessage(`${filePath} was updated`);
@@ -160,7 +159,7 @@ export default class ServeWapp extends UpdateWapp {
 
           if (answers.accept) {
             switch (data.req.method[0]) {
-              case 'add': 
+              case 'add':
                 await this.wappsto.updateACLRestriction(
                   data.installation,
                   data.req.collection
