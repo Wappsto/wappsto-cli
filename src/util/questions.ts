@@ -685,8 +685,18 @@ class Questions {
     ]);
   }
 
+  async askForNameIdentifier() {
+    return this.ask([
+      {
+        name: 'identifier',
+        type: 'text' as const,
+        message: 'Enter a identifier for your wapp',
+      },
+    ]);
+  }
+
   async askPublishWapp(
-    oldVersion: string,
+    manifest: Manifest,
     pendingVersion: boolean
   ): Promise<{ version: string; change: string } | false> {
     if (pendingVersion) {
@@ -708,8 +718,8 @@ class Questions {
       {
         name: 'version',
         type: 'text' as const,
-        initial: oldVersion,
-        message: `The version of the wapp is ${oldVersion}, what is the new version`,
+        initial: manifest.version_app,
+        message: `The version of the wapp is ${manifest.version_app}, what is the new version`,
         validate: (answer: string) => {
           if (/^\d+\.\d+\.\d+$/.test(answer)) {
             return true;
@@ -720,6 +730,7 @@ class Questions {
       {
         name: 'change',
         type: 'text',
+        initial: manifest.description.version,
         message: 'What changed in this version',
       },
     ]);

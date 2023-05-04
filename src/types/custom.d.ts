@@ -17,6 +17,7 @@ export type SupportedFeatures = ('foreground' | 'background' | 'widget')[];
 
 export type Manifest = {
   name: string;
+  name_identifier: string;
   author: string;
   version_app: string;
   max_number_installation: number;

@@ -40,12 +40,33 @@ export default class PublishWapp extends Wapp {
 
       identifier = newName.identifier;
     }
+
     res = await section('Updating version', () => {
       return this.update();
     });
 
-    res = await section('Publishing new version', () => {
-      return this.application.publish(answers.version, answers.change);
+    res = await section('Publishing new version', async () => {
+      while (true) {
+        try {
+          return await this.application.publish(
+            answers.version,
+            answers.change,
+            identifier
+          );
+        } catch(err: any) {
+          if (err.message !== 'name_identifier') {
+            return false;
+          }
+
+          const newName = await section('Wait for user input', () => {
+            return questions.askForNameIdentifier();
+          });
+          if(newName === false) {
+            return false;
+          }
+          identifier = newName.identifier;
+        }
+      }
     });
 
     if (res) {

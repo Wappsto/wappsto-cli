@@ -12,6 +12,7 @@ import {
 
 export default class Application extends Model implements Application21 {
   name: string = '';
+  name_identifier?: string;
   version: (Version | string)[] = [];
   oauth_client: [] | [OauthClient21 | string] = [];
   oauth_external: (OauthExternal21 | string)[] = [];
@@ -247,7 +248,11 @@ export default class Application extends Model implements Application21 {
     });
   }
 
-  async publish(newVersion: string, change: string): Promise<boolean> {
+  async publish(
+    newVersion: string,
+    change: string,
+    nameIdentifier: string
+  ): Promise<boolean> {
     const pending = this.getPendingVersion();
     if (pending) {
       await pending.unpublish();
@@ -257,8 +262,26 @@ export default class Application extends Model implements Application21 {
     if (version.description) {
       version.description.version = change;
     }
+    version.name_identifier = nameIdentifier;
     if (await version.update()) {
       return version.publish();
+    }
+    return false;
+  }
+
+  async updateNameIdentifier(name_identifier: string): Promise<boolean> {
+    try {
+      const response = await HTTP.patch(`${this.url}`, {
+        name_identifier,
+      });
+      this.parse(response.data);
+      return true;
+    } catch (err) {
+      console.log(err);
+      this.handleException(
+        `Failed to update ${this.meta.type}: ${this.id}`,
+        err
+      );
     }
     return false;
   }

@@ -5,6 +5,7 @@ import { Version21 } from './types/application.d';
 
 export default class Version extends Model implements Version21 {
   name: string = '';
+  name_identifier?: string;
   author?: string;
   version_app?: string;
   supported_features?: ('foreground' | 'background' | 'widget')[];
@@ -63,6 +64,7 @@ export default class Version extends Model implements Version21 {
   getAttributes(): string[] {
     return [
       'name',
+      'name_identifier',
       'author',
       'version_app',
       'supported_features',
@@ -133,18 +135,6 @@ export default class Version extends Model implements Version21 {
       this.file.push(f);
     }
     return f;
-  }
-
-  updateFile(filePath: string, newFile: string): void {
-    /*for (let i = 0; i < this.file.length; i += 1) {
-      if (
-        filePath === `${getFilePath(this.file[i].use)}/${this.file[i].name}`
-      ) {
-        this.file[i] = newFile;
-        this.parent?.save();
-        return;
-      }
-    }*/
   }
 
   getFiles(): File[] {

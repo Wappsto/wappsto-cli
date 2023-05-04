@@ -135,6 +135,7 @@ export default class Wapp {
     }
     const newVersion = pick(data, [
       'name',
+      'name_identifier',
       'author',
       'version_app',
       'max_number_installation',

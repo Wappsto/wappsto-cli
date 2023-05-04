@@ -7,6 +7,7 @@ import {
   versionResponse,
 } from './util/response';
 import publish from '../src/cmd/publish';
+import { loadJsonFile } from '../src/util/files';
 
 describe('Publish', () => {
   let mockedAxios: jest.Mocked<typeof axios>;
@@ -103,18 +104,25 @@ describe('Publish', () => {
       .mockResolvedValueOnce({
         data: {},
       })
+      .mockRejectedValueOnce({
+        response: {data: {message: "Wrong name_identifier", code: 500070}}
+      })
       .mockResolvedValueOnce({
         data: {},
+      })
+      .mockResolvedValueOnce({
+        data: {
+          name_identifier: 'identifier',
+        },
       });
 
     createWapp();
 
-    prompts.inject(['2.2.2', 'the new verison']);
+    prompts.inject(['2.2.2', 'the new version', 'wrong', 'identifier']);
 
     await publish([]);
-
     expect(mockedAxios.put).toHaveBeenCalledTimes(0);
-    expect(mockedAxios.patch).toHaveBeenCalledTimes(4);
+    expect(mockedAxios.patch).toHaveBeenCalledTimes(6);
     expect(mockedAxios.patch).toHaveBeenNthCalledWith(
       1,
       'https://wappsto.com/services/2.1/version/98e68cd8-74a6-4841-bdd4-70c29f068056',
@@ -159,11 +167,12 @@ describe('Publish', () => {
         description: {
           foreground: 'Wapp Foreground',
           general: 'Wapp description',
-          version: 'the new verison',
+          version: 'the new version',
           widget: '',
         },
         max_number_installation: 1,
         name: 'Wapp name',
+        name_identifier: 'wrong',
         supported_features: ['foreground'],
         version_app: '2.2.2',
         meta: expect.objectContaining({
@@ -177,7 +186,6 @@ describe('Publish', () => {
           permit_to_send_email: false,
           permit_to_send_sms: false,
         },
-
         status: 'idle',
         used_files: {},
       },
@@ -191,6 +199,66 @@ describe('Publish', () => {
       },
       {}
     );
+    expect(mockedAxios.patch).toHaveBeenNthCalledWith(
+      5,
+      'https://wappsto.com/services/2.1/version/98e68cd8-74a6-4841-bdd4-70c29f068056',
+      {
+        author: 'Wapp Author',
+        description: {
+          foreground: 'Wapp Foreground',
+          general: 'Wapp description',
+          version: 'the new version',
+          widget: '',
+        },
+        max_number_installation: 1,
+        name: 'Wapp name',
+        name_identifier: 'identifier',
+        supported_features: ['foreground'],
+        version_app: '2.2.2',
+        meta: expect.objectContaining({
+          id: '98e68cd8-74a6-4841-bdd4-70c29f068056',
+          revision: 1,
+          type: 'version',
+          version: '2.1',
+        }),
+        permission: {
+          create: ['data', 'stream'],
+          permit_to_send_email: false,
+          permit_to_send_sms: false,
+        },
+        status: 'idle',
+        used_files: {},
+      },
+      {}
+    );
+    expect(mockedAxios.patch).toHaveBeenNthCalledWith(
+      6,
+      'https://wappsto.com/services/2.1/version/98e68cd8-74a6-4841-bdd4-70c29f068056',
+      {
+        status: 'commit',
+      },
+      {}
+    );
+
+    expect(loadJsonFile('./manifest.json')).toEqual({
+      name: 'Wapp name',
+      name_identifier: 'identifier',
+      author: 'Wapp Author',
+      version_app: '2.2.2',
+      supported_features: ['foreground'],
+      max_number_installation: 1,
+      description: {
+        general: 'Wapp description',
+        foreground: 'Wapp Foreground',
+        version: 'the new version',
+        widget: '',
+      },
+      permission: {
+        create: ['data', 'stream'],
+        permit_to_send_email: false,
+        permit_to_send_sms: false,
+      },
+    });
 
     expect(mockedAxios.post).toHaveBeenCalledTimes(0);
     expect(mockedAxios.get).toHaveBeenCalledTimes(6);

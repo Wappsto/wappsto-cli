@@ -157,7 +157,7 @@ export default class Model {
     if (this.meta.type === 'session') {
       tui.showError(msg, err);
     } else {
-      const errMsg = err.response.data.message || '';
+      const errMsg = err.response?.data?.message || '';
       switch (err.response?.data?.code) {
         case 117000000:
           // do not print invalid session error
@@ -169,14 +169,18 @@ export default class Model {
           // Already deleted
           break;
         case 300098:
-          tui.showError(`${errMsg}`);
+          tui.showError(errMsg);
           tui.showError(
             `Please visit ${Config.host()}/pricing for more information`
           );
           break;
+        case 500070:
+          tui.showError(errMsg);
+          tui.showWarning(`Suggestions for Name Identifier: ${err.response.data.data?.suggestion_name_identifier}`);
+          throw new Error('name_identifier');
         case 500089:
           tui.showError(
-            `${msg} because you cannot publish a new version, before you old version have been aproved.`
+            `${msg} because you cannot publish a new version, before you old version have been approved.`
           );
           break;
         case 500090:
