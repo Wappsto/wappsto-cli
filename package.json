@@ -119,7 +119,7 @@
     "axios": "^1.4.0",
     "browser-sync": "^2.29.1",
     "command-line-args": "^5.2.1",
-    "command-line-usage": "^6.1.3",
+    "command-line-usage": "^7.0.1",
     "cross-spawn": "^7.0.3",
     "detect-port": "^1.5.1",
     "figlet": "^1.6.0",
