@@ -113,7 +113,7 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "@sentry/node": "^7.50.0",
+    "@sentry/node": "7.51.0",
     "@sentry/tracing": "^7.50.0",
     "async-mutex": "^0.4.0",
     "axios": "^1.4.0",
