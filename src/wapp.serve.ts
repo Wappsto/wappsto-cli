@@ -14,6 +14,7 @@ export default class ServeWapp extends UpdateWapp {
 
     if (localFile) {
       await localFile.update();
+      this.application.save();
       await this.installation.restart();
 
       tui.showMessage(`${filePath} was updated`);
