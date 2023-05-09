@@ -322,6 +322,7 @@ export default async function serve(argv: string[]) {
 
   if (!wapp.present()) {
     tui.showError('No Wapp found in current folder');
+    tui.showMessage('You need to create a wapp first, using `npx wapp create`');
     return;
   }
 
