@@ -243,6 +243,7 @@ export default class UpdateWapp extends Wapp {
         setTimeout(() => {
           try {
             this.application.fetch().then(() => {
+              this.application.getVersion().save();
               this.application.syncFiles();
               this.saveApplication();
               ts.done();
