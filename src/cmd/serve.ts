@@ -99,23 +99,19 @@ export default async function serve(argv: string[]) {
       tui.showWarning(`${port} is in use, switching to ${newPort}`);
     }
 
-    function haveFile(dir: string, request: any): boolean {
+    function getFileName(dir: string, request: any): string {
       const uri = url.parse(request.url).pathname || '';
-      const filename = path.join(process.cwd(), dir, uri);
+      let filename = path.join(process.cwd(), dir, uri);
       const index = 'index.html';
 
       if (directoryExists(filename)) {
         if (fileExists(filename + index)) {
-          if (!request.url.endsWith('/')) {
-            request.url += '/';
-          }
-          request.url += index;
-          return true;
+          return filename + index;
         }
       } else if (fileExists(filename)) {
-        return true;
+        return filename;
       }
-      return false;
+      return '';
     }
 
     const bs = browserSync.create('Wappsto Wapp');
@@ -151,12 +147,13 @@ export default async function serve(argv: string[]) {
           if (request.url.includes('services')) {
             next();
           } else {
+            const filename = getFileName(Config.foreground(), request);
             // check if requested file exists locally
-            if (haveFile(Config.foreground(), request)) {
+            if (filename) {
               response.writeHead(200, {
-                'Content-Type': getFileType(request.url),
+                'Content-Type': getFileType(filename),
               });
-              response.end(loadFile(`${Config.foreground()}/${request.url}`));
+              response.end(loadFile(filename));
             } else {
               response.writeHead(404, { 'Content-Type': 'text/plain' });
               response.end('Not found in your foreground wapp');
