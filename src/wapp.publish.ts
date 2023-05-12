@@ -72,6 +72,7 @@ export default class PublishWapp extends Wapp {
     if (res) {
       this.saveApplication();
       tui.showMessage(`Wapp published with version ${answers.version}`);
+      tui.showMessage('Before to be available in the market your wapp needs to be validated by our team. Thank you for publishing!');
     }
   }
 }
