@@ -117,7 +117,7 @@
     "@sentry/tracing": "^7.50.0",
     "async-mutex": "^0.4.0",
     "axios": "^1.4.0",
-    "browser-sync": "^2.29.1",
+    "browser-sync": "2.29.3",
     "command-line-args": "^5.2.1",
     "command-line-usage": "^7.0.1",
     "cross-spawn": "^7.0.3",
