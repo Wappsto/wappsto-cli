@@ -332,7 +332,7 @@ export default async function serve(argv: string[]) {
 
   let sessionID;
   if (Config.userSession()) {
-    tui.showWarning("Using USER session");
+    tui.showWarning('Using USER session');
     sessionID = wapp.wappsto.session.id;
   } else {
     sessionID = await wapp.getInstallationSession();

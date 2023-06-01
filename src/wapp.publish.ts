@@ -21,7 +21,7 @@ export default class PublishWapp extends Wapp {
     const pending = this.application.getPendingVersion();
 
     const answers = await section('Wait for user input', () => {
-        return questions.askPublishWapp(this.manifest, !!pending);
+      return questions.askPublishWapp(this.manifest, !!pending);
     });
 
     if (answers === false) {
@@ -53,7 +53,7 @@ export default class PublishWapp extends Wapp {
             answers.change,
             identifier
           );
-        } catch(err: any) {
+        } catch (err: any) {
           if (err.message !== 'name_identifier') {
             return false;
           }
@@ -61,7 +61,7 @@ export default class PublishWapp extends Wapp {
           const newName = await section('Wait for user input', () => {
             return questions.askForNameIdentifier();
           });
-          if(newName === false) {
+          if (newName === false) {
             return false;
           }
           identifier = newName.identifier;
@@ -72,7 +72,9 @@ export default class PublishWapp extends Wapp {
     if (res) {
       this.saveApplication();
       tui.showMessage(`Wapp published with version ${answers.version}`);
-      tui.showMessage('Before to be available in the market your wapp needs to be validated by our team. Thank you for publishing!');
+      tui.showMessage(
+        'Before to be available in the market your wapp needs to be validated by our team. Thank you for publishing!'
+      );
     }
   }
 }

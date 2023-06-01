@@ -176,7 +176,9 @@ export default class Model {
           break;
         case 500070:
           tui.showError(errMsg);
-          tui.showWarning(`Suggestions for Name Identifier: ${err.response.data.data?.suggestion_name_identifier}`);
+          tui.showWarning(
+            `Suggestions for Name Identifier: ${err.response.data.data?.suggestion_name_identifier}`
+          );
           throw new Error('name_identifier');
         case 500089:
           tui.showError(

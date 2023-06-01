@@ -105,7 +105,7 @@ describe('Publish', () => {
         data: {},
       })
       .mockRejectedValueOnce({
-        response: {data: {message: "Wrong name_identifier", code: 500070}}
+        response: { data: { message: 'Wrong name_identifier', code: 500070 } },
       })
       .mockResolvedValueOnce({
         data: {},
