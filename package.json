@@ -110,11 +110,11 @@
     "ts-jest": "^29.1.0",
     "ts-node": "^10.9.1",
     "tslib": "^2.5.2",
-    "typescript": "^5.0.4"
+    "typescript": "^5.1.3"
   },
   "dependencies": {
-    "@sentry/node": "^7.53.1",
-    "@sentry/tracing": "^7.53.1",
+    "@sentry/node": "^7.54.0",
+    "@sentry/tracing": "^7.54.0",
     "async-mutex": "^0.4.0",
     "axios": "^1.4.0",
     "browser-sync": "^2.29.3",
