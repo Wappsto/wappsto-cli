@@ -222,9 +222,12 @@ export default class UpdateWapp extends Wapp {
     }
 
     await section('Update version', async () => {
-      const foundInstallation = await this.installation.fetchById(
-        this.versionID
-      );
+      let foundInstallation = await this.installation.fetchById(this.versionID);
+
+      if (!foundInstallation) {
+        tui.showWarning('Creating new installation');
+        foundInstallation = await this.installation.create(this.versionID);
+      }
 
       if (foundInstallation) {
         if (reinstall) {

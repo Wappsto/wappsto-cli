@@ -331,10 +331,17 @@ describe('Create', () => {
       })
       .mockResolvedValueOnce({
         data: {},
+      })
+      .mockResolvedValueOnce({
+        data: {},
       });
-    mockedAxios.patch.mockResolvedValueOnce({
-      data: versionResponse,
-    });
+    mockedAxios.patch
+      .mockResolvedValueOnce({
+        data: versionResponse,
+      })
+      .mockResolvedValueOnce({
+        data: versionResponse,
+      });
 
     prompts.inject([false, 'generate']);
 
@@ -343,7 +350,7 @@ describe('Create', () => {
     await create([]);
 
     expect(mockedAxios.put).toHaveBeenCalledTimes(0);
-    expect(mockedAxios.patch).toHaveBeenCalledTimes(1);
+    expect(mockedAxios.patch).toHaveBeenCalledTimes(2);
     expect(mockedAxios.patch).toHaveBeenNthCalledWith(
       1,
       'https://wappsto.com/services/2.1/version/98e68cd8-74a6-4841-bdd4-70c29f068056',
@@ -376,6 +383,16 @@ describe('Create', () => {
       },
       {}
     );
+    expect(mockedAxios.patch).toHaveBeenNthCalledWith(
+      2,
+      'https://wappsto.com/services/2.1/installation/00ecb1bd-e794-42b1-b73f-9596319e5ac5',
+      {
+        restart: {
+          new_process: true,
+        },
+      },
+      {}
+    );
 
     expect(mockedAxios.get).toHaveBeenCalledTimes(6);
     expect(mockedAxios.get).toHaveBeenNthCalledWith(
@@ -404,7 +421,7 @@ describe('Create', () => {
       {}
     );
 
-    expect(mockedAxios.post).toHaveBeenCalledTimes(3);
+    expect(mockedAxios.post).toHaveBeenCalledTimes(4);
     expect(mockedAxios.post).toHaveBeenNthCalledWith(
       1,
       'https://wappsto.com/services/2.1/application?verbose=true',
@@ -443,6 +460,12 @@ describe('Create', () => {
       'https://wappsto.com/services/2.1/version/98e68cd8-74a6-4841-bdd4-70c29f068056/file/foreground?verbose=true',
       expect.objectContaining({}),
       { headers: expect.objectContaining({}) }
+    );
+    expect(mockedAxios.post).toHaveBeenNthCalledWith(
+      4,
+      'https://wappsto.com/services/2.1/installation',
+      { application: '98e68cd8-74a6-4841-bdd4-70c29f068056' },
+      {}
     );
 
     expect(loadJsonFile(`${Config.cacheFolder()}application`)).toEqual(
