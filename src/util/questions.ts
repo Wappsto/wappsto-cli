@@ -714,10 +714,39 @@ class Questions {
       }
     }
 
+    const [major_ver, minor_ver, patch_ver] = manifest.version_app.split('.');
+    const major = `${Number(major_ver) + 1}.${minor_ver}.${patch_ver}`;
+    const minor = `${major_ver}.${Number(minor_ver) + 1}.${patch_ver}`;
+    const patch = `${major_ver}.${minor_ver}.${Number(patch_ver) + 1}`;
+
     return this.ask([
       {
+        name: 'bump',
+        message: `The version of the wapp is ${manifest.version_app}, what is the new version`,
+        type: 'select',
+        choices: [
+          {
+            title: `Major version ${major}`,
+            value: major,
+          },
+          {
+            title: `Minor version ${minor}`,
+            value: minor,
+          },
+          {
+            title: `Patch version ${patch}`,
+            value: patch,
+          },
+          {
+            title: 'Custom version',
+            value: 'custom',
+          },
+        ],
+      },
+      {
         name: 'version',
-        type: 'text' as const,
+        type: (prev: any, values: any) =>
+          values.bump === 'custom' ? 'text' : null,
         initial: manifest.version_app,
         message: `The version of the wapp is ${manifest.version_app}, what is the new version`,
         validate: (answer: string) => {

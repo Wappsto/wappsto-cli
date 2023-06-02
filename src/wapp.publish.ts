@@ -49,7 +49,7 @@ export default class PublishWapp extends Wapp {
       while (true) {
         try {
           return await this.application.publish(
-            answers.version,
+            answers.version || answers.bump,
             answers.change,
             identifier
           );
