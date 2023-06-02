@@ -107,32 +107,45 @@ class Tui {
     }
   }
 
-  showTraffic(method: string, url: string, input: any, output: any): void {
+  showTraffic(
+    method: string,
+    url: string,
+    input: any,
+    output: any
+  ): string | undefined {
     /* istanbul ignore next */
-    if (this.debug) {
-      this.clear();
-
-      if (input.password) {
-        input.password = '*****';
-      }
-      this.write(
-        `${yellow('T')} ${yellow('HTTP')} - ${green(method)} ${blue(url)}`
-      );
-      this.write(': ');
-      try {
-        this.write(JSON.stringify(input));
-      } catch (e) {
-        console.log(input);
-        this.write(red('Circular Structure'));
-      }
-      this.write(` ${yellow('=>')} `);
-      try {
-        this.write(JSON.stringify(output));
-      } catch (e) {
-        this.write(blue('Binary Data'));
-      }
-      this.write('\n');
+    if (!this.debug) {
+      return;
     }
+
+    if (input.password) {
+      input.password = '*****';
+    }
+
+    let message = `${yellow('T')} ${yellow('HTTP')} - ${green(method)} ${blue(
+      url
+    )}: `;
+    try {
+      message += JSON.stringify(input);
+    } catch (e) {
+      console.log(input);
+      message += red('Circular Structure');
+    }
+    message += ` ${yellow('=>')} `;
+    if (output === null) {
+      return message;
+    } else {
+      try {
+        message += JSON.stringify(output);
+      } catch (e) {
+        message += blue('Binary Data');
+      }
+      message += '\n';
+      this.clear();
+      this.write(message);
+    }
+
+    return;
   }
 
   showVerbose(type: string, msg: string, data?: any): void {

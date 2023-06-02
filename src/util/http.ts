@@ -2,6 +2,7 @@ import axios from 'axios';
 import tui from './tui';
 import Trace from './trace';
 import { VERSION } from './version';
+import spinner from './spinner';
 
 type Methods = 'head' | 'options' | 'put' | 'post' | 'patch' | 'delete' | 'get';
 
@@ -33,6 +34,7 @@ export default class HTTP {
     const t = HTTP.trace(func, url);
     try {
       let response;
+      spinner.setMessage(tui.showTraffic(func, url, data, null) || '', false);
       if (config === undefined) {
         response = await axios[func](url, data);
       } else {

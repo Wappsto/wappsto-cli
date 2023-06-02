@@ -6,8 +6,10 @@ class Spinner {
   title: string = '';
   frames: string[] = ['|', '/', '-', '\\'];
 
-  setMessage(message: string): void {
-    tui.showVerbose('STATUS', message);
+  setMessage(message: string, verbose = true): void {
+    if (verbose) {
+      tui.showVerbose('STATUS', message);
+    }
     this.title = `${message}, please wait...`;
     this.start();
   }

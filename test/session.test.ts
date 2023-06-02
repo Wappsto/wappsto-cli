@@ -53,7 +53,12 @@ describe('Session', () => {
     expect(mockedAxios.post).toHaveBeenCalledTimes(1);
     expect(mockedAxios.post).toHaveBeenCalledWith(
       'https://wappsto.com/services/2.1/session',
-      { password: 'password', remember_me: true, username: 'user@wappsto.com' },
+      {
+        admin: false,
+        password: 'password',
+        remember_me: true,
+        username: 'user@wappsto.com',
+      },
       {}
     );
   });
@@ -120,7 +125,12 @@ describe('Session', () => {
     expect(mockedAxios.post).toHaveBeenCalledTimes(1);
     expect(mockedAxios.post).toHaveBeenCalledWith(
       'https://wappsto.com/services/2.1/session',
-      { password: 'password', remember_me: true, username: 'user@wappsto.com' },
+      {
+        admin: false,
+        password: 'password',
+        remember_me: true,
+        username: 'user@wappsto.com',
+      },
       {}
     );
   });
