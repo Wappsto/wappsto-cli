@@ -1,7 +1,7 @@
 import Model from './model';
 import HTTP from './util/http';
-//import { saveFile } from './util/files';
 import { Session21 } from './types/session.d';
+import config from './config';
 
 export default class Session extends Model implements Session21 {
   user?: string;
@@ -20,6 +20,7 @@ export default class Session extends Model implements Session21 {
       username: user,
       password: pass,
       remember_me: true,
+      admin: config.adminSession(),
     });
     this.parse(response.data);
     this.save();

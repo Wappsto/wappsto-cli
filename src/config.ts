@@ -69,6 +69,10 @@ class Config {
   userSession(): boolean {
     return this.custom.userSession || false;
   }
+
+  adminSession(): boolean {
+    return this.custom.admin || false;
+  }
 }
 
 const config = new Config();
