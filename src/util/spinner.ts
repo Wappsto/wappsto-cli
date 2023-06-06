@@ -7,6 +7,9 @@ class Spinner {
   frames: string[] = ['|', '/', '-', '\\'];
 
   setMessage(message: string, verbose = true): void {
+    if (!message) {
+      return;
+    }
     if (verbose) {
       tui.showVerbose('STATUS', message);
     }
