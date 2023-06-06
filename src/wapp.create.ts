@@ -185,6 +185,15 @@ export default class CreateWapp extends Wapp {
     };
     const allDirs = dirs.concat(this.wapp_folders_create);
     let overwrite;
+    let exampleWapp = '';
+
+    if (createExamples) {
+      if (folders?.includes('background')) {
+        exampleWapp = 'rssFeedConnect';
+      } else {
+        exampleWapp = 'addressConfigure';
+      }
+    }
 
     for (let i = 0; i < allDirs.length; i += 1) {
       const f = allDirs[i];
@@ -192,7 +201,7 @@ export default class CreateWapp extends Wapp {
       createFolder(`${path}/.`);
 
       if (createExamples && exampleFiles[f]) {
-        const exPath = `${getDirName()}/../examples/bare/${f}`;
+        const exPath = `${getDirName()}/../examples/${exampleWapp}/${f}`;
 
         if (overwrite === undefined) {
           for (let j = 0; j < exampleFiles[f].length; j += 1) {

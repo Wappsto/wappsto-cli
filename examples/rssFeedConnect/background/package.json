@@ -1,0 +1,7 @@
+{
+    "dependencies": {
+        "rss-parser": "^3.13.0",
+        "wappsto-wapp": "*",
+        "dayjs": "^1.11.7"
+    }
+}

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.jsdelivr.net/gh/picocss/pico/docs/js/modal.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/wappsto-wapp@latest/dist/wappsto-wapp.min.js"></script>
+    <script src="main.js"></script>
+    <title>Address Configure</title>
+  </head>
+  <body>
+
+    <nav class="container-fluid">
+      <ul> </ul>
+      <ul>
+        <li><strong>Address Configure</strong></li>
+      </ul>
+      <ul> </ul>
+    </nav>
+    <main class="container">
+
+      <!-- Main Page -->
+      <article id="create_page">
+        <div class="grid">
+          <label for="firstname">
+            Full name
+            <input type="text" id="name" name="name" placeholder="John Dou">
+          </label>
+        </div>
+        <label for="street">
+          Street Address
+          <input type="text" id="street" name="street" placeholder="3440 McDowell Street">
+        </label>
+        <label for="city">
+          City
+          <input type="text" id="city" name="city" placeholder="Nashville">
+        </label>
+        <label for="postal">
+          Postal
+          <input type="text" id="postal" name="postal" placeholder="37373">
+        </label>
+        <label for="state">
+          State
+          <input type="text" id="state" name="state" placeholder="Tennessee">
+        </label>
+        <label for="country">
+          Country
+          <input type="text" id="country" name="country" placeholder="USA">
+        </label>
+        
+        <button id="submitAdr">Submit</button>
+      </article>
+    </main>
+
+    <!-- Error Popup! -->
+    <dialog id="error_popup">
+      <article>
+        <a href="#close"
+          aria-label="Close"
+          class="close"
+          data-target="error_popup"
+          onClick="toggleModal(event);">
+        </a>
+        <h3 id="error_title">Wat?!?</h3>
+        <p id="error_text">
+          Was it me or you that *beep* up?
+        </p>
+        <footer>
+          <a href="#ok" role="button" data-target="error_popup" onClick="toggleModal(event);">OK</a>
+        </footer>
+      </article>
+    </dialog>
+
+  </body>
+  <script type="text/javascript">start();</script>
+</html>

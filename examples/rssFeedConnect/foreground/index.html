@@ -1,0 +1,37 @@
+<!doctype html>
+<html data-theme="dark" lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/wappsto-wapp@latest/dist/wappsto-wapp.min.js"></script>
+    <script src="main.js"></script>
+    <title>RSS Feed Connect</title>
+  </head>
+
+  <body>
+    <nav class="container-fluid">
+      <ul> </ul>
+      <ul>
+        <li><strong>RSS Feed Connect</strong></li>
+      </ul>
+      <ul> </ul>
+    </nav>
+    <main class="container">
+
+      <!-- Main Page -->
+      <article id="create_page">
+        <h1>RSS Feeds:</h1>
+        <div id="feedList">
+          <div aria-busy="true"></div>
+        </div>
+        <footer>
+            <input type="text" id="rssFeed" name="rss" placeholder="https://somelink.com/.rss">
+            <button id="addFeed">Add</button>
+        </footer>
+      </article>
+
+    </main>
+  </body>
+  <script type="text/javascript">start();</script>
+</html>
