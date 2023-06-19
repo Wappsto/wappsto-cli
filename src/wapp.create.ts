@@ -90,7 +90,18 @@ export default class CreateWapp extends Wapp {
           this.application = wapp;
 
           Spinner.setMessage('Downloading installation');
-          if (await this.installation.fetchById(wapp.getVersion().id)) {
+          let foundInstallation = await this.installation.fetchById(
+            wapp.getVersion().id
+          );
+
+          if (!foundInstallation) {
+            tui.showWarning('Creating new installation');
+            foundInstallation = await this.installation.create(
+              wapp.getVersion().id
+            );
+          }
+
+          if (foundInstallation) {
             this.saveApplication();
             tui.showMessage(`Wapp ${wapp.getVersion().name} linked`);
           }
