@@ -129,7 +129,7 @@ export default async function serve(argv: string[]) {
         ws: true, // proxy websocket
         proxyReq: [
           (req: IncomingMessage) => {
-            req.setHeader('x-session', sessionID);
+            req.headers['x-session'] = sessionID;
 
             if (req.headers && req.headers.referer) {
               req.headers.referer = req.headers.referer.replace(
