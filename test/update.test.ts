@@ -1,10 +1,11 @@
 import axios from 'axios';
-import { setup, teardown, createWapp } from './util/setup';
 import {
   applicationResponse,
   installationResponse,
   versionResponse,
 } from './util/response';
+import { createWapp, setup, teardown } from './util/setup';
+// eslint-disable-next-line import/order
 import update from '../src/cmd/update';
 
 describe('Update', () => {

@@ -1,7 +1,7 @@
-import { setup, teardown, createWapp } from './util/setup';
 import logout from '../src/cmd/logout';
-import { fileExists } from '../src/util/files';
 import Config from '../src/config';
+import { fileExists } from '../src/util/files';
+import { createWapp, setup, teardown } from './util/setup';
 
 describe('Logout', () => {
   beforeEach(async () => {

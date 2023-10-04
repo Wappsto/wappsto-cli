@@ -1,9 +1,9 @@
 import axios from 'axios';
 import prompts from 'prompts';
-import { setup, teardown, createWapp } from './util/setup';
+import { createWapp, setup, teardown } from './util/setup';
 import {
-  installationResponse,
   applicationResponse,
+  installationResponse,
   versionResponse,
 } from './util/response';
 import publish from '../src/cmd/publish';

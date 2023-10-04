@@ -160,7 +160,7 @@ export default class Stream {
       default:
         callback(data);
     }
-    console.log('read noti', readNotification);
+
     if (readNotification) {
       await this.wappsto.readNotification(data.meta.id);
     }

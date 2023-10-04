@@ -1,8 +1,9 @@
 import axios from 'axios';
 import prompts from 'prompts';
-import { setup, teardown } from './util/setup';
-import { loadFile, saveFile, createFolders } from '../src/util/files';
 import Config from '../src/config';
+import { createFolders, loadFile, saveFile } from '../src/util/files';
+import { setup, teardown } from './util/setup';
+// eslint-disable-next-line import/order
 import Wapp from '../src/wapp';
 
 describe('Session', () => {

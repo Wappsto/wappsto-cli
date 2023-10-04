@@ -1,6 +1,6 @@
-import { setup, teardown } from './util/setup';
-import { saveJsonFile } from '../src/util/files';
 import Config from '../src/config';
+import { saveJsonFile } from '../src/util/files';
+import { setup, teardown } from './util/setup';
 
 describe('config', () => {
   beforeEach(async () => {

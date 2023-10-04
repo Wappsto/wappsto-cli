@@ -1,15 +1,16 @@
 import axios from 'axios';
 import prompts from 'prompts';
-import { setup, teardown, createWapp } from './util/setup';
+import Config from '../src/config';
+import { loadFile, loadJsonFile, saveFile } from '../src/util/files';
 import {
-  applicationResponse,
-  installationResponse,
   allApplicationsResponse,
   applicationJson,
+  applicationResponse,
+  installationResponse,
   versionResponse,
 } from './util/response';
-import { loadJsonFile, loadFile, saveFile } from '../src/util/files';
-import Config from '../src/config';
+import { createWapp, setup, teardown } from './util/setup';
+// eslint-disable-next-line import/order
 import create from '../src/cmd/create';
 
 describe('Create', () => {

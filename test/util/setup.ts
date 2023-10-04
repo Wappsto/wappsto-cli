@@ -1,18 +1,17 @@
-import axios from 'axios';
-import { join } from 'path';
+import { mkdirSync, mkdtemp, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { mkdtemp, rmSync, mkdirSync, writeFileSync } from 'node:fs';
-import { saveJsonFile, createFolders, saveFile } from '../../src/util/files';
+import { join } from 'path';
+import axios from 'axios';
 import Config from '../../src/config';
+import { JsonObjType } from '../../src/types/custom';
+import { createFolders, saveFile, saveJsonFile } from '../../src/util/files';
 
 //jest.mock("../../src/util/getDirName.ts");
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
-export async function setup(
-  init: boolean = true
-): Promise<jest.Mocked<typeof axios>> {
-  return new Promise<any>((resolve, reject) => {
+export async function setup(init = true): Promise<jest.Mocked<typeof axios>> {
+  return new Promise<JsonObjType>((resolve, reject) => {
     mkdtemp(join(tmpdir(), 'wappsto-cli-test-'), (err, directory) => {
       if (err) {
         reject(err);

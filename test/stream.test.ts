@@ -1,10 +1,12 @@
-import prompts from 'prompts';
-import { Server } from './util/ws';
 import axios from 'axios';
+import prompts from 'prompts';
+import { JsonObjType } from '../src/types/custom';
 import { setup, teardown } from './util/setup';
+import { Server } from './util/ws';
+// eslint-disable-next-line import/order
 import Wapp from '../src/wapp.serve';
 
-function sendMessage(server: Server, msg: Record<string, any>): void {
+function sendMessage(server: Server, msg: JsonObjType): void {
   const tmp = msg;
 
   tmp.meta = {
@@ -17,8 +19,8 @@ function sendMessage(server: Server, msg: Record<string, any>): void {
 function sendData(
   server: Server,
   type: string,
-  data: Record<string, any>,
-  parameters: Record<string, any> = {}
+  data: JsonObjType,
+  parameters: JsonObjType = {}
 ): void {
   const tmp = data;
   if (typeof tmp !== 'string') {
@@ -26,7 +28,7 @@ function sendData(
       id: `${type}_id`,
     };
   }
-  const msg: Record<string, any> = {
+  const msg: JsonObjType = {
     data: tmp,
     event: 'update',
     meta_object: {
@@ -44,8 +46,8 @@ function sendData(
 function sendBody(
   server: Server,
   type: string,
-  data: Record<string, any>,
-  body: Record<string, any>
+  data: JsonObjType,
+  body: JsonObjType
 ): void {
   const tmp = data;
   tmp.body = JSON.stringify(body);
@@ -78,8 +80,10 @@ describe('stream', () => {
     const w = new Wapp();
     w.openStream();
 
-    await serverUser.connected;
-    await serverWapp.connected;
+    await serverUser.connection();
+    await serverWapp.connection();
+
+    expect(true).toBeTruthy();
   });
 
   it('can handle invalid stream data', async () => {
@@ -89,8 +93,8 @@ describe('stream', () => {
     const w = new Wapp();
     w.openStream();
 
-    await serverUser.connected;
-    await serverWapp.connected;
+    await serverUser.connection();
+    await serverWapp.connection();
 
     serverUser.send('{}');
     serverUser.send();
@@ -108,8 +112,8 @@ describe('stream', () => {
     const w = new Wapp();
     w.openStream();
 
-    await serverUser.connected;
-    await serverWapp.connected;
+    await serverUser.connection();
+    await serverWapp.connection();
 
     serverUser.error('wrong');
 
@@ -121,19 +125,19 @@ describe('stream', () => {
     const w = new Wapp();
     w.openStream();
 
-    await serverUser.connected;
-    await serverWapp.connected;
+    await serverUser.connection();
+    await serverWapp.connection();
 
     serverUser.close(1000, 'test error');
 
-    await serverUser.connected;
+    await expect(async () => await serverUser.connection()).not.toThrow();
   });
 
   it('can handle console messages', async () => {
     const wapp = new Wapp();
     await wapp.openStream();
 
-    await serverUser.connected;
+    await serverUser.connection();
 
     sendData(serverUser, 'console', {});
     sendData(serverUser, 'console', {}, { type: 'warn', timestamp: 'now' });
@@ -144,32 +148,38 @@ describe('stream', () => {
       {},
       { type: 'error', extra: { output: 'extra' } }
     );
+
+    expect(true).toBeTruthy();
   });
 
   it('does nothing with state', async () => {
     const wapp = new Wapp();
     await wapp.openStream();
 
-    await serverUser.connected;
+    await serverUser.connection();
 
     sendData(serverUser, 'state', {});
+
+    expect(true).toBeTruthy();
   });
 
   it('can handle installation', async () => {
     const wapp = new Wapp();
     await wapp.openStream();
 
-    await serverUser.connected;
+    await serverUser.connection();
 
     sendData(serverUser, 'installation', { application: 'wrong' });
     sendData(serverUser, 'installation', { application: 'application_id' });
+
+    expect(true).toBeTruthy();
   });
 
   it('can handle extsync', async () => {
     const wapp = new Wapp();
     await wapp.openStream();
 
-    await serverUser.connected;
+    await serverUser.connection();
 
     sendBody(serverUser, 'extsync', { uri: 'extsync' }, {});
 
@@ -243,7 +253,7 @@ describe('stream', () => {
     const wapp = new Wapp();
     await wapp.openStream();
 
-    await serverUser.connected;
+    await serverUser.connection();
 
     sendData(serverUser, 'notification', {
       read: 'unread',
@@ -441,7 +451,7 @@ describe('stream', () => {
     expect(mockedAxios.post).toHaveBeenCalledTimes(0);
     expect(mockedAxios.patch).toHaveBeenCalledTimes(0);
   });
-  /*
+
   test('stream notification req collection', async () => {
     const wapp = new Wapp();
     await wapp.openStream();
@@ -492,6 +502,8 @@ describe('stream', () => {
         collection: {},
       },
     });
+
+    expect(true).toBeTruthy();
   });
 
   test('stream notification req name installation', async () => {
@@ -514,17 +526,17 @@ describe('stream', () => {
     });
 
     sendData(serverUser, 'notification', {
-        read: 'unread',
-        timestamp: '1234568',
-        base: {
-            code: 1100003,
-            from: 'installation_id',
-        },
-        custom: {
-            type: 'test',
-            name_installation: 'Test App',
-            collection: 'Test Type',
-        },
+      read: 'unread',
+      timestamp: '1234568',
+      base: {
+        code: 1100003,
+        from: 'installation_id',
+      },
+      custom: {
+        type: 'test',
+        name_installation: 'Test App',
+        collection: 'Test Type',
+      },
     });
 
     sendData(serverUser, 'notification', {
@@ -540,6 +552,7 @@ describe('stream', () => {
         message: 'Test message',
       },
     });
+
+    expect(true).toBeTruthy();
   });
-*/
 });

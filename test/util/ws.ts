@@ -31,23 +31,27 @@ export class Server extends EventEmitter {
 
   async connection() {
     return new Promise<void>((resolve) => {
-      this.connected = resolve;
+      if (this.connections.length === 0) {
+        this.connected = resolve;
+      } else {
+        resolve();
+      }
     });
   }
 
-  error(err?: any) {
+  error(err?: string) {
     this.connections.forEach((conn: Client) => {
-      conn.error(err);
+      conn.error(err || 'Unknown Error');
     });
   }
 
-  send(msg?: any) {
+  send(msg?: string) {
     this.connections.forEach((conn: Client) => {
       conn.send(msg);
     });
   }
 
-  close(code: number, msg?: any) {
+  close(code: number, msg?: string) {
     this.connections.forEach((conn: Client) => {
       conn.close(code, msg);
     });
@@ -67,11 +71,11 @@ export class Client extends EventEmitter {
     }
   }
 
-  send(msg?: any) {
+  send(msg?: string) {
     this.emit('message', msg);
   }
 
-  close(code: number, msg?: any) {
+  close(code: number, msg?: string) {
     this.readyState = CLOSED;
     this.emit('close', code, msg);
   }
@@ -80,7 +84,7 @@ export class Client extends EventEmitter {
     this.readyState = OPENED;
   }
 
-  error(err: any) {
+  error(err: string) {
     this.readyState = CLOSED;
     this.emit('error', err);
   }

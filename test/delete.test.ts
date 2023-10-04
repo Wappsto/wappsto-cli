@@ -1,9 +1,10 @@
 import axios from 'axios';
 import prompts from 'prompts';
-import { setup, teardown, createWapp } from './util/setup';
-import { applicationResponse, installationResponse } from './util/response';
-import { fileExists, directoryExists } from '../src/util/files';
 import Config from '../src/config';
+import { directoryExists, fileExists } from '../src/util/files';
+import { applicationResponse, installationResponse } from './util/response';
+import { createWapp, setup, teardown } from './util/setup';
+// eslint-disable-next-line import/order
 import Delete from '../src/cmd/delete';
 
 describe('Delete', () => {
