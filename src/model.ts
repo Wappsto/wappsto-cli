@@ -1,11 +1,13 @@
 import * as Sentry from '@sentry/node';
+import { AxiosError } from 'axios';
 import pick from 'lodash.pick';
 import Config from './config';
-import HTTP from './util/http';
-import { deleteFile, saveFile, loadFile } from './util/files';
-import tui from './util/tui';
-import Trace from './util/trace';
 import { Meta21 } from './types/application.d';
+import { JsonObjType } from './types/custom';
+import { deleteFile, loadFile, saveFile } from './util/files';
+import HTTP from './util/http';
+import Trace from './util/trace';
+import tui from './util/tui';
 
 export default class Model {
   meta: Meta21 = { id: '', type: '', version: '2.1', revision: 1, updated: '' };
@@ -40,7 +42,7 @@ export default class Model {
     return [];
   }
 
-  toJSON(full: boolean = true): Record<string, any> {
+  toJSON(_full = true): JsonObjType {
     const meta = Object.assign(
       {},
       pick(this.meta, ['id', 'type', 'version', 'revision', 'updated'])
@@ -52,11 +54,14 @@ export default class Model {
     return json;
   }
 
-  parse(data: any): void {
+  parse(data: JsonObjType): void {
     try {
       Object.assign(this, pick(data, this.getAttributes().concat(['meta'])));
     } catch (err) {
-      this.handleException(`Failed to parse data in ${this.meta.type}`, err);
+      this.handleException(
+        `Failed to parse data in ${this.meta.type}`,
+        err as AxiosError
+      );
     }
   }
 
@@ -86,8 +91,11 @@ export default class Model {
       const response = await HTTP.get(`${this.url}?expand=2&verbose=true`);
       this.parse(response.data);
       return true;
-    } catch (err: any) {
-      this.handleException(`Failed to fetch ${this.meta.type}`, err);
+    } catch (err) {
+      this.handleException(
+        `Failed to fetch ${this.meta.type}`,
+        err as AxiosError
+      );
     }
 
     return false;
@@ -101,7 +109,7 @@ export default class Model {
     } catch (err) {
       this.handleException(
         `Failed to update ${this.meta.type}: ${this.id}`,
-        err
+        err as AxiosError
       );
     }
     return false;
@@ -110,10 +118,10 @@ export default class Model {
   async delete(): Promise<void> {
     try {
       await HTTP.delete(`${this.url}`);
-    } catch (err: any) {
+    } catch (err) {
       this.handleException(
         `Failed to delete ${this.meta.type}: ${this.id}`,
-        err
+        err as AxiosError
       );
     }
   }
@@ -130,7 +138,7 @@ export default class Model {
     return true;
   }
 
-  private removeUndefined(obj: Record<string, any>, deep = 10) {
+  private removeUndefined(obj: JsonObjType, deep = 10) {
     if (obj && deep > 0) {
       Object.keys(obj).forEach((key) => {
         const value = obj[key];
@@ -145,15 +153,15 @@ export default class Model {
     return obj;
   }
 
-  trace(method: string, data?: any): Trace {
+  trace(method: string, data?: JsonObjType): Trace {
     return new Trace(this.meta.type || 'model', method, data);
   }
 
-  static trace(type: string, method: string, data?: any): Trace {
+  static trace(type: string, method: string, data?: JsonObjType): Trace {
     return new Trace(type, method, data);
   }
 
-  handleException(msg: string, err: any): void {
+  handleException(msg: string, err: AxiosError<JsonObjType>): void {
     if (this.meta.type === 'session') {
       tui.showError(msg, err);
     } else {
@@ -205,7 +213,7 @@ export default class Model {
     }
   }
 
-  static handleException(msg: string, err: any): void {
+  static handleException(msg: string, err: AxiosError<JsonObjType>): void {
     if (process.env.NODE_ENV !== 'test') {
       Sentry.captureException(err);
     }

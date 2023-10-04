@@ -1,7 +1,8 @@
+import { JsonObjType } from './types/custom';
 import { loadJsonFile } from './util/files';
 
 class Config {
-  custom: any;
+  custom: JsonObjType;
 
   constructor() {
     this.custom = loadJsonFile('wappsto.json');

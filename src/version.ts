@@ -1,10 +1,12 @@
-import HTTP from './util/http';
-import Model from './model';
+import { AxiosError } from 'axios';
 import File from './file';
+import Model from './model';
 import { Version21 } from './types/application.d';
+import { JsonObjType } from './types/custom';
+import HTTP from './util/http';
 
 export default class Version extends Model implements Version21 {
-  name: string = '';
+  name = '';
   name_identifier?: string;
   author?: string;
   version_app?: string;
@@ -55,7 +57,7 @@ export default class Version extends Model implements Version21 {
   file: (File | string)[] = [];
   parent: Model;
 
-  constructor(data: Record<string, any>, parent: Model) {
+  constructor(data: JsonObjType, parent: Model) {
     super('version');
     this.parse(data);
     this.parent = parent;
@@ -78,7 +80,7 @@ export default class Version extends Model implements Version21 {
     ];
   }
 
-  parse(data: Record<string, any>): void {
+  parse(data: JsonObjType): void {
     const fileData = data.file;
     delete data.file;
     super.parse(data);
@@ -90,14 +92,14 @@ export default class Version extends Model implements Version21 {
     if (fileData) {
       if (fileData.length > 0 && typeof fileData[0] !== 'string') {
         this.file = [];
-        fileData.forEach((f: any) => {
+        fileData.forEach((f: JsonObjType) => {
           this.file.push(new File(f, this));
         });
       }
     }
   }
 
-  toJSON(full: boolean = true): Record<string, any> {
+  toJSON(full = true): JsonObjType {
     const data = super.toJSON(full);
     if (full) {
       data.file = [];
@@ -117,7 +119,10 @@ export default class Version extends Model implements Version21 {
       const response = await HTTP.get(`${this.url}?expand=2&verbose=true`);
       return new Version(response.data, this.parent);
     } catch (err) {
-      this.handleException(`Failed to get version: ${this.id}`, err);
+      this.handleException(
+        `Failed to get version: ${this.id}`,
+        err as AxiosError
+      );
     }
     return new Version({ meta: { id: this.id } }, this.parent);
   }
@@ -157,7 +162,7 @@ export default class Version extends Model implements Version21 {
     } catch (err) {
       this.handleException(
         `Failed to update ${this.meta.type}: ${this.id}`,
-        err
+        err as AxiosError
       );
     }
     return false;
@@ -173,7 +178,7 @@ export default class Version extends Model implements Version21 {
     } catch (err) {
       this.handleException(
         `Failed to update ${this.meta.type}: ${this.id}`,
-        err
+        err as AxiosError
       );
     }
     return false;

@@ -1,7 +1,8 @@
-import UpdateWapp from './wapp.update';
 import Stream from './stream';
-import tui from './util/tui';
+import { JsonObjType } from './types/custom';
 import questions from './util/questions';
+import tui from './util/tui';
+import UpdateWapp from './wapp.update';
 
 export default class ServeWapp extends UpdateWapp {
   wappStream?: Stream;
@@ -30,7 +31,7 @@ export default class ServeWapp extends UpdateWapp {
     this.userStream = new Stream(
       this.wappsto,
       ['/notification', '/installation'],
-      (event: any) => {
+      (event: JsonObjType) => {
         this.handleStreamEvent(event);
       }
     );
@@ -40,7 +41,7 @@ export default class ServeWapp extends UpdateWapp {
     this.wappStream = new Stream(
       this.wappsto,
       ['/extsync', '/console'],
-      (event: any) => {
+      (event: JsonObjType) => {
         this.handleStreamEvent(event);
       },
       this.installation.session
@@ -49,7 +50,7 @@ export default class ServeWapp extends UpdateWapp {
     this.wappStream.open();
   }
 
-  async handleStreamEvent(data: any): Promise<void> {
+  async handleStreamEvent(data: JsonObjType): Promise<void> {
     if (data?.application && data?.application !== this.application.id) {
       return;
     }
@@ -96,7 +97,7 @@ export default class ServeWapp extends UpdateWapp {
     } else if (data.req) {
       await this.mutex.runExclusive(async () => {
         tui.block();
-        const opts: any[] = [];
+        const opts: { name: string; value: string }[] = [];
         const search: string[] = [];
         if (data.req.limitation) {
           Object.keys(data.req.limitation).forEach((key) => {
@@ -113,7 +114,7 @@ export default class ServeWapp extends UpdateWapp {
             this.installation.id
           );
           if (items.length) {
-            items.forEach((item: any) => {
+            items.forEach((item: JsonObjType) => {
               opts.push({
                 name: `${item.name} (${item.meta.id})`,
                 value: item.meta.id,

@@ -1,22 +1,21 @@
 import { Mutex } from 'async-mutex';
 import pick from 'lodash.pick';
+import Application from './application';
+import Config from './config';
+import Installation from './installation';
+import { Manifest } from './types/custom.d';
 import {
-  loadJsonFile,
-  directoryExists,
   createFolders as createFolder,
-  fileExists,
   deleteFile,
   deleteFolder,
+  directoryExists,
+  fileExists,
+  loadJsonFile,
   saveJsonFile,
 } from './util/files';
-import { setUser, section } from './util/trace';
-import { Manifest } from './types/custom.d';
+import { section, setUser } from './util/trace';
 import Version from './version';
 import Wappsto from './wappsto';
-import Config from './config';
-
-import Installation from './installation';
-import Application from './application';
 
 export default class Wapp {
   mutex: Mutex;
@@ -30,9 +29,9 @@ export default class Wapp {
   installation: Installation;
   manifest: Manifest;
   ignore_file: string;
-  remote: boolean = false;
+  remote = false;
 
-  constructor(remote: boolean = true) {
+  constructor(remote = true) {
     this.remote = remote;
     this.mutex = new Mutex();
     this.cacheFolder = Config.cacheFolder();
@@ -104,7 +103,7 @@ export default class Wapp {
     }
   }
 
-  present(): any {
+  present(): boolean {
     let oldWapp = false;
     this.wapp_files.forEach((f) => {
       oldWapp = oldWapp || fileExists(f);
@@ -121,7 +120,7 @@ export default class Wapp {
     });
   }
 
-  saveApplication(): any {
+  saveApplication() {
     this.application.save();
     this.saveManifest(this.application.getVersion());
   }

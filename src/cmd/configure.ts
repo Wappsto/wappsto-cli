@@ -1,6 +1,6 @@
-import Wapp from '../wapp.configure';
 import setup from '../util/setup_cli';
 import tui from '../util/tui';
+import Wapp from '../wapp.configure';
 
 const sections = [
   {
@@ -18,7 +18,7 @@ const sections = [
 ];
 
 export default async function configure(argv: string[]) {
-  let options = setup('Configure wapp', argv, [], sections);
+  const options = setup('Configure wapp', argv, [], sections);
   if (!options) {
     return;
   }

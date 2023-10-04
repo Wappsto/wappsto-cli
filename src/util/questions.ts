@@ -1,24 +1,26 @@
-import prompts from 'prompts';
-import tui from './tui';
-import { Manifest } from '../types/custom.d';
-import { OauthExternal21, OauthClient21 } from '../types/application.d';
-import Spinner from './spinner';
+import prompts, { Answers, PromptObject } from 'prompts';
+import { OauthClient21, OauthExternal21 } from '../types/application.d';
+import { JsonObjType, Manifest } from '../types/custom.d';
 import Wappsto from '../wappsto';
+import Spinner from './spinner';
+import tui from './tui';
 
 type Request = {
   method: string[];
   collection: string;
   message: string;
-  data?: Record<string, any>[];
+  data?: JsonObjType[];
   name_installation: string;
   type: string;
 };
 
 class Questions {
-  private async ask(questions: any[]): Promise<any | false> {
+  private async ask(
+    questions: PromptObject<string>[]
+  ): Promise<Answers<string> | false> {
     const start = Spinner.stop();
     let done = false;
-    return new Promise<any | false>((resolve) => {
+    return new Promise<Answers<string> | false>((resolve) => {
       const onCancel = () => {
         if (start) {
           Spinner.start();
@@ -39,9 +41,7 @@ class Questions {
     });
   }
 
-  askWappstoCredentials(
-    host: string
-  ): Promise<{ username: string; password: string } | false> {
+  askWappstoCredentials(host: string): Promise<Answers<string> | false> {
     return this.ask([
       {
         name: 'username',
@@ -127,14 +127,14 @@ class Questions {
       },
       {
         name: 'foreground',
-        type: (prev: any, values: any) =>
+        type: (prev: JsonObjType, values: JsonObjType) =>
           values.features.indexOf('foreground') !== -1 ? 'text' : null,
         message:
           'Please enter a description about your foreground part of your Wapp:',
       },
       {
         name: 'background',
-        type: (prev: any, values: any) =>
+        type: (prev: JsonObjType, values: JsonObjType) =>
           values.features.indexOf('background') !== -1 ? 'text' : null,
         message:
           'Please enter a description about your background part of your Wapp:',
@@ -154,7 +154,7 @@ class Questions {
       value: string;
     }[],
     present: boolean
-  ): Promise<Record<string, any> | false> {
+  ): Promise<JsonObjType | false> {
     let newWapp = true;
     if (present) {
       tui.showWarning('It seams like you already have a wapp in this folder!');
@@ -280,7 +280,7 @@ class Questions {
     manifest: Manifest,
     oauthExternal: OauthExternal21[],
     oauthClient: OauthClient21[]
-  ): Promise<Record<string, any> | false> {
+  ): Promise<JsonObjType | false> {
     const external = oauthExternal[0] || {};
     const client = oauthClient[0] || {};
 
@@ -314,21 +314,21 @@ class Questions {
       {
         name: 'name',
         validate: validateEmptyString,
-        type: 'text',
+        type: 'text' as const,
         initial: manifest.name,
         message: 'Name of the wapp:',
       },
       {
         name: 'author',
         validate: validateEmptyString,
-        type: 'text',
+        type: 'text' as const,
         initial: manifest.author,
         message: 'Name of the Author:',
       },
       {
         name: 'general',
         validate: validateEmptyString,
-        type: 'text',
+        type: 'text' as const,
         initial: manifest.description.general,
         message: 'General description of your wapp:',
       },
@@ -337,7 +337,7 @@ class Questions {
         validate: validateEmptyString,
         type:
           manifest.supported_features.indexOf('foreground') !== -1
-            ? 'text'
+            ? ('text' as const)
             : null,
         message: 'Foreground description of your Wapp:',
       },
@@ -346,7 +346,7 @@ class Questions {
         validate: validateEmptyString,
         type:
           manifest.supported_features.indexOf('background') !== -1
-            ? 'text'
+            ? ('text' as const)
             : null,
         message: 'Background description of your Wapp:',
       },
@@ -433,14 +433,14 @@ class Questions {
         name: 'path_access_token',
         type: 'text' as const,
         validate: validateEmptyString,
-        initial: client.path_access_token,
+        initial: client.path_access_token?.[0],
         message: 'Path Access Token:',
       },
       {
         name: 'redirect_uri',
         type: 'text' as const,
         validate: validateEmptyString,
-        initial: client.redirect_uri,
+        initial: client.redirect_uri?.[0],
         message: 'Redirect Uri:',
       },
     ];
@@ -495,7 +495,7 @@ class Questions {
     const multiInstallationsQuestions = [
       {
         name: 'allow',
-        type: 'confirm',
+        type: 'confirm' as const,
         message: 'Is this wapp allowed to be installed multiple times',
         initial: manifest.max_number_installation === 1 ? false : true,
       },
@@ -527,9 +527,7 @@ class Questions {
     return answers;
   }
 
-  deleteWapp(): Promise<
-    { del: boolean; local?: boolean; remote?: boolean } | false
-  > {
+  deleteWapp(): Promise<Answers<string> | false> {
     return this.ask([
       {
         name: 'del',
@@ -539,12 +537,13 @@ class Questions {
       },
       {
         name: 'local',
-        type: (prev: any) => (prev ? 'confirm' : null),
+        type: (prev: JsonObjType) => (prev ? 'confirm' : null),
         message: 'Do you want to delete the local files?',
       },
       {
         name: 'remote',
-        type: (prev: any, values: any) => (values.del ? 'confirm' : null),
+        type: (prev: JsonObjType, values: JsonObjType) =>
+          values.del ? 'confirm' : null,
         message: 'Do you want to delete the Wapp on Wappsto?',
       },
     ]);
@@ -553,7 +552,7 @@ class Questions {
   async precisePermissionRequest(
     request: Request,
     wappsto: Wappsto
-  ): Promise<{ accept: boolean } | false> {
+  ): Promise<Answers<string> | false> {
     let msg = '';
     let type = 'data';
 
@@ -598,8 +597,8 @@ class Questions {
 
   permissionRequest(
     request: Request,
-    data: any[]
-  ): Promise<{ permission: string[] } | false> {
+    data: JsonObjType[]
+  ): Promise<Answers<string> | false> {
     let msg = '';
 
     if (request.message) {
@@ -618,7 +617,7 @@ class Questions {
     ]);
   }
 
-  remoteVersionUpdated(): Promise<{ local: boolean } | false> {
+  remoteVersionUpdated(): Promise<Answers<string> | false> {
     return this.ask([
       {
         name: 'local',
@@ -630,7 +629,7 @@ class Questions {
     ]);
   }
 
-  fileConflict(file: string): Promise<{ conflict: string } | false> {
+  fileConflict(file: string): Promise<Answers<string> | false> {
     return this.ask([
       {
         message: `Conflict on file ´${file}`,
@@ -662,23 +661,23 @@ class Questions {
     ]);
   }
 
-  askDeleteLocalFile(file: string): Promise<{ delete: boolean } | false> {
+  askDeleteLocalFile(file: string): Promise<Answers<string> | false> {
     return this.ask([
       {
         name: 'delete',
         type: 'confirm' as const,
-        default: true,
+        initial: true,
         message: `${file} was deleted on the server, do you want to delete the local file?`,
       },
     ]);
   }
 
-  askOverwriteFiles(): Promise<{ overwrite: boolean } | false> {
+  askOverwriteFiles(): Promise<Answers<string> | false> {
     return this.ask([
       {
         name: 'overwrite',
         type: 'confirm' as const,
-        default: false,
+        initial: false,
         message:
           'Do you want to overwrite your local files with example files?',
       },
@@ -698,7 +697,7 @@ class Questions {
   async askPublishWapp(
     manifest: Manifest,
     pendingVersion: boolean
-  ): Promise<{ version: string; change: string } | false> {
+  ): Promise<Answers<string> | false> {
     if (pendingVersion) {
       const override = await this.ask([
         {
@@ -745,7 +744,7 @@ class Questions {
       },
       {
         name: 'version',
-        type: (prev: any, values: any) =>
+        type: (prev: JsonObjType, values: JsonObjType) =>
           values.bump === 'custom' ? 'text' : null,
         initial: manifest.version_app,
         message: `The version of the wapp is ${manifest.version_app}, what is the new version`,

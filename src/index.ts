@@ -5,18 +5,18 @@
 import * as Sentry from '@sentry/node';
 import commandLineArgs from 'command-line-args';
 import commandLineUsage from 'command-line-usage';
-import create from './cmd/create';
-import update from './cmd/update';
-import Delete from './cmd/delete';
 import configure from './cmd/configure';
-import serve from './cmd/serve';
-import publish from './cmd/publish';
+import create from './cmd/create';
+import Delete from './cmd/delete';
 import logout from './cmd/logout';
+import publish from './cmd/publish';
+import serve from './cmd/serve';
+import update from './cmd/update';
+import Config from './config';
 import { startTrace } from './util/trace';
 import tui from './util/tui';
-import Config from './config';
-import Wapp from './wapp';
 import { VERSION } from './util/version';
+import Wapp from './wapp';
 
 const mainDefinitions = [{ name: 'command', defaultOption: true }];
 
@@ -69,7 +69,7 @@ export function getHost() {
   return Config.host();
 }
 
-let wapp_session: string = '';
+let wapp_session = '';
 
 export async function getSession() {
   if (!wapp_session) {
@@ -93,7 +93,6 @@ if (
       const mainOptions = commandLineArgs(mainDefinitions, {
         stopAtFirstUnknown: true,
       });
-      /* eslint-disable-next-line no-underscore-dangle */
       const argv = mainOptions._unknown || [];
 
       transaction = startTrace(mainOptions.command);
@@ -126,7 +125,8 @@ if (
           console.log(commandLineUsage(sections));
           break;
       }
-    } catch (err: any) {
+    } catch (e: unknown) {
+      const err = e as Error;
       if (err.message === 'LoginError') {
         tui.showError('Failed to Login, please try again.');
       } else if (err.message === 'UpgradeError') {

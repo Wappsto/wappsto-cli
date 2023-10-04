@@ -1,5 +1,6 @@
 import commandLineArgs from 'command-line-args';
 import commandLineUsage from 'command-line-usage';
+import { JsonObjType } from '../types/custom';
 import tui from '../util/tui';
 import { VERSION } from './version';
 
@@ -8,9 +9,9 @@ export default function setupCLI(
   argv: string[],
   optionDefinitions: commandLineArgs.OptionDefinition[],
   optionSections: commandLineUsage.Section[]
-): Record<string, any> | false {
+): JsonObjType | false {
   let options;
-  let definitions: any[] = [
+  let definitions: commandLineUsage.OptionDefinition[] = [
     {
       name: 'help',
       description: 'Display this usage guide.',
@@ -44,7 +45,7 @@ export default function setupCLI(
   ];
   definitions = definitions.concat(optionDefinitions);
 
-  let sections = optionSections.concat([
+  const sections = optionSections.concat([
     {
       header: 'Options',
       optionList: definitions,
@@ -63,8 +64,8 @@ export default function setupCLI(
 
   try {
     options = commandLineArgs(definitions, { argv });
-  } catch (err: any) {
-    tui.showError(err.message);
+  } catch (err: unknown) {
+    tui.showError((err as Error).message);
     console.log(commandLineUsage(sections));
     return false;
   }

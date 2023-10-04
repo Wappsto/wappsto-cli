@@ -1,23 +1,26 @@
 import WebSocket from 'ws';
 import Config from './config';
+import { JsonObjType } from './types/custom';
 import tui from './util/tui';
 import Wappsto from './wappsto';
+
+type CallbackType = (event: JsonObjType) => void;
 
 export default class Stream {
   ws?: WebSocket | undefined;
   wappsto: Wappsto;
   subscription: string[];
   installation_id: string;
-  remote: boolean = true;
-  last_permission_request: any;
-  last_stream_event: any;
+  remote = true;
+  last_permission_request?: string;
+  last_stream_event?: string;
   session: string;
-  callback: any;
+  callback: CallbackType;
 
   constructor(
-    wappsto: any,
+    wappsto: Wappsto,
     subscription: string[],
-    callback: any,
+    callback: CallbackType,
     session?: string,
     installation_id?: string,
     remote?: boolean
@@ -60,11 +63,11 @@ export default class Stream {
         }
       });
 
-      this.ws.on('error', (err: any) => {
+      this.ws.on('error', (err: JsonObjType) => {
         tui.showError(`Stream error`, err);
       });
 
-      this.ws.on('message', (message: any) => {
+      this.ws.on('message', (message: JsonObjType) => {
         this.parseStreamEvent(message, this.callback);
       });
     };
@@ -78,7 +81,7 @@ export default class Stream {
     }
   }
 
-  printConsoleMessage(data: any, callback: any) {
+  printConsoleMessage(data: JsonObjType, callback: CallbackType) {
     if (!this.remote) {
       return;
     }
@@ -115,7 +118,7 @@ export default class Stream {
     callback(eventMsg);
   }
 
-  async handleNotification(data: any, callback: any) {
+  async handleNotification(data: JsonObjType, callback: CallbackType) {
     if (data.read !== 'unread') {
       return;
     }
@@ -157,13 +160,13 @@ export default class Stream {
       default:
         callback(data);
     }
-
+    console.log('read noti', readNotification);
     if (readNotification) {
       await this.wappsto.readNotification(data.meta.id);
     }
   }
 
-  async parseStreamEvent(message: any, callback: any) {
+  async parseStreamEvent(message: JsonObjType, callback: CallbackType) {
     try {
       let event;
       try {
@@ -219,9 +222,9 @@ export default class Stream {
             } else {
               this.printConsoleMessage(data, callback);
             }
-          } catch (err: any) {
+          } catch (err) {
             /* istanbul ignore next */
-            tui.showError(err);
+            tui.showError((err as Error).toString());
             /* istanbul ignore next */
             if (data.body) {
               callback(data.body);
@@ -240,7 +243,7 @@ export default class Stream {
               }
               msg += `\n${event.extra.output}`;
             }
-            const consoleEvent: Record<string, any> = {
+            const consoleEvent: JsonObjType = {
               type: 'Background',
               timestamp: event.timestamp,
             };

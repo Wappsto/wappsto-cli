@@ -1,17 +1,19 @@
-import HTTP from './util/http';
-import tui from './util/tui';
+import { AxiosError } from 'axios';
 import Model from './model';
+import { JsonObjType } from './types/custom';
 import {
   Installation21,
   Oauth21,
   OauthConnect21,
 } from './types/installation.d';
+import HTTP from './util/http';
+import tui from './util/tui';
 
 export default class Installation extends Model implements Installation21 {
-  application: string = '';
-  version_id: string = '';
-  session_user: boolean = false;
-  extsync: boolean = false;
+  application = '';
+  version_id = '';
+  session_user = false;
+  extsync = false;
   status: {
     background?:
       | 'no_background'
@@ -43,7 +45,7 @@ export default class Installation extends Model implements Installation21 {
   oauth: (Oauth21 | string)[] = [];
   oauth_connect: (OauthConnect21 | string)[] = [];
   session?: string;
-  token_installation: string = '';
+  token_installation = '';
   supported_features: string[] = [];
 
   constructor() {
@@ -82,14 +84,14 @@ export default class Installation extends Model implements Installation21 {
       this.save();
       return true;
     } catch (err) {
-      this.handleException('Failed to create installation', err);
+      this.handleException('Failed to create installation', err as AxiosError);
       return false;
     }
   }
 
   async fetchById(id: string): Promise<boolean> {
     try {
-      let url = `${this.HOST}?expand=2&this_version_id=${id}`;
+      const url = `${this.HOST}?expand=2&this_version_id=${id}`;
       const response = await HTTP.get(url);
       if (response.data && response.data.length) {
         this.parse(response.data[0]);
@@ -99,7 +101,10 @@ export default class Installation extends Model implements Installation21 {
         tui.showWarning(`Failed to find installation by version ID: ${id}`);
       }
     } catch (err) {
-      this.handleException(`Failed to load installation: ${id}`, err);
+      this.handleException(
+        `Failed to load installation: ${id}`,
+        err as AxiosError
+      );
     }
     return false;
   }
@@ -112,7 +117,10 @@ export default class Installation extends Model implements Installation21 {
         },
       });
     } catch (err) {
-      this.handleException(`Failed to restart installation: ${this.id}`, err);
+      this.handleException(
+        `Failed to restart installation: ${this.id}`,
+        err as AxiosError
+      );
     }
   }
 
@@ -125,7 +133,10 @@ export default class Installation extends Model implements Installation21 {
         },
       });
     } catch (err) {
-      this.handleException(`Failed to reinstall installation: ${this.id}`, err);
+      this.handleException(
+        `Failed to reinstall installation: ${this.id}`,
+        err as AxiosError
+      );
     }
   }
 
@@ -138,7 +149,10 @@ export default class Installation extends Model implements Installation21 {
       });
       return true;
     } catch (err) {
-      this.handleException(`Failed to stop installation: ${this.id}`, err);
+      this.handleException(
+        `Failed to stop installation: ${this.id}`,
+        err as AxiosError
+      );
       return false;
     }
   }
@@ -151,7 +165,7 @@ export default class Installation extends Model implements Installation21 {
     } catch (err) {
       this.handleException(
         `Failed to change ExtSync for installation: ${this.id}`,
-        err
+        err as AxiosError
       );
     }
   }
@@ -159,13 +173,16 @@ export default class Installation extends Model implements Installation21 {
   async deleteById(id: string): Promise<void> {
     try {
       await HTTP.delete(`${this.HOST}?this_version_id=${id}`);
-    } catch (err: any) {
-      switch (err.response.data.code) {
+    } catch (err) {
+      switch ((err as AxiosError<JsonObjType>)?.response?.data?.code) {
         case 300020:
           // Installation already deleted
           break;
         default:
-          this.handleException(`Failed to delete installation: ${id}`, err);
+          this.handleException(
+            `Failed to delete installation: ${id}`,
+            err as AxiosError
+          );
       }
     }
   }

@@ -1,13 +1,15 @@
 import * as Sentry from '@sentry/node';
 import '@sentry/tracing';
-import { VERSION } from './version';
-import Spinner from './spinner';
+import { AxiosError } from 'axios';
 import Config from '../config';
 import Session from '../session';
+import { JsonObjType } from '../types/custom';
+import Spinner from './spinner';
+import { VERSION } from './version';
 
 /* istanbul ignore file */
 
-let transaction: any;
+let transaction: Sentry.Transaction;
 
 export function startTrace(command: string) {
   if (process.env.NODE_ENV !== 'test') {
@@ -40,12 +42,12 @@ export function setUser(session: Session) {
 export default class Trace {
   span?: Sentry.Span;
 
-  constructor(name: string, description?: string, data?: any) {
+  constructor(name: string, description?: string, data?: JsonObjType) {
     if (process.env.NODE_ENV !== 'test') {
       if (transaction) {
         this.span = transaction.startChild({
           op: name,
-          description: description,
+          description: description || '',
         });
         if (data) {
           this.span?.setData('data', data);
@@ -60,19 +62,19 @@ export default class Trace {
     }
   }
 
-  error(status: string | any) {
+  error(status: string | AxiosError<JsonObjType>) {
     if (this.span) {
       if (typeof status === 'string') {
         this.span.setStatus(status);
       } else if (status.response?.status) {
-        this.span.setStatus(status.response.status);
+        this.span.setStatus(status.response.status.toString());
       } else {
         this.span.setStatus('unknown');
       }
     }
   }
 
-  done(status?: string | any) {
+  done(status?: string | AxiosError<JsonObjType>) {
     if (this.span) {
       if (status) {
         this.error(status);
@@ -84,22 +86,26 @@ export default class Trace {
   }
 }
 
-export function measure(name: string, description?: string, data?: any): Trace {
+export function measure(
+  name: string,
+  description?: string,
+  data?: JsonObjType
+): Trace {
   return new Trace(name, description, data);
 }
 
 export async function section(
   name: string,
-  code: () => Promise<any>
-): Promise<any | null> {
-  let t = new Trace('Section', name);
+  code: () => Promise<JsonObjType>
+): Promise<JsonObjType | null> {
+  const t = new Trace('Section', name);
   Spinner.setMessage(name);
   try {
     const res = await code();
     t.done();
     return res;
-  } catch (err: any) {
-    if (err.message === 'not_found') {
+  } catch (err) {
+    if ((err as Error).message === 'not_found') {
       t.done('not_found');
     } else {
       t.done('unknown');

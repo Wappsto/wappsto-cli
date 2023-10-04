@@ -1,24 +1,26 @@
-import HTTP from './util/http';
-import tui from './util/tui';
-import Model from './model';
-import Version from './version';
+import { AxiosError } from 'axios';
 import File from './file';
+import Model from './model';
 import {
   Application21,
+  ApplicationProduct21,
   OauthClient21,
   OauthExternal21,
-  ApplicationProduct21,
 } from './types/application.d';
+import { JsonObjType } from './types/custom';
+import HTTP from './util/http';
+import tui from './util/tui';
+import Version from './version';
 
 export default class Application extends Model implements Application21 {
-  name: string = '';
+  name = '';
   name_identifier?: string;
   version: (Version | string)[] = [];
   oauth_client: [] | [OauthClient21 | string] = [];
   oauth_external: (OauthExternal21 | string)[] = [];
   application_product: (ApplicationProduct21 | string)[] = [];
 
-  constructor(data: any) {
+  constructor(data: JsonObjType) {
     super('application');
     this.parse(data);
   }
@@ -27,7 +29,7 @@ export default class Application extends Model implements Application21 {
     return ['name', 'name_identifier', 'version'];
   }
 
-  toJSON(full: boolean = true): Record<string, any> {
+  toJSON(full = true): JsonObjType {
     const data = super.toJSON(full);
     if (full) {
       data.version = [];
@@ -59,8 +61,8 @@ export default class Application extends Model implements Application21 {
             }
 
             // Ascending ordering
-            var d1 = new Date(a.meta.updated || '');
-            var d2 = new Date(b.meta.updated || '');
+            const d1 = new Date(a.meta.updated || '');
+            const d2 = new Date(b.meta.updated || '');
             if (d1 < d2) {
               return 1;
             }
@@ -119,20 +121,20 @@ export default class Application extends Model implements Application21 {
     return oauth;
   }
 
-  parse(data: any): void {
+  parse(data: JsonObjType): void {
     super.parse(data);
     const vs = this.version || [];
     this.version = [];
-    vs.forEach((v: any) => {
+    vs.forEach((v: JsonObjType) => {
       if (typeof v !== 'string') {
         this.version.push(new Version(v, this));
       }
     });
   }
 
-  static async create(info: any): Promise<Application | undefined> {
+  static async create(info: JsonObjType): Promise<Application | undefined> {
     let result = undefined;
-    let data: any;
+    let data: JsonObjType;
     if (!info.description || info.object_requested) {
       data = {
         name: info.name,
@@ -170,26 +172,32 @@ export default class Application extends Model implements Application21 {
       );
       result = new Application(response.data);
     } catch (err) {
-      Model.handleException('Failed to create the application', err);
+      Model.handleException(
+        'Failed to create the application',
+        err as AxiosError
+      );
     }
     return result;
   }
 
   async getAll(): Promise<Application[]> {
-    let result: Application[] = [];
+    const result: Application[] = [];
     try {
       const response = await HTTP.get(`${this.HOST}?expand=2&verbose=true`);
-      response.data.forEach((data: any) => {
+      response.data.forEach((data: JsonObjType) => {
         const app = new Application(data);
         result.push(app);
       });
     } catch (err) {
-      Model.handleException('Failed to load all applications', err);
+      Model.handleException(
+        'Failed to load all applications',
+        err as AxiosError
+      );
     }
     return result;
   }
 
-  async createOauthExternal(oauth: any): Promise<void> {
+  async createOauthExternal(oauth: JsonObjType): Promise<void> {
     if (this.oauth_external.length === 0) {
       try {
         await HTTP.post(`${this.url}/oauth_external`, oauth);
@@ -206,7 +214,10 @@ export default class Application extends Model implements Application21 {
           );
           tui.showMessage('External OAuth updated');
         } catch (err) {
-          this.handleException('Failed to update OAuth External', err);
+          this.handleException(
+            'Failed to update OAuth External',
+            err as AxiosError
+          );
         }
       } else {
         tui.showError(
@@ -216,7 +227,7 @@ export default class Application extends Model implements Application21 {
     }
   }
 
-  async createOauthClient(oauth: any): Promise<void> {
+  async createOauthClient(oauth: JsonObjType): Promise<void> {
     const newOauth = oauth;
     if (typeof oauth.redirect_uri === 'string') {
       newOauth.redirect_uri = [oauth.redirect_uri];
@@ -227,16 +238,22 @@ export default class Application extends Model implements Application21 {
     try {
       await HTTP.post(`${this.url}/oauth_client`, oauth);
       tui.showMessage('OAuth Client created');
-    } catch (err: any) {
-      if (err.response.data.code === 500232) {
+    } catch (err) {
+      if ((err as AxiosError<JsonObjType>)?.response?.data?.code === 500232) {
         try {
           await HTTP.patch(`${this.url}/oauth_client`, oauth);
           tui.showMessage('OAuth Client updated');
         } catch (patchErr) {
-          this.handleException('Failed to create OAuth Client', patchErr);
+          this.handleException(
+            'Failed to create OAuth Client',
+            patchErr as AxiosError
+          );
         }
       } else {
-        this.handleException('Failed to create OAuth Client', err);
+        this.handleException(
+          'Failed to create OAuth Client',
+          err as AxiosError
+        );
       }
     }
   }
@@ -280,7 +297,7 @@ export default class Application extends Model implements Application21 {
       console.log(err);
       this.handleException(
         `Failed to update ${this.meta.type}: ${this.id}`,
-        err
+        err as AxiosError
       );
     }
     return false;

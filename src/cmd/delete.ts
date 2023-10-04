@@ -1,6 +1,6 @@
-import Wapp from '../wapp.delete';
 import setup from '../util/setup_cli';
 import tui from '../util/tui';
+import Wapp from '../wapp.delete';
 
 const sections = [
   {
@@ -18,7 +18,7 @@ const sections = [
 ];
 
 export default async function Delete(argv: string[]) {
-  let options = setup('Delete Wapp', argv, [], sections);
+  const options = setup('Delete Wapp', argv, [], sections);
   if (!options) {
     return;
   }

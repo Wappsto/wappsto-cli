@@ -1,23 +1,23 @@
-import Wapp from './wapp.update';
-import tui from './util/tui';
-import Spinner from './util/spinner';
-import questions from './util/questions';
-import { section } from './util/trace';
 import Application from './application';
+import Config from './config';
 import File from './file';
 import {
-  fileExists,
-  saveFile,
-  loadFile,
   copyFile,
   createFolders as createFolder,
+  fileExists,
+  loadFile,
+  saveFile,
 } from './util/files';
-import Config from './config';
 import getDirName from './util/getDirName';
+import questions from './util/questions';
+import Spinner from './util/spinner';
+import { section } from './util/trace';
+import tui from './util/tui';
+import Wapp from './wapp.update';
 
 export default class CreateWapp extends Wapp {
   async create(): Promise<void> {
-    const listWapps: any[] = [];
+    const listWapps: { title: string; value: string }[] = [];
     let updateFiles;
 
     const wapps = await section('Loading all applications', async () => {
@@ -217,7 +217,6 @@ export default class CreateWapp extends Wapp {
         if (overwrite === undefined) {
           for (let j = 0; j < exampleFiles[f].length; j += 1) {
             if (fileExists(`${path}/${exampleFiles[f][j]}`)) {
-              /* eslint-disable-next-line no-await-in-loop */
               const answers = await questions.askOverwriteFiles();
               if (answers === false) {
                 /* istanbul ignore next */

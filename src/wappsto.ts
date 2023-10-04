@@ -1,8 +1,10 @@
-import HTTP from './util/http';
-import tui from './util/tui';
-import questions from './util/questions';
+import { AxiosError } from 'axios';
 import Config from './config';
 import Session from './session';
+import { JsonObjType } from './types/custom';
+import HTTP from './util/http';
+import questions from './util/questions';
+import tui from './util/tui';
 
 export default class Wappsto {
   HOST: string;
@@ -64,8 +66,8 @@ export default class Wappsto {
           ],
         }
       );
-    } catch (err: any) {
-      switch (err.response.data.code) {
+    } catch (err) {
+      switch ((err as AxiosError<JsonObjType>).response?.data.code) {
         case 9900071:
           setTimeout(async () => {
             await this.updateACL(id, addID, create, method);
@@ -126,19 +128,19 @@ export default class Wappsto {
     method: string,
     quantity: string,
     notShared: string
-  ): Promise<Record<string, any>> {
-    let result = {};
+  ): Promise<JsonObjType[]> {
+    let result = [];
     try {
       const url = `${type}?expand=0&${search}&method=[${method}]&quantity=${quantity}&not_shared_with=${notShared}`;
       const response = await HTTP.get(`${this.HOST}/services/${url}`);
       result = response.data;
     } catch (err) {
-      tui.showError('Failed to find', err);
+      tui.showError('Failed to find', err as AxiosError);
     }
     return result;
   }
 
-  async readNotification(id: string, status: string = 'read'): Promise<void> {
+  async readNotification(id: string, status = 'read'): Promise<void> {
     try {
       await HTTP.patch(`${this.HOST}/services/2.1/notification/${id}`, {
         meta: {
@@ -146,21 +148,15 @@ export default class Wappsto {
         },
         read: status,
       });
-    } catch (err: any) {
-      if (
-        !err.response ||
-        !err.response.data ||
-        err.response.data.code !== 9900147
-      ) {
+    } catch (err) {
+      console.log('error', err);
+      if ((err as AxiosError<JsonObjType>).response?.data?.code !== 9900147) {
         tui.showError('Failed to read notification', err);
       }
     }
   }
 
-  async getModel(
-    type: string,
-    id: string
-  ): Promise<Record<string, any> | undefined> {
+  async getModel(type: string, id: string): Promise<JsonObjType | undefined> {
     let result = undefined;
     try {
       const response = await HTTP.get(`${this.HOST}/services/${type}/${id}`);

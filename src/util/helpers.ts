@@ -1,4 +1,5 @@
 import Config from '../config';
+import { JsonObjType } from '../types/custom';
 
 export function validateFile(file: string): boolean {
   const ending = file.split('.').slice(-1)[0];
@@ -75,8 +76,8 @@ export function getFilePath(use: string): string {
 }
 
 export function compareVersions(
-  oldVersion: Record<string, any>,
-  newVersion: Record<string, any>
+  oldVersion: JsonObjType,
+  newVersion: JsonObjType
 ): boolean {
   if (!oldVersion || !newVersion) {
     return false;
@@ -93,7 +94,7 @@ export function compareVersions(
     } else if (Array.isArray(oldVersion[key])) {
       if (
         obj1.length === obj2.length &&
-        obj1.every((u: any, index: number) => u === obj2[index])
+        obj1.every((u: JsonObjType, index: number) => u === obj2[index])
       ) {
         return true;
       }

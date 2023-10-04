@@ -1,5 +1,5 @@
-import setup from '../util/setup_cli';
 import Session from '../session';
+import setup from '../util/setup_cli';
 import tui from '../util/tui';
 
 const sections = [
@@ -18,7 +18,7 @@ const sections = [
 ];
 
 export default async function logout(argv: string[]) {
-  let options = setup('Logout', argv, [], sections);
+  const options = setup('Logout', argv, [], sections);
   if (!options) {
     return;
   }

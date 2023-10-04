@@ -1,8 +1,9 @@
-import axios from 'axios';
-import tui from './tui';
-import Trace from './trace';
-import { VERSION } from './version';
+import axios, { AxiosError } from 'axios';
+import { JsonObjType } from '../types/custom';
 import spinner from './spinner';
+import Trace from './trace';
+import tui from './tui';
+import { VERSION } from './version';
 
 type Methods = 'head' | 'options' | 'put' | 'post' | 'patch' | 'delete' | 'get';
 
@@ -13,7 +14,7 @@ export default class HTTP {
     ] = `Wappsto-cli/${VERSION} (axios/${axios.VERSION})`;
   }
 
-  static trace(method: string, url: string, data?: any): Trace {
+  static trace(method: string, url: string, data?: JsonObjType): Trace {
     return new Trace(`HTTP ${method}`, url, data);
   }
 
@@ -28,9 +29,9 @@ export default class HTTP {
   static async wrap(
     func: Methods,
     url: string,
-    data: any = {},
-    config?: any
-  ): Promise<any> {
+    data: JsonObjType = {},
+    config?: JsonObjType
+  ): Promise<JsonObjType> {
     const t = HTTP.trace(func, url);
     try {
       let response;
@@ -44,32 +45,50 @@ export default class HTTP {
       tui.showTraffic(func, url, data, response.data);
       t.done();
       return response;
-    } catch (err: unknown) {
+    } catch (err) {
       if (axios.isAxiosError(err)) {
         tui.showTraffic(func, url, data, err.response?.data);
       }
-      t.done(err);
+      t.done(err as AxiosError);
       throw err;
     }
   }
 
-  static async get(url: string, options: any = {}): Promise<any> {
+  static async get(
+    url: string,
+    options: JsonObjType = {}
+  ): Promise<JsonObjType> {
     return HTTP.wrap('get', url, options);
   }
 
-  static async post(url: string, data: any, options: any = {}): Promise<any> {
+  static async post(
+    url: string,
+    data: JsonObjType,
+    options: JsonObjType = {}
+  ): Promise<JsonObjType> {
     return HTTP.wrap('post', url, data, options);
   }
 
-  static async put(url: string, data: any, options: any = {}): Promise<any> {
+  static async put(
+    url: string,
+    data: JsonObjType,
+    options: JsonObjType = {}
+  ): Promise<JsonObjType> {
     return HTTP.wrap('put', url, data, options);
   }
 
-  static async patch(url: string, data: any, options: any = {}): Promise<any> {
+  static async patch(
+    url: string,
+    data: JsonObjType,
+    options: JsonObjType = {}
+  ): Promise<JsonObjType> {
     return HTTP.wrap('patch', url, data, options);
   }
 
-  static async delete(url: string, options: any = {}): Promise<any> {
+  static async delete(
+    url: string,
+    options: JsonObjType = {}
+  ): Promise<JsonObjType> {
     return HTTP.wrap('delete', url, options);
   }
 }

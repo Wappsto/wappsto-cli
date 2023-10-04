@@ -1,5 +1,5 @@
-import Wapp from '../wapp.create';
 import setup from '../util/setup_cli';
+import Wapp from '../wapp.create';
 
 const sections = [
   {
@@ -17,7 +17,7 @@ const sections = [
 ];
 
 export default async function create(argv: string[]) {
-  let options = setup('Create Wapp', argv, [], sections);
+  const options = setup('Create Wapp', argv, [], sections);
   if (!options) {
     return;
   }

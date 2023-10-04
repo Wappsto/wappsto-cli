@@ -1,13 +1,15 @@
-import { yellow, magenta, green, blue, red, white, bold } from 'kleur/colors';
-import figlet from 'figlet';
 import { clearLine, cursorTo } from 'readline';
+import axios, { AxiosError } from 'axios';
+import figlet from 'figlet';
+import { blue, bold, green, magenta, red, white, yellow } from 'kleur/colors';
 import updateNotifier from 'simple-update-notifier';
+import { JsonObjType } from '../types/custom';
 import { VERSION } from './version';
 
 class Tui {
-  traceEnabled: boolean = false;
-  debug: boolean = false;
-  verbose: boolean = false;
+  traceEnabled = false;
+  debug = false;
+  verbose = false;
   blocked: string[] | null = null;
 
   checkForUpdate(): Promise<void> {
@@ -96,7 +98,7 @@ class Tui {
     this.showMessage(res);
   }
 
-  showStream(event: any): void {
+  showStream(event: JsonObjType): void {
     /* istanbul ignore next */
     if (this.debug) {
       this.clear();
@@ -110,8 +112,8 @@ class Tui {
   showTraffic(
     method: string,
     url: string,
-    input: any,
-    output: any
+    input: JsonObjType,
+    output: JsonObjType
   ): string | undefined {
     /* istanbul ignore next */
     if (!this.debug) {
@@ -148,7 +150,7 @@ class Tui {
     return;
   }
 
-  showVerbose(type: string, msg: string, data?: any): void {
+  showVerbose(type: string, msg: string, data?: JsonObjType): void {
     /* istanbul ignore next */
     if (this.verbose) {
       this.clear();
@@ -161,7 +163,7 @@ class Tui {
     }
   }
 
-  showDebug(type: string, msg: string, data?: any): void {
+  showDebug(type: string, msg: string, data?: JsonObjType): void {
     /* istanbul ignore next */
     if (this.debug) {
       this.clear();
@@ -193,12 +195,12 @@ class Tui {
     this.write(`${red('!')} ${bold(yellow(msg))}\n`);
   }
 
-  showError(msg: string, err?: any): void {
-    let strMsg = bold(red(msg));
+  showError(msg: string, err?: AxiosError<JsonObjType> | JsonObjType): void {
+    const strMsg = bold(red(msg));
     let strErr = '';
     if (err) {
       let data;
-      if (err.response && err.response.data) {
+      if (axios.isAxiosError(err) && err.response && err.response.data) {
         data = err.response.data;
       } else if (err.data) {
         data = err.data;
@@ -225,7 +227,7 @@ class Tui {
     }
   }
 
-  trace(model: string, method: string, data?: any): void {
+  trace(model: string, method: string, data?: JsonObjType): void {
     if (!this.traceEnabled) {
       return;
     }

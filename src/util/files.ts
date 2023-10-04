@@ -1,15 +1,16 @@
 import {
-  statSync,
+  copyFileSync,
   existsSync,
   mkdirSync,
-  unlinkSync,
-  rmSync,
-  readFileSync,
-  writeFileSync,
   readdirSync,
+  readFileSync,
   renameSync,
-  copyFileSync,
+  rmSync,
+  statSync,
+  unlinkSync,
+  writeFileSync,
 } from 'fs';
+import { JsonObjType } from '../types/custom';
 
 export function directoryExists(filePath: string): boolean {
   try {
@@ -66,7 +67,7 @@ export function loadFile(file: string): string {
   }
 }
 
-export function loadJsonFile(file: string): Record<string, any> {
+export function loadJsonFile(file: string): JsonObjType {
   try {
     return JSON.parse(readFileSync(file, 'utf8'));
   } catch (err) {
@@ -78,7 +79,7 @@ export function saveFile(file: string, data: string) {
   writeFileSync(file, data);
 }
 
-export function saveJsonFile(file: string, data: Record<string, any>) {
+export function saveJsonFile(file: string, data: JsonObjType) {
   writeFileSync(file, JSON.stringify(data, null, 4));
 }
 
@@ -118,7 +119,7 @@ export function getFileTime(file: string) {
 }
 
 export function getFileTimeISO(file: string) {
-  let fileTime = getFileTime(file);
+  const fileTime = getFileTime(file);
   if (fileTime) {
     return fileTime.toISOString();
   }

@@ -1,7 +1,8 @@
-import Model from './model';
-import HTTP from './util/http';
-import { Session21 } from './types/session.d';
 import config from './config';
+import Model from './model';
+import { JsonObjType } from './types/custom';
+import { Session21 } from './types/session.d';
+import HTTP from './util/http';
 
 export default class Session extends Model implements Session21 {
   user?: string;
@@ -31,7 +32,7 @@ export default class Session extends Model implements Session21 {
     HTTP.removeHeader('x-session');
   }
 
-  parse(data: any) {
+  parse(data: JsonObjType) {
     if (typeof data === 'string') {
       this.meta.id = data.toString().trim();
     } else {

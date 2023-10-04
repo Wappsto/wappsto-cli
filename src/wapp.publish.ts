@@ -1,7 +1,7 @@
-import Wapp from './wapp.update';
-import tui from './util/tui';
-import { section } from './util/trace';
 import questions from './util/questions';
+import { section } from './util/trace';
+import tui from './util/tui';
+import Wapp from './wapp.update';
 
 export default class PublishWapp extends Wapp {
   async publish(): Promise<void> {
@@ -46,15 +46,16 @@ export default class PublishWapp extends Wapp {
     });
 
     res = await section('Publishing new version', async () => {
-      while (true) {
+      const repeat = true;
+      while (repeat) {
         try {
           return await this.application.publish(
             answers.version || answers.bump,
             answers.change,
             identifier
           );
-        } catch (err: any) {
-          if (err.message !== 'name_identifier') {
+        } catch (err: unknown) {
+          if ((err as Error).message !== 'name_identifier') {
             return false;
           }
 
@@ -67,6 +68,7 @@ export default class PublishWapp extends Wapp {
           identifier = newName.identifier;
         }
       }
+      return false;
     });
 
     if (res) {

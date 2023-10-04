@@ -25,3 +25,8 @@ export type Manifest = {
   description: Description;
   permission: Permission;
 };
+
+type JsonObjType = Record<
+  string,
+  JsonObjType | string | string[] | JsonObjType[] | number | boolean
+>;

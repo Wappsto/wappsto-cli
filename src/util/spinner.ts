@@ -3,7 +3,7 @@ import tui from './tui';
 
 class Spinner {
   timer: ReturnType<typeof setInterval> | undefined;
-  title: string = '';
+  title = '';
   frames: string[] = ['|', '/', '-', '\\'];
 
   setMessage(message: string, verbose = true): void {

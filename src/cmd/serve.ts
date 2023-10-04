@@ -1,18 +1,20 @@
 /* istanbul ignore file */
 
-import url from 'url';
+import { ChildProcess } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import watch from 'node-watch';
-import detect from 'detect-port';
-import spawn from 'cross-spawn';
+import url from 'url';
 import browserSync from 'browser-sync';
-import Wapp from '../wapp.serve';
+import spawn from 'cross-spawn';
+import detect from 'detect-port';
+import watch from 'node-watch';
 import Config from '../config';
-import tui from '../util/tui';
-import setup from '../util/setup_cli';
-import { getFileType } from '../util/helpers';
 import { directoryExists, fileExists, loadFile } from '../util/files';
+import { getFileType } from '../util/helpers';
+import setup from '../util/setup_cli';
+import tui from '../util/tui';
+import Wapp from '../wapp.serve';
+import { IncomingMessage } from 'http';
 
 const optionDefinitions = [
   {
@@ -99,9 +101,9 @@ export default async function serve(argv: string[]) {
       tui.showWarning(`${port} is in use, switching to ${newPort}`);
     }
 
-    function getFileName(dir: string, request: any): string {
+    function getFileName(dir: string, request: { url: string }): string {
       const uri = url.parse(request.url).pathname || '';
-      let filename = path.join(process.cwd(), dir, uri);
+      const filename = path.join(process.cwd(), dir, uri);
       const index = 'index.html';
 
       if (directoryExists(filename)) {
@@ -126,7 +128,7 @@ export default async function serve(argv: string[]) {
         target: `${Config.host()}`,
         ws: true, // proxy websocket
         proxyReq: [
-          (req: any) => {
+          (req: IncomingMessage) => {
             req.setHeader('x-session', sessionID);
 
             if (req.headers && req.headers.referer) {
@@ -138,7 +140,7 @@ export default async function serve(argv: string[]) {
           },
         ],
       },
-      middleware: (request: any, response: any, next: any): any => {
+      middleware: (request: any, response: any, next: () => void) => {
         response.setHeader(
           'set-cookie',
           `sessionID=${sessionID}; tokenID=${tokenID}; SameSite=Lax`
@@ -171,7 +173,9 @@ export default async function serve(argv: string[]) {
     });
   }
 
-  function registerBackgroundWatcher(cb: any): void {
+  function registerBackgroundWatcher(
+    cb: (name: string) => Promise<void>
+  ): void {
     let restarting = false;
     watch(
       Config.background(),
@@ -234,7 +238,7 @@ export default async function serve(argv: string[]) {
           data
             .toString()
             .split('\n')
-            .forEach((msg) => tui.showError(data));
+            .forEach((msg: string) => tui.showError(msg));
         });
       });
     }
@@ -284,14 +288,14 @@ export default async function serve(argv: string[]) {
       return runner;
     }
 
-    function stop(runner: any) {
+    function stop(runner: ChildProcess) {
       if (!runner) return;
 
       tui.showWarning('Restarting Background Runner');
       runner.kill();
     }
 
-    let runner: any;
+    let runner: ChildProcess;
     try {
       await install();
       runner = start();

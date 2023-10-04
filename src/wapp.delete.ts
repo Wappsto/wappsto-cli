@@ -1,7 +1,8 @@
-import Wapp from './wapp';
-import tui from './util/tui';
 import questions from './util/questions';
 import { section } from './util/trace';
+import tui from './util/tui';
+import Version from './version';
+import Wapp from './wapp';
 
 export default class DeleteWapp extends Wapp {
   async delete(): Promise<void> {
@@ -31,8 +32,8 @@ export default class DeleteWapp extends Wapp {
       if (answers.remote) {
         const results = [];
 
-        this.application.version.forEach((v: any) => {
-          if (v.id) {
+        this.application.version.forEach((v: Version | string) => {
+          if (typeof v !== 'string' && v.id) {
             results.push(v.delete());
             results.push(this.installation.deleteById(v.id));
           }

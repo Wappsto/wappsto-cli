@@ -1,24 +1,26 @@
-import { createWriteStream, createReadStream } from 'fs';
+import { createReadStream, createWriteStream } from 'fs';
+import { AxiosError } from 'axios';
 import FormData from 'form-data';
 import Model from './model';
-import HTTP from './util/http';
+import { File21, Version21 } from './types/application.d';
+import { JsonObjType } from './types/custom';
 import {
   createFolders,
+  deleteFile,
   getFileTimeISO,
   saveFile,
-  deleteFile,
 } from './util/files';
-import { getFileName, getFileUse, getFilePath } from './util/helpers';
-import { Version21, File21 } from './types/application.d';
+import { getFileName, getFilePath, getFileUse } from './util/helpers';
+import HTTP from './util/http';
 
 export default class File extends Model implements File21 {
-  name: string = '';
+  name = '';
   type?: string;
   parent: Version21;
   modified?: string;
-  status: string = '';
+  status = '';
 
-  constructor(data: Record<string, any>, parent: Version21) {
+  constructor(data: JsonObjType, parent: Version21) {
     super('file');
     this.parse(data);
     this.parent = parent;
@@ -112,8 +114,11 @@ export default class File extends Model implements File21 {
         }
       );
       return new File(response.data, parent);
-    } catch (err: any) {
-      this.handleException(`Failed to create File: ${filePath}`, err);
+    } catch (err: unknown) {
+      this.handleException(
+        `Failed to create File: ${filePath}`,
+        err as AxiosError
+      );
     }
 
     return null;
@@ -129,8 +134,11 @@ export default class File extends Model implements File21 {
       });
       this.parse(response.data);
       return true;
-    } catch (err: any) {
-      this.handleException(`Failed to update File: ${this.path}`, err);
+    } catch (err: unknown) {
+      this.handleException(
+        `Failed to update File: ${this.path}`,
+        err as AxiosError
+      );
     }
 
     return false;

@@ -1,5 +1,5 @@
-import Wapp from '../wapp.publish';
 import setup from '../util/setup_cli';
+import Wapp from '../wapp.publish';
 
 const sections = [
   {
@@ -13,7 +13,7 @@ const sections = [
 ];
 
 export default async function publish(argv: string[]) {
-  let options = setup('Publish Wapp', argv, [], sections);
+  const options = setup('Publish Wapp', argv, [], sections);
   if (!options) {
     return;
   }
