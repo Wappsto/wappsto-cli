@@ -45,6 +45,7 @@ export default class Installation extends Model implements Installation21 {
   oauth: (Oauth21 | string)[] = [];
   oauth_connect: (OauthConnect21 | string)[] = [];
   session?: string;
+  background_session?: string;
   token_installation = '';
   supported_features: string[] = [];
 

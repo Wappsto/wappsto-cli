@@ -20,7 +20,7 @@ export default class Application extends Model implements Application21 {
   oauth_external: (OauthExternal21 | string)[] = [];
   application_product: (ApplicationProduct21 | string)[] = [];
 
-  constructor(data: JsonObjType) {
+  constructor(data: Application21) {
     super('application');
     this.parse(data);
   }
@@ -29,7 +29,7 @@ export default class Application extends Model implements Application21 {
     return ['name', 'name_identifier', 'version'];
   }
 
-  toJSON(full = true): JsonObjType {
+  toJSON(full = true): Application21 {
     const data = super.toJSON(full);
     if (full) {
       data.version = [];
@@ -121,11 +121,11 @@ export default class Application extends Model implements Application21 {
     return oauth;
   }
 
-  parse(data: JsonObjType): void {
+  parse(data: Application21): void {
     super.parse(data);
     const vs = this.version || [];
     this.version = [];
-    vs.forEach((v: JsonObjType) => {
+    vs.forEach((v) => {
       if (typeof v !== 'string') {
         this.version.push(new Version(v, this));
       }
@@ -184,7 +184,7 @@ export default class Application extends Model implements Application21 {
     const result: Application[] = [];
     try {
       const response = await HTTP.get(`${this.HOST}?expand=2&verbose=true`);
-      response.data.forEach((data: JsonObjType) => {
+      response.data.forEach((data: Application21) => {
         const app = new Application(data);
         result.push(app);
       });
@@ -197,7 +197,7 @@ export default class Application extends Model implements Application21 {
     return result;
   }
 
-  async createOauthExternal(oauth: JsonObjType): Promise<void> {
+  async createOauthExternal(oauth: OauthExternal21): Promise<void> {
     if (this.oauth_external.length === 0) {
       try {
         await HTTP.post(`${this.url}/oauth_external`, oauth);
@@ -227,7 +227,7 @@ export default class Application extends Model implements Application21 {
     }
   }
 
-  async createOauthClient(oauth: JsonObjType): Promise<void> {
+  async createOauthClient(oauth: OauthClient21): Promise<void> {
     const newOauth = oauth;
     if (typeof oauth.redirect_uri === 'string') {
       newOauth.redirect_uri = [oauth.redirect_uri];

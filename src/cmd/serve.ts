@@ -2,6 +2,7 @@
 
 import { ChildProcess } from 'child_process';
 import fs from 'fs';
+import { IncomingMessage, ServerResponse } from 'http';
 import path from 'path';
 import url from 'url';
 import browserSync from 'browser-sync';
@@ -9,12 +10,12 @@ import spawn from 'cross-spawn';
 import detect from 'detect-port';
 import watch from 'node-watch';
 import Config from '../config';
+import { JsonObjType } from '../types/custom';
 import { directoryExists, fileExists, loadFile } from '../util/files';
 import { getFileType } from '../util/helpers';
 import setup from '../util/setup_cli';
 import tui from '../util/tui';
 import Wapp from '../wapp.serve';
-import { IncomingMessage } from 'http';
 
 const optionDefinitions = [
   {
@@ -101,7 +102,10 @@ export default async function serve(argv: string[]) {
       tui.showWarning(`${port} is in use, switching to ${newPort}`);
     }
 
-    function getFileName(dir: string, request: { url: string }): string {
+    function getFileName(dir: string, request: IncomingMessage): string {
+      if (!request.url) {
+        return '';
+      }
       const uri = url.parse(request.url).pathname || '';
       const filename = path.join(process.cwd(), dir, uri);
       const index = 'index.html';
@@ -140,13 +144,17 @@ export default async function serve(argv: string[]) {
           },
         ],
       },
-      middleware: (request: any, response: any, next: () => void) => {
+      middleware: (
+        request: IncomingMessage,
+        response: ServerResponse,
+        next: () => void
+      ) => {
         response.setHeader(
           'set-cookie',
           `sessionID=${sessionID}; tokenID=${tokenID}; SameSite=Lax`
         );
         try {
-          if (request.url.includes('services')) {
+          if (request.url?.includes('services')) {
             next();
           } else {
             const filename = getFileName(Config.foreground(), request);
@@ -267,7 +275,7 @@ export default async function serve(argv: string[]) {
         }
       });
 
-      function printLog(data: any, type: string) {
+      function printLog(data: JsonObjType, type: string) {
         data
           .toString()
           .split('\n')
@@ -335,11 +343,15 @@ export default async function serve(argv: string[]) {
   }
 
   let sessionID;
+  let backgroundSessionID: string;
   if (Config.userSession()) {
     tui.showWarning('Using USER session');
     sessionID = wapp.wappsto.session.id;
+    backgroundSessionID = sessionID;
   } else {
     sessionID = await wapp.getInstallationSession();
+    backgroundSessionID =
+      wapp.installation.background_session || wapp.installation.session || '';
   }
   if (!sessionID) {
     tui.showError('Failed to get Session from Installation');
@@ -373,7 +385,7 @@ export default async function serve(argv: string[]) {
         });
         startRemoteBackgroundRunner();
       } else if (await wapp.installation.stop()) {
-        startLocalBackgroundRunner(sessionID, tokenID);
+        startLocalBackgroundRunner(backgroundSessionID, tokenID);
       } else {
         tui.showError(
           'Failed to stop the background runner on the server. Not starting background runner'
