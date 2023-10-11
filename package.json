@@ -49,7 +49,7 @@
     "coverage": "dts test --coverage",
     "test:coverage": "yarn run coverage",
     "generate-types": "npx json2ts -i schemas -o src/types",
-    "postpublish": "PACKAGE_VERSION=$(cat package.json | grep \\\"version\\\" | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]') && git ci package.json src/util/version.ts -m'Updated to version $PACKAGE_VERSION' && git push && tag v$PACKAGE_VERSION && git push --tags"
+    "postpublish": "PACKAGE_VERSION=$(cat package.json | grep \\\"version\\\" | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]') && git ci package.json src/util/version.ts -m'Updated to version $PACKAGE_VERSION' && git push && git tag v$PACKAGE_VERSION && git push --tags"
   },
   "husky": {
     "hooks": {
