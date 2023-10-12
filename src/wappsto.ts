@@ -134,6 +134,26 @@ export default class Wappsto {
       const url = `${type}?expand=0&${search}&method=[${method}]&quantity=${quantity}&not_shared_with=${notShared}`;
       const response = await HTTP.get(`${this.HOST}/services/${url}`);
       result = response.data;
+      let last = result[result.length - 1];
+
+      if (typeof last === 'string') {
+        let offset = 100;
+        result = result.filter(
+          (item: JsonObjType | string) => typeof item !== 'string'
+        );
+        while (typeof last === 'string') {
+          const next = await HTTP.get(
+            `${this.HOST}/services/${url}&offset=${offset}`
+          );
+          result.concat(
+            next.data.filter(
+              (item: JsonObjType | string) => typeof item !== 'string'
+            )
+          );
+          offset += 100;
+          last = next.data[next.data.length - 1];
+        }
+      }
     } catch (err) {
       tui.showError('Failed to find', err as AxiosError);
     }

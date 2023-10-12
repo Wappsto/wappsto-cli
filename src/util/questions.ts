@@ -597,7 +597,7 @@ class Questions {
 
   permissionRequest(
     request: Request,
-    data: JsonObjType[]
+    data: { title: string; value: string }[]
   ): Promise<Answers<string> | false> {
     let msg = '';
 

@@ -133,6 +133,9 @@ export default async function serve(argv: string[]) {
         ws: true, // proxy websocket
         proxyReq: [
           (req: IncomingMessage) => {
+            if (!req.headers) {
+              req.headers = {};
+            }
             req.headers['x-session'] = sessionID;
 
             if (req.headers && req.headers.referer) {

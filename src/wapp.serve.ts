@@ -97,7 +97,7 @@ export default class ServeWapp extends UpdateWapp {
     } else if (data.req) {
       await this.mutex.runExclusive(async () => {
         tui.block();
-        const opts: { name: string; value: string }[] = [];
+        const opts: { title: string; value: string }[] = [];
         const search: string[] = [];
         if (data.req.limitation) {
           Object.keys(data.req.limitation).forEach((key) => {
@@ -115,8 +115,9 @@ export default class ServeWapp extends UpdateWapp {
           );
           if (items.length) {
             items.forEach((item: JsonObjType) => {
+              const name = item.meta?.name_by_user || item.name;
               opts.push({
-                name: `${item.name} (${item.meta.id})`,
+                title: `${name} (${item.meta.id})`,
                 value: item.meta.id,
               });
             });
