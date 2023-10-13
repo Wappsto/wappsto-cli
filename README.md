@@ -1,4 +1,5 @@
 # wappsto-cli
+
 [![Build Status](https://travis-ci.com/Wappsto/wappsto-cli.svg?branch=master)](https://travis-ci.com/Wappsto/wappsto-cli)
 [![Depfu](https://badges.depfu.com/badges/c25acea9b059ab7760cb61d1de54f29d/overview.svg)](https://depfu.com/github/Wappsto/wappsto-cli?project_id=7056)
 [![Coverage Status](https://coveralls.io/repos/github/Wappsto/wappsto-cli/badge.svg?branch=master)](https://coveralls.io/github/Wappsto/wappsto-cli?branch=master)
@@ -10,6 +11,7 @@ grade](https://deepscan.io/api/teams/18594/projects/21918/branches/639553/badge/
 Command Line Interface for Wappsto, so that it is possible to create Wapps locally.
 
 # Table of Contents
+
 1. [Requirements](#Requirements)
 2. [Install](#install)
 3. [Usage](#usage)
@@ -130,16 +132,16 @@ You can configure wappsto-cli by creating a 'wappsto.json' file and add this:
 
 ```json
 {
- "foreground": "foreground",
- "background": "background",
- "port": "3000"
+  "foreground": "foreground",
+  "background": "background",
+  "port": "3000"
 }
 ```
 
 Valid options is:
 
 | Option     | Default      | Description                                                                  |
-|------------|--------------|------------------------------------------------------------------------------|
+| ---------- | ------------ | ---------------------------------------------------------------------------- |
 | foreground | `foreground` | The folder where the foreground files will be stored.                        |
 | background | `background` | The folder where the background files will be stored.                        |
 | port       | `3000`       | The port the web server will serve the Wapp on.                              |
@@ -175,11 +177,12 @@ module.exports = function (app) {
   app.use(
     '/services',
     createProxyMiddleware({
-    target: HOST,
-    changeOrigin: true,
-    ws: true,
-    logLevel: 'error',
-  }));
+      target: HOST,
+      changeOrigin: true,
+      ws: true,
+      logLevel: 'error',
+    })
+  );
 
   // set a cookie
   app.use((req, res, next) => {
@@ -193,6 +196,40 @@ And insert `"homepage": "./",` into your `package.json` file.
 
 To use the build version of React, change the `foreground` configuration to `build` and then run `npm run build` to build the react application.
 Then run `npx wapp serve` to serve the build version of your react application.
+
+### Vite
+
+If you are using Vite framework, you can configure the Vite development server, by adding this to `vite.config.ts`.
+
+```typescript
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import wappsto from 'wappsto-cli';
+
+// https://vitejs.dev/config/
+export default defineConfig(async () => {
+  const sessionID = await wappsto.getSession();
+  return {
+    plugins: [react()],
+    build: {
+      outDir: './foreground',
+    },
+    server: {
+      proxy: {
+        '/services': {
+          target: wappsto.getHost(),
+          secure: true,
+          changeOrigin: true,
+          ws: true,
+          headers: {
+            'x-session': sessionID,
+          },
+        },
+      },
+    },
+  };
+});
+```
 
 ## Related
 

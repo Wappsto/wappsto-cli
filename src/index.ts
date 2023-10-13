@@ -75,7 +75,12 @@ export async function getSession() {
   if (!wapp_session) {
     const wapp = new Wapp();
     await wapp.init();
-    wapp_session = (await wapp.getInstallationSession()) || '';
+
+    if (Config.userSession()) {
+      wapp_session = wapp.wappsto.session.id;
+    } else {
+      wapp_session = (await wapp.getInstallationSession()) || '';
+    }
   }
   return wapp_session;
 }
