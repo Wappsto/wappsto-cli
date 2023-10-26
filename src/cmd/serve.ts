@@ -38,7 +38,7 @@ const optionDefinitions = [
   },
   {
     name: 'reinstall',
-    description: 'Trigger a reinstall of the background wapp.',
+    description: 'Trigger a reinstall of the installed wapp.',
     alias: 'i',
     type: Boolean,
   },
@@ -340,7 +340,7 @@ export default async function serve(argv: string[]) {
 
   await wapp.init();
 
-  if (wapp.hasBackground && options.reinstall) {
+  if (options.reinstall) {
     tui.showMessage('Reinstalling...');
     await wapp.installation.reinstall();
   }
