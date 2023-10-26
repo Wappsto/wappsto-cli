@@ -22,12 +22,7 @@ describe('Session', () => {
 
     prompts.inject([]);
 
-    try {
-      await wapp.init();
-      fail('It should not get here');
-    } catch (err: any) {
-      expect(err.message).toEqual('LoginError');
-    }
+    await expect(wapp.init()).rejects.toThrow('LoginError');
   });
 
   it('can login', async () => {

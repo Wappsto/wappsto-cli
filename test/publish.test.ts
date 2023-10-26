@@ -1,13 +1,14 @@
 import axios from 'axios';
 import prompts from 'prompts';
+// eslint-disable-next-line import/order
 import { createWapp, setup, teardown } from './util/setup';
+import publish from '../src/cmd/publish';
+import { loadJsonFile } from '../src/util/files';
 import {
   applicationResponse,
   installationResponse,
   versionResponse,
 } from './util/response';
-import publish from '../src/cmd/publish';
-import { loadJsonFile } from '../src/util/files';
 
 describe('Publish', () => {
   let mockedAxios: jest.Mocked<typeof axios>;
