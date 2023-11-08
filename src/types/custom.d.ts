@@ -30,3 +30,10 @@ type JsonObjType = Record<
   string,
   JsonObjType | string | string[] | JsonObjType[] | number | boolean
 >;
+
+type Limitation = {
+  comparator: '=' | '==' | '!=' | '<=' | '<' | '>' | '>=' | '~' | '!~';
+  attribute: string;
+  value: string[];
+  type: 'network' | 'device' | 'value' | 'state';
+};
