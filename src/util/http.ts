@@ -41,7 +41,9 @@ export default class HTTP {
       } else {
         response = await axios[func](url, data, config);
       }
-
+      if (!response) {
+        console.error('Failed to get response from', func, 'with', url);
+      }
       tui.showTraffic(func, url, data, response.data);
       t.done();
       return response;

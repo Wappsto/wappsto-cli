@@ -33,6 +33,7 @@ export interface Eventstream20 {
   };
   timestamp?: string;
   type?: string;
+  extra?: { output?: string };
   meta: Meta21;
 }
 

@@ -1,18 +1,10 @@
 import prompts, { Answers, PromptObject } from 'prompts';
 import { OauthClient21, OauthExternal21 } from '../types/application.d';
+import type { Request } from '../types/custom';
 import { JsonObjType, Manifest } from '../types/custom.d';
 import Wappsto from '../wappsto';
 import Spinner from './spinner';
 import tui from './tui';
-
-type Request = {
-  method: string[];
-  collection: string;
-  message: string;
-  data?: JsonObjType[];
-  name_installation: string;
-  type: string;
-};
 
 class Questions {
   private async ask(
@@ -557,7 +549,9 @@ class Questions {
     let type = 'data';
 
     if (request.collection) {
-      type = request.collection;
+      type = request.collection.length
+        ? request.collection[0]
+        : request.collection.toString();
     }
 
     if (request.message) {

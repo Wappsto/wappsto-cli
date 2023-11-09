@@ -125,11 +125,14 @@ export default class Wappsto {
   async find(
     type: string,
     search: string,
-    method: string,
-    quantity: string,
+    method: string | string[],
+    quantity: string | number,
     notShared: string
   ): Promise<JsonObjType[]> {
     let result = [];
+    if (Array.isArray(method)) {
+      method = method.join(',');
+    }
     try {
       const url = `${type}?expand=0&${search}&method=[${method}]&quantity=${quantity}&not_shared_with=${notShared}`;
       const response = await HTTP.get(`${this.HOST}/services/${url}`);
@@ -160,7 +163,10 @@ export default class Wappsto {
     return result;
   }
 
-  async readNotification(id: string, status = 'read'): Promise<void> {
+  async readNotification(id?: string, status = 'read'): Promise<void> {
+    if (!id) {
+      return;
+    }
     try {
       await HTTP.patch(`${this.HOST}/services/2.1/notification/${id}`, {
         meta: {

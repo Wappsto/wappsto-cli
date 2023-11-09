@@ -1,5 +1,9 @@
 import Stream from './stream';
-import { JsonObjType } from './types/custom';
+import type {
+  JsonObjType,
+  Limitation,
+  StreamCallbackEvent,
+} from './types/custom';
 import questions from './util/questions';
 import tui from './util/tui';
 import UpdateWapp from './wapp.update';
@@ -31,7 +35,7 @@ export default class ServeWapp extends UpdateWapp {
     this.userStream = new Stream(
       this.wappsto,
       ['/notification', '/installation'],
-      (event: JsonObjType) => {
+      (event: StreamCallbackEvent) => {
         this.handleStreamEvent(event);
       }
     );
@@ -41,7 +45,7 @@ export default class ServeWapp extends UpdateWapp {
     this.wappStream = new Stream(
       this.wappsto,
       ['/extsync', '/console'],
-      (event: JsonObjType) => {
+      (event: StreamCallbackEvent) => {
         this.handleStreamEvent(event);
       },
       this.installation.session
@@ -50,12 +54,12 @@ export default class ServeWapp extends UpdateWapp {
     this.wappStream.open();
   }
 
-  async handleStreamEvent(data: JsonObjType): Promise<void> {
-    if (data?.application && data?.application !== this.application.id) {
+  async handleStreamEvent(data: StreamCallbackEvent): Promise<void> {
+    if (data.application && data?.application !== this.application.id) {
       return;
     }
 
-    if (data?.installation && data?.installation !== this.installation.id) {
+    if (data.installation && data?.installation !== this.installation.id) {
       return;
     }
 
@@ -96,21 +100,29 @@ export default class ServeWapp extends UpdateWapp {
       }
     } else if (data.req) {
       await this.mutex.runExclusive(async () => {
+        if (!data.req) {
+          return;
+        }
         tui.block();
         const opts: { title: string; value: string }[] = [];
         const search: string[] = [];
-        if (data.req.limitation) {
-          Object.keys(data.req.limitation).forEach((key) => {
-            const lim = data.req.limitation[key];
-            Object.keys(lim).forEach((type) => {
-              search.push(`this_${type}=[${lim[type].join(',')}]`);
+        if (data.req.new_limitation) {
+          Object.keys(data.req.new_limitation).forEach((index) => {
+            const arrLim = data.req?.new_limitation?.[index];
+            arrLim?.forEach((lim: Limitation) => {
+              search.push(
+                `${lim.type}_${lim.attribute}${lim.comparator}[${lim.value.join(
+                  ','
+                )}]`
+              );
             });
           });
+          console.log('search', search);
           const items = await this.wappsto.find(
             data.req.type,
             search.join('&'),
             data.req.method,
-            data.req.quantity,
+            data.req.quantity || 1,
             this.installation.id
           );
           if (items.length) {
@@ -132,9 +144,9 @@ export default class ServeWapp extends UpdateWapp {
               results.push(
                 this.wappsto.updateACL(
                   per,
-                  data.installation,
+                  data.installation || '',
                   [],
-                  data.req.method
+                  data.req?.method || []
                 )
               );
             });
@@ -164,14 +176,14 @@ export default class ServeWapp extends UpdateWapp {
             switch (data.req.method[0]) {
               case 'add':
                 await this.wappsto.updateACLRestriction(
-                  data.installation,
+                  data.installation || '',
                   data.req.collection
                 );
                 break;
               case 'retrieve':
                 await this.wappsto.updateACLAccess(
-                  data.req.data[0].meta.id,
-                  data.installation
+                  data.req.data?.[0].meta.id,
+                  data.installation || ''
                 );
                 break;
               default:

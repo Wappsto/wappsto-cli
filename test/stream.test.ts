@@ -418,10 +418,15 @@ describe('stream', () => {
         type: 'network',
         method: ['POST'],
         quantity: 2,
-        limitation: {
-          name: {
-            name: ['test'],
-          },
+        new_limitation: {
+          '0': [
+            {
+              comparator: '=',
+              attribute: 'name',
+              value: ['test'],
+              type: 'device',
+            },
+          ],
         },
         description: 'Test message',
       },
@@ -438,10 +443,15 @@ describe('stream', () => {
         type: 'network',
         method: ['POST'],
         quantity: 2,
-        limitation: {
-          name: {
-            name: ['wrong'],
-          },
+        new_limitation: {
+          '0': [
+            {
+              comparator: '=',
+              attribute: 'name',
+              value: ['wrong'],
+              type: 'device',
+            },
+          ],
         },
         description: 'Test message',
       },

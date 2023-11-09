@@ -4,6 +4,7 @@ import figlet from 'figlet';
 import { blue, bold, green, magenta, red, white, yellow } from 'kleur/colors';
 import updateNotifier from 'simple-update-notifier';
 import { JsonObjType } from '../types/custom';
+import { Eventstream20 } from '../types/eventstream';
 import { VERSION } from './version';
 
 class Tui {
@@ -69,8 +70,8 @@ class Tui {
 
   showLog(
     msg: string,
-    type: string,
-    timestamp: string,
+    type?: string,
+    timestamp?: string,
     logType?: string
   ): void {
     if (!msg) {
@@ -98,7 +99,7 @@ class Tui {
     this.showMessage(res);
   }
 
-  showStream(event: JsonObjType): void {
+  showStream(event: Eventstream20): void {
     /* istanbul ignore next */
     if (this.debug) {
       this.clear();

@@ -1,10 +1,14 @@
 import WebSocket from 'ws';
 import Config from './config';
-import { JsonObjType } from './types/custom';
+import { JsonObjType, StreamCallbackEvent } from './types/custom';
+import { Eventstream20 } from './types/eventstream';
+import { Extsync21 } from './types/extsync';
+import { Installation21 } from './types/installation';
+import { Notification21 } from './types/notification';
 import tui from './util/tui';
 import Wappsto from './wappsto';
 
-type CallbackType = (event: JsonObjType) => void;
+type CallbackType = (event: StreamCallbackEvent) => void;
 
 export default class Stream {
   ws?: WebSocket | undefined;
@@ -67,7 +71,7 @@ export default class Stream {
         tui.showError(`Stream error`, err);
       });
 
-      this.ws.on('message', (message: JsonObjType) => {
+      this.ws.on('message', (message: Eventstream20 | string) => {
         this.parseStreamEvent(message, this.callback);
       });
     };
@@ -81,7 +85,7 @@ export default class Stream {
     }
   }
 
-  printConsoleMessage(data: JsonObjType, callback: CallbackType) {
+  printConsoleMessage(data: Extsync21, callback: CallbackType) {
     if (!this.remote) {
       return;
     }
@@ -118,7 +122,7 @@ export default class Stream {
     callback(eventMsg);
   }
 
-  async handleNotification(data: JsonObjType, callback: CallbackType) {
+  async handleNotification(data: Notification21, callback: CallbackType) {
     if (data.read !== 'unread') {
       return;
     }
@@ -130,10 +134,10 @@ export default class Stream {
     let readNotification = true;
     switch (data.base.code) {
       case 1100028:
-        if (data.custom.code === 1299999) {
+        if (data.custom?.code === 1299999) {
           callback({ reinstall: true, log: data.custom.description });
         } else {
-          callback({ status: data.custom.description });
+          callback({ status: data.custom?.description });
         }
         break;
       case 1100031:
@@ -155,10 +159,10 @@ export default class Stream {
       case 1100004:
         break;
       case 1100011:
-        callback({ status: `Notification: ${data.custom.message}` });
+        callback({ status: `Notification: ${data.custom?.message}` });
         break;
       default:
-        callback(data);
+        callback(data as StreamCallbackEvent);
     }
 
     if (readNotification) {
@@ -166,9 +170,12 @@ export default class Stream {
     }
   }
 
-  async parseStreamEvent(message: JsonObjType, callback: CallbackType) {
+  async parseStreamEvent(
+    message: Eventstream20 | string,
+    callback: CallbackType
+  ) {
     try {
-      let event;
+      let event: Eventstream20;
       try {
         if (typeof message === 'string') {
           event = JSON.parse(message);
@@ -201,49 +208,55 @@ export default class Stream {
         `Got a ${event.event} event for ${event.meta_object.type}`
       );
 
+      const extsyncData = data as Extsync21;
+
       switch (event.meta_object.type) {
         case 'state':
           break;
         case 'installation':
           callback({
-            application: data.application,
+            application: (data as Installation21)?.application,
             status: 'Installation Updated',
             session: true,
           });
           break;
         case 'extsync':
           try {
-            if (data.uri !== 'extsync/wappsto/editor/console') {
+            if (extsyncData?.uri !== 'extsync/wappsto/editor/console') {
               callback({
-                log: data.body,
+                log: extsyncData?.body,
                 type: 'ExtSync IN',
                 timestamp: new Date().toLocaleTimeString(),
               });
             } else {
-              this.printConsoleMessage(data, callback);
+              this.printConsoleMessage(extsyncData, callback);
             }
           } catch (err) {
             /* istanbul ignore next */
             tui.showError((err as Error).toString());
             /* istanbul ignore next */
-            if (data.body) {
-              callback(data.body);
+            if (extsyncData?.body) {
+              callback(extsyncData.body);
             }
           }
           break;
         case 'notification':
-          await this.handleNotification(data, callback);
+          if (data) {
+            await this.handleNotification(data as Notification21, callback);
+          }
           break;
         case 'console':
           if (event.type) {
-            let msg = data;
+            let msg: string;
+            if (typeof data !== 'string') {
+              msg = JSON.stringify(data);
+            } else {
+              msg = data;
+            }
             if (event.extra && event.extra.output) {
-              if (typeof msg !== 'string') {
-                msg = JSON.stringify(msg);
-              }
               msg += `\n${event.extra.output}`;
             }
-            const consoleEvent: JsonObjType = {
+            const consoleEvent: StreamCallbackEvent = {
               type: 'Background',
               timestamp: event.timestamp,
             };
@@ -254,7 +267,7 @@ export default class Stream {
         // falls through
         default:
           if (data) {
-            callback(data);
+            callback(data as JsonObjType);
           }
       }
     } catch (err) {
