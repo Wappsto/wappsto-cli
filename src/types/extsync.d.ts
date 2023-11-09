@@ -1,43 +1,13 @@
-import type { Application21 } from './application';
-import type { Console21 } from './console';
-import type { Request } from './custom';
-import type { Extsync21 } from './extsync';
-import type { Installation21 } from './installation';
-import type { Notification21 } from './notification';
+import { JsonObjType } from './custom';
 
-export interface Eventstream20 {
-  path: string;
-  event:
-    | 'create'
-    | 'update'
-    | 'delete'
-    | 'direct'
-    | 'extsync'
-    | 'console'
-    | 'ready';
-  data?:
-    | {
-        [k: string]: unknown;
-      }
-    | Notification21
-    | Installation21
-    | Application21
-    | Console21
-    | Extsync21
-    | Request;
-  meta_object: {
-    id?: string;
-    type: string;
-    version: string;
-    owner?: string;
-  };
-  timestamp?: string;
-  type?: string;
+export interface Extsync21 {
   meta: Meta21;
+  body?: JsonObjType;
+  [k: string]: unknown;
 }
 
 export interface Meta21 {
-  id?: string;
+  id: string;
   type?: string;
   version?: string;
   manufacturer?: (string | ('unassigned' | 'admin')) & string;

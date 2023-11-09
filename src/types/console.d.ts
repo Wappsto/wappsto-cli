@@ -1,39 +1,10 @@
-import type { Application21 } from './application';
-import type { Console21 } from './console';
-import type { Request } from './custom';
-import type { Extsync21 } from './extsync';
-import type { Installation21 } from './installation';
-import type { Notification21 } from './notification';
-
-export interface Eventstream20 {
-  path: string;
-  event:
-    | 'create'
-    | 'update'
-    | 'delete'
-    | 'direct'
-    | 'extsync'
-    | 'console'
-    | 'ready';
-  data?:
-    | {
-        [k: string]: unknown;
-      }
-    | Notification21
-    | Installation21
-    | Application21
-    | Console21
-    | Extsync21
-    | Request;
-  meta_object: {
-    id?: string;
-    type: string;
-    version: string;
-    owner?: string;
-  };
-  timestamp?: string;
-  type?: string;
+export interface Console21 {
   meta: Meta21;
+  log?: string;
+  warn?: string;
+  error?: string;
+  type: string;
+  timestamp: string;
 }
 
 export interface Meta21 {
@@ -63,9 +34,7 @@ export interface Meta21 {
   name_by_user?: string;
   warning?: {
     message?: string;
-    data?: {
-      [k: string]: unknown;
-    };
+    data?: Record<string, any>;
     code?: number;
     [k: string]: unknown;
   }[];
