@@ -73,6 +73,10 @@ export default class ServeWapp extends UpdateWapp {
       if (data.log) {
         tui.showStatus(data.log);
       }
+    } else if (data.start) {
+      if (this.remote) {
+        tui.showMessage(data.start.toString());
+      }
     } else if (data.log) {
       if (this.remote) {
         tui.showLog(data.log, data.type, data.timestamp);
@@ -117,7 +121,6 @@ export default class ServeWapp extends UpdateWapp {
               );
             });
           });
-          console.log('search', search);
           const items = await this.wappsto.find(
             data.req.type,
             search.join('&'),

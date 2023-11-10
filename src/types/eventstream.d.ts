@@ -24,7 +24,8 @@ export interface Eventstream20 {
     | Application21
     | Console21
     | Extsync21
-    | Request;
+    | Request
+    | string;
   meta_object: {
     id?: string;
     type: string;

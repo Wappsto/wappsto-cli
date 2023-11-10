@@ -246,19 +246,35 @@ export default class Stream {
           }
           break;
         case 'console':
-          if (event.type) {
+          if (event.type && data) {
             let msg: string;
-            if (typeof data !== 'string') {
-              msg = JSON.stringify(data);
+            let timestamp = event.timestamp;
+            if (typeof data === 'string') {
+              try {
+                const obj = JSON.parse(data);
+                if ('time' in obj && 'arguments' in obj) {
+                  timestamp = obj.time as string;
+                  msg = Object.values(obj.arguments).join(' ');
+                } else {
+                  msg = JSON.stringify(obj);
+                }
+              } catch (e) {
+                msg = data;
+              }
             } else {
-              msg = data;
+              if ('time' in data && 'arguments' in data) {
+                timestamp = data.time as string;
+                msg = Object.values(data.arguments).join(' ');
+              } else {
+                msg = JSON.stringify(data);
+              }
             }
             if (event.extra && event.extra.output) {
               msg += `\n${event.extra.output}`;
             }
             const consoleEvent: StreamCallbackEvent = {
               type: 'Background',
-              timestamp: event.timestamp,
+              timestamp,
             };
             consoleEvent[event.type] = msg;
             callback(consoleEvent);
