@@ -180,7 +180,9 @@ export default class ServeWapp extends UpdateWapp {
               case 'add':
                 await this.wappsto.updateACLRestriction(
                   data.installation || '',
-                  data.req.collection
+                  Array.isArray(data.req.collection)
+                    ? data.req.collection
+                    : [data.req.collection]
                 );
                 break;
               case 'retrieve':

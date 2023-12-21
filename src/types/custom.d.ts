@@ -40,7 +40,7 @@ export type Limitation = {
 
 export type Request = {
   method: string[];
-  collection: string[];
+  collection: string[] | string;
   message: string;
   data?: JsonObjType[];
   name_installation: string;

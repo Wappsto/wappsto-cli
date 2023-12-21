@@ -549,7 +549,7 @@ class Questions {
     let type = 'data';
 
     if (request.collection) {
-      type = request.collection.length
+      type = Array.isArray(request.collection)
         ? request.collection[0]
         : request.collection.toString();
     }

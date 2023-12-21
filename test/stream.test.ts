@@ -1,6 +1,7 @@
 import axios from 'axios';
 import prompts from 'prompts';
 import { JsonObjType } from '../src/types/custom';
+import { streamUpdateNotification } from './util/response';
 import { setup, teardown } from './util/setup';
 import { Server } from './util/ws';
 // eslint-disable-next-line import/order
@@ -562,6 +563,16 @@ describe('stream', () => {
         message: 'Test message',
       },
     });
+
+    expect(true).toBeTruthy();
+  });
+
+  test('stream update notification', async () => {
+    const wapp = new Wapp();
+    await wapp.openStream();
+
+    prompts.inject([{}, true, true]);
+    sendMessage(serverUser, streamUpdateNotification);
 
     expect(true).toBeTruthy();
   });

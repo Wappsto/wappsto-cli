@@ -747,6 +747,67 @@ const streamFilterEvent = {
   timestamp: '2023-02-28T09:31:53.885250Z',
 };
 
+const streamUpdateNotification = {
+  meta: {
+    id: '9d4f23a3-e121-4924-8d93-af3e410c609c',
+    type: 'eventstream',
+    version: '2.1',
+  },
+  event: 'update',
+  meta_object: {
+    id: 'f4ff5b3e-bf44-4206-808d-8fcd3f5c8fa9',
+    type: 'notification',
+    version: '2.0',
+  },
+  data: {
+    read: 'unread',
+    custom: {
+      method: ['add'],
+      type: 'installation',
+      collection: 'value',
+      name_installation: 'Time Series Normalizer',
+    },
+    base: {
+      action: 'Request precise permission',
+      code: 1100003,
+      type: 'installation_request',
+      from: 'e5a311c7-43f3-4497-8c2a-df8eaf47bc6a',
+      to: 'f23b3a6e-391f-4efd-a690-49173d4c675a',
+      from_type: 'installation',
+      from_name: 'Time Series Normalizer - ',
+      to_type: 'user',
+      type_ids: 'device',
+      priority: 0,
+      ids: ['c0e8e434-aa15-403e-901f-a80d64ab45ae'],
+      info: [
+        {
+          type: 'device',
+          id: 'c0e8e434-aa15-403e-901f-a80d64ab45ae',
+          name: "Andreas' desk",
+        },
+      ],
+    },
+    times: 4,
+    timestamp: '2023-12-21T13:15:32.920937Z',
+    identifier:
+      '80c6f4203bac68b77ca811a77e8ef722edf8ec57718534ffac9af143550d6e6d',
+    meta: {
+      id: 'f4ff5b3e-bf44-4206-808d-8fcd3f5c8fa9',
+      type: 'notification',
+      version: '2.0',
+      owner: 'f23b3a6e-391f-4efd-a690-49173d4c675a',
+      manufacturer: 'f23b3a6e-391f-4efd-a690-49173d4c675a',
+      created: '2023-12-21T07:35:52.409192Z',
+      updated: '2023-12-21T07:35:52.409192Z',
+      tag: [],
+      tag_by_user: [],
+      name_by_user: 'installation_request',
+    },
+  },
+  path: '/notification/installation_request/e5a311c7-43f3-4497-8c2a-df8eaf47bc6a/f4ff5b3e-bf44-4206-808d-8fcd3f5c8fa9',
+  timestamp: '2023-12-21T13:15:32.924250Z',
+};
+
 export {
   applicationResponse,
   applicationJson,
@@ -755,4 +816,5 @@ export {
   downloadInstallationResponse,
   allApplicationsResponse,
   streamFilterEvent,
+  streamUpdateNotification,
 };
