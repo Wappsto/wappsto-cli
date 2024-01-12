@@ -79,7 +79,7 @@ export default class Wappsto {
     }
   }
 
-  async updateACLRestriction(id: string, collection: string[]): Promise<void> {
+  async updateACLRestriction(id: string, collection: string): Promise<void> {
     try {
       const aclResponse = await HTTP.get(
         `${this.HOST}/services/2.1/acl/${id}/permission/${id}`
