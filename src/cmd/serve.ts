@@ -353,8 +353,7 @@ export default async function serve(argv: string[]) {
     backgroundSessionID = sessionID;
   } else {
     sessionID = await wapp.getInstallationSession();
-    backgroundSessionID =
-      wapp.installation.background_session || wapp.installation.session || '';
+    backgroundSessionID = wapp.getBackgroundInstallationSession();
   }
   if (!sessionID) {
     tui.showError('Failed to get Session from Installation');

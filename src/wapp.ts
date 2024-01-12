@@ -153,6 +153,12 @@ export default class Wapp {
     return '';
   }
 
+  getBackgroundInstallationSession(): string {
+    return (
+      this.installation.background_session || this.installation.session || ''
+    );
+  }
+
   /* istanbul ignore next */
   getInstallationToken(): string {
     return this.installation.token;

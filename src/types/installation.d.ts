@@ -24,6 +24,7 @@ export interface Installation21 {
   permit_to_send_email?: boolean;
   permit_to_send_sms?: boolean;
   session?: string;
+  background_session?: string;
   status: {
     background?:
       | 'no_background'

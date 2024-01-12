@@ -61,6 +61,7 @@ export default class Installation extends Model implements Installation21 {
       'application',
       'version_id',
       'session',
+      'background_session',
     ];
   }
 
