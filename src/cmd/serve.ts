@@ -340,6 +340,11 @@ export default async function serve(argv: string[]) {
 
   await wapp.init();
 
+  if (!(wapp.hasForeground || wapp.hasBackground)) {
+    tui.showError('Wapp do not have a foreground or background');
+    return;
+  }
+
   if (options.reinstall) {
     tui.showMessage('Reinstalling...');
     await wapp.installation.reinstall();
