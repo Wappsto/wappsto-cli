@@ -114,8 +114,8 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@sentry/node": "^7.75.1",
-    "@sentry/tracing": "^7.75.1",
+    "@sentry/node": "7.104.0",
+    "@sentry/tracing": "7.104.0",
     "async-mutex": "^0.4.0",
     "axios": "^1.5.1",
     "browser-sync": "^2.29.3",
