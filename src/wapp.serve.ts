@@ -143,16 +143,16 @@ export default class ServeWapp extends UpdateWapp {
               return;
             }
 
-            answers.permission.forEach((per: string) => {
-              results.push(
-                this.wappsto.updateACL(
-                  per,
-                  data.installation || '',
-                  [],
-                  data.req?.method || []
-                )
-              );
-            });
+            // Updated the ACL with the selected items
+            results.push(
+              this.wappsto.updateACL(
+                answers.permission,
+                data.installation || '',
+                [],
+                data.req?.method || []
+              )
+            );
+
             let status = 'read';
             if (answers.permission.length) {
               status = 'accepted';

@@ -38,7 +38,7 @@ export default class Wappsto {
   }
 
   async updateACL(
-    id: string,
+    id: string | string[],
     addID: string,
     create: string[],
     method: string[]
@@ -48,8 +48,14 @@ export default class Wappsto {
       method.forEach((m: string) => {
         methods[m] = true;
       });
+      let ids = [];
+      if (typeof id === 'string') {
+        ids.push(id);
+      } else {
+        ids = id;
+      }
       await HTTP.patch(
-        `${this.HOST}/services/2.1/acl?propagate=true&id=[${id}]`,
+        `${this.HOST}/services/2.1/acl?propagate=true&id=${ids}`,
         {
           permission: [
             {
