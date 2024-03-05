@@ -1,16 +1,15 @@
 /* istanbul ignore file */
-
-import { ChildProcess } from 'child_process';
 import fs from 'fs';
 import { IncomingMessage, ServerResponse } from 'http';
 import path from 'path';
 import url from 'url';
 import browserSync from 'browser-sync';
-import spawn from 'cross-spawn';
 import detect from 'detect-port';
-import watch from 'node-watch';
+import {
+  startLocalBackgroundRunner,
+  startRemoteBackgroundRunner,
+} from '../background';
 import Config from '../config';
-import { JsonObjType } from '../types/custom';
 import { directoryExists, fileExists, loadFile } from '../util/files';
 import { getFileType } from '../util/helpers';
 import setup from '../util/setup_cli';
@@ -66,10 +65,6 @@ export default async function serve(argv: string[]) {
   if (!options) {
     return;
   }
-
-  let wapp: Wapp;
-
-  const PACKAGE = `${Config.background()}/package.json`;
 
   function isForegroundPresent(): boolean {
     const index = path.join(Config.foreground(), 'index.html');
@@ -184,153 +179,7 @@ export default async function serve(argv: string[]) {
     });
   }
 
-  function registerBackgroundWatcher(
-    cb: (name: string) => Promise<void>
-  ): void {
-    let restarting = false;
-    watch(
-      Config.background(),
-      {
-        filter(f, skip) {
-          // skip node_modules
-          if (/\/node_modules/.test(f)) return skip;
-          // skip .git folder
-          if (/\.git/.test(f)) return skip;
-          if (/\.#/.test(f)) return skip;
-          // only watch for js and json files
-          return /\.js|\.json$/.test(f);
-        },
-        recursive: true,
-      },
-      (evt, name) => {
-        if (!restarting) {
-          restarting = true;
-          cb(name).then(() => {
-            restarting = false;
-          });
-        }
-      }
-    );
-  }
-
-  async function startRemoteBackgroundRunner(): Promise<void> {
-    tui.showMessage('Starting the background wapp on the server');
-    registerBackgroundWatcher(async (name: string) => {
-      wapp.uploadFile(name);
-    });
-  }
-
-  async function startLocalBackgroundRunner(
-    sessionID: string,
-    tokenID: string
-  ): Promise<void> {
-    tui.showMessage('Starting the background wapp locally');
-    async function install() {
-      if (!fileExists(PACKAGE)) {
-        tui.showWarning(`Not installing packages - ${PACKAGE} is missing!`);
-        return;
-      }
-      return new Promise<void>((resolve, reject) => {
-        const npm = spawn('npm', ['install'], {
-          cwd: Config.background(),
-          env: process.env,
-        });
-
-        npm.on('exit', (code) => {
-          if (code === 0) {
-            tui.showMessage('Packages installed');
-            resolve();
-          } else {
-            reject();
-          }
-        });
-
-        npm.stderr?.on('data', (data: string) => {
-          data
-            .toString()
-            .split('\n')
-            .forEach((msg: string) => tui.showError(msg));
-        });
-      });
-    }
-
-    function start() {
-      const runner = spawn('node', ['main.js'], {
-        cwd: Config.background(),
-        env: {
-          ...process.env,
-          baseUrl: `${Config.host()}/services`,
-          sessionID,
-          tokenID,
-          DISABLE_LOG: 'true',
-        },
-      });
-
-      runner.on('exit', (code, signal) => {
-        if (!runner.killed) {
-          if (code === 0) {
-            tui.showMessage('Background Wapp stopped normally');
-          } else {
-            tui.showError(
-              `Background Wapp crashed - code ${code} and signal ${signal}`
-            );
-          }
-        }
-      });
-
-      function printLog(data: JsonObjType, type: string) {
-        data
-          .toString()
-          .split('\n')
-          .forEach((msg: string) =>
-            tui.showLog(msg.replace(/^\s+|\s+$/g, ''), 'Background', '', type)
-          );
-      }
-
-      runner.stdout?.on('data', (data) => {
-        printLog(data, 'normal');
-      });
-
-      runner.stderr?.on('data', (data) => {
-        printLog(data, 'error');
-      });
-
-      tui.showMessage('Background Runner Started');
-      return runner;
-    }
-
-    function stop(runner: ChildProcess) {
-      if (!runner) return;
-
-      tui.showWarning('Restarting Background Runner');
-      runner.kill();
-    }
-
-    let runner: ChildProcess;
-    try {
-      await install();
-      runner = start();
-    } catch (e) {
-      // empty
-    }
-
-    registerBackgroundWatcher(async (name: string) => {
-      stop(runner);
-      if (name === PACKAGE) {
-        install()
-          .then(() => {
-            runner = start();
-          })
-          .catch(() => {
-            // empty
-          });
-      } else {
-        runner = start();
-      }
-    });
-  }
-
-  wapp = new Wapp(options.remote || false);
+  const wapp = new Wapp(options.remote || false);
 
   if (!wapp.present()) {
     tui.showError('No Wapp found in current folder');
@@ -390,7 +239,7 @@ export default async function serve(argv: string[]) {
         backgroundFiles.forEach((f) => {
           tui.showMessage(`${f.name} was ${f.status}`);
         });
-        startRemoteBackgroundRunner();
+        startRemoteBackgroundRunner(wapp);
       } else if (await wapp.installation.stop()) {
         startLocalBackgroundRunner(backgroundSessionID, tokenID);
       } else {

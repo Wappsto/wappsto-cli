@@ -5,6 +5,10 @@
 import * as Sentry from '@sentry/node';
 import commandLineArgs from 'command-line-args';
 import commandLineUsage from 'command-line-usage';
+import {
+  startLocalBackgroundRunner,
+  startRemoteBackgroundRunner,
+} from './background';
 import configure from './cmd/configure';
 import create from './cmd/create';
 import Delete from './cmd/delete';
@@ -17,6 +21,8 @@ import { startTrace } from './util/trace';
 import tui from './util/tui';
 import { VERSION } from './util/version';
 import Wapp from './wapp';
+
+export { startLocalBackgroundRunner, startRemoteBackgroundRunner };
 
 const mainDefinitions = [{ name: 'command', defaultOption: true }];
 
