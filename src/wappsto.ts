@@ -55,7 +55,7 @@ export default class Wappsto {
         ids = id;
       }
       await HTTP.patch(
-        `${this.HOST}/services/2.1/acl?propagate=true&id=${ids}`,
+        `${this.HOST}/services/2.1/acl?propagate=true&id=[${ids}]`,
         {
           permission: [
             {
