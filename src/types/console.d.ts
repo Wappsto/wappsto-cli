@@ -34,7 +34,7 @@ export interface Meta21 {
   name_by_user?: string;
   warning?: {
     message?: string;
-    data?: Record<string, any>;
+    data?: Record<string, unknown>;
     code?: number;
     [k: string]: unknown;
   }[];
