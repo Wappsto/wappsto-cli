@@ -106,9 +106,9 @@ export default class Wapp {
   present(): boolean {
     let oldWapp = false;
     this.wapp_files.forEach((f) => {
-      oldWapp = oldWapp || fileExists(f);
+      oldWapp = oldWapp || !fileExists(f);
     });
-    return oldWapp;
+    return !oldWapp;
   }
 
   deleteLocal(): void {
