@@ -165,11 +165,10 @@ and creating a file `src/setupProxy.js` with this:
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const wappsto = require('wappsto-cli');
 
-const HOST = wappsto.getHost();
 let sessionID = '';
 
 const run = async () => {
-  sessionID = await wapp.getSession();
+  sessionID = await wappsto.getSession();
 };
 run();
 
@@ -177,7 +176,7 @@ module.exports = function (app) {
   app.use(
     '/services',
     createProxyMiddleware({
-      target: HOST,
+      target: wappsto.getHost(),
       changeOrigin: true,
       ws: true,
       logLevel: 'error',
