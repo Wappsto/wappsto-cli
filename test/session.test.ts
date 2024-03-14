@@ -18,6 +18,9 @@ describe('Session', () => {
   });
 
   it('can handle login error', async () => {
+    mockedAxios.post.mockRejectedValueOnce({
+      data: {},
+    });
     const wapp = new Wapp();
 
     prompts.inject([]);
@@ -75,6 +78,7 @@ describe('Session', () => {
     const wapp = new Wapp();
     await wapp.init();
 
+    expect(mockedAxios.post).toHaveBeenCalledTimes(0);
     expect(mockedAxios.get).toHaveBeenCalledTimes(1);
     expect(mockedAxios.get).toHaveBeenCalledWith(
       'https://wappsto.com/services/2.1/session/session?expand=2&verbose=true',
