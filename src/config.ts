@@ -74,6 +74,10 @@ class Config {
   adminSession(): boolean {
     return this.custom.admin || false;
   }
+
+  webServer(): string {
+    return this.custom.webServer || '';
+  }
 }
 
 const config = new Config();

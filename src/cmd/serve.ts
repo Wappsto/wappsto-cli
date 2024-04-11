@@ -4,6 +4,7 @@ import { IncomingMessage, ServerResponse } from 'http';
 import path from 'path';
 import url from 'url';
 import browserSync from 'browser-sync';
+import spawn from 'cross-spawn';
 import detect from 'detect-port';
 import {
   startLocalBackgroundRunner,
@@ -219,12 +220,30 @@ export default async function serve(argv: string[]) {
 
   if (wapp.hasForeground) {
     if (isForegroundPresent()) {
-      startForegroundServer(
-        sessionID,
-        tokenID,
-        options.port,
-        !options.nobrowser
-      );
+      if (Config.webServer()) {
+        tui.showMessage(
+          `Starting Web Server with command: "${Config.webServer()}"`
+        );
+        const cmd = Config.webServer().split(' ');
+        const server = spawn(cmd[0], cmd.slice(1), { stdio: 'inherit' });
+
+        server.on('exit', (code, signal) => {
+          if (code === 0) {
+            tui.showMessage('Web Server stopped!');
+          } else {
+            tui.showError(
+              `Web Server crashed - code ${code} and signal ${signal}`
+            );
+          }
+        });
+      } else {
+        startForegroundServer(
+          sessionID,
+          tokenID,
+          options.port,
+          !options.nobrowser
+        );
+      }
     } else {
       tui.showWarning(
         'No foreground files found, local webserver is not started'
