@@ -219,24 +219,23 @@ export default async function serve(argv: string[]) {
   await wapp.openStream();
 
   if (wapp.hasForeground) {
-    if (isForegroundPresent()) {
-      if (Config.webServer()) {
-        tui.showMessage(
-          `Starting Web Server with command: "${Config.webServer()}"`
-        );
-        const cmd = Config.webServer().split(' ');
-        const server = spawn(cmd[0], cmd.slice(1), { stdio: 'inherit' });
+    if (Config.webServer()) {
+      tui.showMessage(
+        `Starting Web Server with command: "${Config.webServer()}"`
+      );
+      const cmd = Config.webServer().split(' ');
+      const server = spawn(cmd[0], cmd.slice(1), { stdio: 'inherit' });
 
-        server.on('exit', (code, signal) => {
-          if (code === 0) {
-            tui.showMessage('Web Server stopped!');
-          } else {
-            tui.showError(
-              `Web Server crashed - code ${code} and signal ${signal}`
-            );
-          }
-        });
-      } else {
+      server.on('exit', (code, signal) => {
+        if (code === 0) {
+          tui.showMessage('Web Server stopped!');
+        } else {
+          tui.showError(
+            `Web Server crashed - code ${code} and signal ${signal}`
+          );
+        }
+      });
+    } else if (isForegroundPresent()) {
         startForegroundServer(
           sessionID,
           tokenID,
