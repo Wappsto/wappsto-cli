@@ -236,13 +236,12 @@ export default async function serve(argv: string[]) {
         }
       });
     } else if (isForegroundPresent()) {
-        startForegroundServer(
-          sessionID,
-          tokenID,
-          options.port,
-          !options.nobrowser
-        );
-      }
+      startForegroundServer(
+        sessionID,
+        tokenID,
+        options.port,
+        !options.nobrowser
+      );
     } else {
       tui.showWarning(
         'No foreground files found, local webserver is not started'

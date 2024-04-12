@@ -1,7 +1,7 @@
 {
   "name": "wappsto-cli",
   "description": "Command Line Interface for creating wapps in Wappsto",
-  "version": "2.5.0",
+  "version": "2.5.1",
   "license": "Apache-2.0",
   "main": "dist/wappsto-cli.cjs.production.min.js",
   "module": "dist/wappsto-cli.esm.js",
