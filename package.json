@@ -1,6 +1,6 @@
 {
   "name": "wappsto-cli",
-  "description": "Command Line Interface for Wappsto",
+  "description": "Command Line Interface for creating wapps in Wappsto",
   "version": "2.4.8",
   "license": "Apache-2.0",
   "main": "dist/wappsto-cli.cjs.production.min.js",
@@ -45,7 +45,7 @@
     "prettify": "yarn run prettier -w src/ test/",
     "prepare": "yarn run build",
     "start": "dts watch",
-    "test": "dts test",
+    "test": "dts test --maxWorkers=75%",
     "coverage": "dts test --maxWorkers=75% --coverage",
     "test:coverage": "yarn run coverage",
     "generate-types": "npx json2ts -i schemas -o src/types",
