@@ -176,8 +176,7 @@ run();
 
 module.exports = function (app) {
   app.use(
-    '/services',
-    createProxyMiddleware({
+    createProxyMiddleware('/services', {
       target: wappsto.getHost(),
       changeOrigin: true,
       ws: true,
