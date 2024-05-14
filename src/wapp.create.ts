@@ -37,7 +37,7 @@ export default class CreateWapp extends Wapp {
     });
 
     const newWapp = await section('Wait for user input', () => {
-      return questions.askCreateWapp(listWapps, this.present());
+      return questions.askCreateWapp(listWapps, this.codePresent());
     });
 
     if (newWapp === false) {

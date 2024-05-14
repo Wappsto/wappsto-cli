@@ -111,6 +111,14 @@ export default class Wapp {
     return !oldWapp;
   }
 
+  codePresent(): boolean {
+    let codeFolders = fileExists('manifest.json');
+    this.wapp_folders.forEach((f) => {
+      codeFolders = codeFolders || directoryExists(f);
+    });
+    return codeFolders;
+  }
+
   deleteLocal(): void {
     this.wapp_files.forEach((f) => {
       deleteFile(f);
