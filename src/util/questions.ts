@@ -297,9 +297,25 @@ class Questions {
     if (type === false) {
       return false;
     }
+    
     /* istanbul ignore next */
     function validateEmptyString(input: string) {
       return input.length > 0 ? true : 'You must enter a valid string';
+    }
+
+    function validateUrl(input: string) {
+      return (
+        input.match(/^https?:\/\/[\w\d./]+$/) ? true :
+        'Please enter a valid url, starting with http(s)://'
+      );
+    }
+
+    function optional(input: string, validator: (input: string) => boolean | string) {
+      return input.length > 0 ? validator(input) : true;
+    }
+
+    function optionalUrl(input: string) {
+      return optional(input, validateUrl);
     }
 
     const descriptionQuestions = [
@@ -386,9 +402,98 @@ class Questions {
       {
         name: 'api_site',
         type: 'text' as const,
-        validate: validateEmptyString,
+        validate: validateUrl,
         initial: external.api_site,
         message: 'API Site:',
+      },
+      {
+        name: 'api_callback',
+        type: 'text' as const,
+        initial: external.api_callback,
+        message: 'API Callback:',
+      },
+      {
+        name: 'access_token_method',
+        type: 'select' as const,
+        choices: [
+          { title: 'GET', value: 'get' },
+          { title: 'POST', value: 'post' },
+        ],
+        initial: external.access_token_method === 'post' ? 1 : 0,
+        message: 'Access Token Method:',
+      },
+      {
+        name: 'refresh_access_token_method',
+        type: 'select' as const,
+        choices: [
+          { title: 'GET', value: 'get' },
+          { title: 'POST', value: 'post' },
+        ],
+        initial: external.refresh_access_token_method === 'post' ? 1 : 0,
+        message: 'Refresh Token Method:',
+      },
+      {
+        name: 'oauth_request_token_url',
+        type: 'text' as const,
+        validate: optionalUrl,
+        initial: external.oauth_request_token_url,
+        message: 'Request Token URL:',
+      },
+      {
+        name: 'oauth_access_token_url',
+        type: 'text' as const,
+        validate: optionalUrl,
+        initial: external.oauth_access_token_url,
+        message: 'Access Token URL:',
+      },
+      {
+        name: 'oauth_refresh_access_token_url',
+        type: 'text' as const,
+        validate: optionalUrl,
+        initial: external.oauth_refresh_access_token_url,
+        message: 'Refresh Access Token URL:',
+      },
+      {
+        name: 'api_extra_request',
+        type: 'confirm' as const,
+        initial: external.api_extra_request ? true : false,
+        message: 'Extra Request:',
+      },
+      {
+        name: 'api_extra_request_appid',
+        type: (prev: JsonObjType, value: JsonObjType) => (value.api_extra_request ? 'text': null),
+        initial: external.api_extra_request?.appid as string | undefined,
+        message: 'Extra Request App ID:',
+      },
+      {
+        name: 'api_extra_request_grant_type',
+        type: (prev: JsonObjType, value: JsonObjType) => (value.api_extra_request ? 'text': null),
+        initial: external.api_extra_request?.grant_type as string | undefined,
+        message: 'Extra Request Grant Type:',
+      },
+      {
+        name: 'api_extra_request_deviceid',
+        type: (prev: JsonObjType, value: JsonObjType) => (value.api_extra_request ? 'text': null),
+        initial: external.api_extra_request?.deviceid as string | undefined,
+        message: 'Extra Request Device ID:',
+      },
+      {
+        name: 'api_extra_request_devicename',
+        type: (prev: JsonObjType, value: JsonObjType) => (value.api_extra_request ? 'text': null),
+        initial: external.api_extra_request?.devicename as string | undefined,
+        message: 'Extra Request Device Name:',
+      },
+      {
+        name: 'api_extra_access_token',
+        type: 'confirm' as const,
+        initial: external.api_extra_access_token ? true : false,
+        message: 'Extra Access Token:',
+      },
+      {
+        name: 'api_extra_access_token_grant_type',
+        type: (prev: JsonObjType, value: JsonObjType) => (value.api_extra_request ? 'text': null),
+        initial: external.api_extra_access_token?.grant_type as string | undefined,
+        message: 'Extra Access Token Grant Type:',
       },
     ];
 
@@ -497,6 +602,32 @@ class Questions {
     switch (type.config) {
       case 'external_oauth':
         answers = await this.ask(oauthExtQuestions);
+        if (answers !== false) {
+          if(answers.api_extra_request) {
+            answers.api_extra_request = {
+              appid: answers.api_extra_request_appid,
+              grant_type: answers.api_extra_request_grant_type,
+              deviceid: answers.api_extra_request_deviceid,
+              devicename: answers.api_extra_request_devicename
+            };
+          } else {
+            delete answers.api_extra_request;
+          }
+
+          if(answers.api_extra_access_token) {
+            answers.api_extra_access_token = {
+              grant_type: answers.api_extra_access_token_grant_type
+            };
+          } else {
+            delete answers.api_extra_access_token;
+          }
+
+          delete answers.api_extra_request_appid;
+          delete answers.api_extra_request_grant_type;
+          delete answers.api_extra_request_deviceid;
+          delete answers.api_extra_request_devicename;
+          delete answers.api_extra_access_token_grant_type;
+        }
         break;
       case 'oauth_client':
         answers = await this.ask(oauthClientQuestions);

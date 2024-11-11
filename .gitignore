@@ -4,7 +4,6 @@ node_modules
 dist
 dist/*
 !dist/wappsto-cli.esm.js
-.sentryclirc
 
 .wappsto-cli-cache/
 manifest.json
