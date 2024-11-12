@@ -1,10 +1,9 @@
-import { AxiosError } from 'axios';
 import File from './file';
 import { getAllFiles, getFileTimeISO } from './util/files';
 import { compareVersions, past, validateFile } from './util/helpers';
 import questions from './util/questions';
 import Spinner from './util/spinner';
-import { measure, section } from './util/trace';
+import { section } from './util/trace';
 import tui from './util/tui';
 import Version from './version';
 import Wapp from './wapp';
@@ -233,18 +232,15 @@ export default class UpdateWapp extends Wapp {
       Spinner.setMessage('Loading application');
 
       await new Promise<void>((resolve) => {
-        const ts = measure('Wait', 'Waiting for files to be updated');
         setTimeout(() => {
           try {
             this.application.fetch().then(() => {
               this.application.getVersion().save();
               this.application.syncFiles();
               this.saveApplication();
-              ts.done();
               resolve();
             });
           } catch (err) {
-            ts.done(err as AxiosError);
             resolve();
           }
         }, 500);

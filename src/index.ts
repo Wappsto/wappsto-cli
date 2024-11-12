@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /* istanbul ignore file */
-
+import './util/trace';
 import * as Sentry from '@sentry/node';
 import commandLineArgs from 'command-line-args';
 import commandLineUsage from 'command-line-usage';
@@ -17,7 +17,6 @@ import publish from './cmd/publish';
 import serve from './cmd/serve';
 import update from './cmd/update';
 import Config from './config';
-import { startTrace } from './util/trace';
 import tui from './util/tui';
 import { VERSION } from './util/version';
 import Wapp from './wapp';
@@ -96,7 +95,6 @@ if (
   (process.argv[1].includes('wappsto-cli') ||
     process.argv[1].includes('node_modules/.bin/wapp'))
 ) {
-  let transaction;
   let command = 'unknown';
 
   (async () => {
@@ -106,7 +104,6 @@ if (
       });
       const argv = mainOptions._unknown || [];
 
-      transaction = startTrace(mainOptions.command);
       command = mainOptions.command;
 
       switch (command) {
@@ -149,8 +146,6 @@ if (
         Sentry.captureException(err);
       }
       process.exit(-1);
-    } finally {
-      transaction?.finish();
     }
   })();
 }

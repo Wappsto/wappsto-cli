@@ -6,7 +6,6 @@ import { Meta21 } from './types/application.d';
 import { JsonObjType } from './types/custom';
 import { deleteFile, loadFile, saveFile } from './util/files';
 import HTTP from './util/http';
-import Trace from './util/trace';
 import tui from './util/tui';
 
 export default class Model {
@@ -153,14 +152,6 @@ export default class Model {
       });
     }
     return obj;
-  }
-
-  trace(method: string, data?: JsonObjType): Trace {
-    return new Trace(this.meta.type || 'model', method, data);
-  }
-
-  static trace(type: string, method: string, data?: JsonObjType): Trace {
-    return new Trace(type, method, data);
   }
 
   handleException(msg: string, err: AxiosError<JsonObjType>): void {

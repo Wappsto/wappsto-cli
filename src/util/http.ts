@@ -1,7 +1,6 @@
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { JsonObjType } from '../types/custom';
 import spinner from './spinner';
-import Trace from './trace';
 import tui from './tui';
 import { VERSION } from './version';
 
@@ -9,13 +8,8 @@ type Methods = 'head' | 'options' | 'put' | 'post' | 'patch' | 'delete' | 'get';
 
 export default class HTTP {
   constructor() {
-    axios.defaults.headers.common[
-      'User-Agent'
-    ] = `Wappsto-cli/${VERSION} (axios/${axios.VERSION})`;
-  }
-
-  static trace(method: string, url: string, data?: JsonObjType): Trace {
-    return new Trace(`HTTP ${method}`, url, data);
+    axios.defaults.headers.common['User-Agent'] =
+      `Wappsto-cli/${VERSION} (axios/${axios.VERSION})`;
   }
 
   static setHeader(name: string, value: string) {
@@ -32,7 +26,6 @@ export default class HTTP {
     data: JsonObjType = {},
     config?: JsonObjType
   ): Promise<JsonObjType> {
-    const t = HTTP.trace(func, url);
     try {
       let response;
       spinner.setMessage(tui.showTraffic(func, url, data, null) || '', false);
@@ -45,13 +38,11 @@ export default class HTTP {
         console.error('Failed to get response from', func, 'with', url);
       }
       tui.showTraffic(func, url, data, response.data);
-      t.done();
       return response;
     } catch (err) {
       if (axios.isAxiosError(err)) {
         tui.showTraffic(func, url, data, err.response?.data);
       }
-      t.done(err as AxiosError);
       throw err;
     }
   }
