@@ -69,7 +69,6 @@ export default class ServeWapp extends UpdateWapp {
     ) {
       return;
     }
-    console.log(data);
 
     if (data.reinstall) {
       const oldSession = this.installation.session;
