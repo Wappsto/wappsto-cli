@@ -1,7 +1,7 @@
 import WebSocket from 'ws';
 import Config from './config';
 import { JsonObjType, StreamCallbackEvent } from './types/custom';
-import { Eventstream20 } from './types/eventstream';
+import { Eventstream20 as EventStream20 } from './types/eventstream';
 import { Extsync21 } from './types/extsync';
 import { Installation21 } from './types/installation';
 import { Notification21 } from './types/notification';
@@ -71,7 +71,7 @@ export default class Stream {
         tui.showError(`Stream error`, err);
       });
 
-      this.ws.on('message', (message: Eventstream20 | string) => {
+      this.ws.on('message', (message: EventStream20 | string) => {
         this.parseStreamEvent(message, this.callback);
       });
     };
@@ -171,11 +171,11 @@ export default class Stream {
   }
 
   async parseStreamEvent(
-    message: Eventstream20 | string,
+    message: EventStream20 | string,
     callback: CallbackType
   ) {
     try {
-      let event: Eventstream20;
+      let event: EventStream20;
       try {
         if (typeof message === 'string') {
           event = JSON.parse(message);
@@ -241,7 +241,10 @@ export default class Stream {
           }
           break;
         case 'notification':
-          if (data) {
+          if (
+            data &&
+            (data as Notification21).base.from === this.installation_id
+          ) {
             await this.handleNotification(data as Notification21, callback);
           }
           break;

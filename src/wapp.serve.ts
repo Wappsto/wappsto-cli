@@ -63,6 +63,14 @@ export default class ServeWapp extends UpdateWapp {
       return;
     }
 
+    if (
+      data.meta?.type === 'notification' &&
+      data.base.from !== this.installation.id
+    ) {
+      return;
+    }
+    console.log(data);
+
     if (data.reinstall) {
       const oldSession = this.installation.session;
       const newSession = await this.getInstallationSession();

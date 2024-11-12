@@ -63,6 +63,7 @@ export type StreamCallbackEvent = {
   req?: Request | undefined;
   reinstall?: boolean | undefined;
   action?: string | undefined;
+  meta?: JsonObjType | undefined;
 
-  [k: string]: string | boolean | Request | undefined;
+  [k: string]: string | boolean | Request | JsonObjType | undefined;
 };
