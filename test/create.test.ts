@@ -95,7 +95,9 @@ describe('Create', () => {
             },
             file: [],
             name: 'Wapp name',
-            permission: undefined,
+            permission: {
+              create: ['data', 'stream', 'network'],
+            },
             status: 'idle',
             supported_features: ['foreground'],
             title: '',
@@ -179,6 +181,9 @@ describe('Create', () => {
         updated: '2021-05-07T09:43:01.527582Z',
       },
       name: 'Wapp name',
+      application_product: [],
+      oauth_client: [],
+      oauth_external: [],
       version: [
         {
           meta: {
@@ -438,6 +443,9 @@ describe('Create', () => {
             },
             executable: {
               engine: 'node',
+            },
+            permission: {
+              create: ['data', 'stream', 'network'],
             },
             max_number_installation: 1,
             name: 'Wapp name',

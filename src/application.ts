@@ -169,9 +169,11 @@ export default class Application extends Model implements Application21 {
     data.executable = {
       engine: 'node',
     };
-    data.permission = {
-      create: ['data', 'stream', 'network'],
-    };
+    if (!data.permission) {
+      data.permission = {
+        create: ['data', 'stream', 'network'],
+      };
+    }
 
     try {
       const response = await HTTP.post(

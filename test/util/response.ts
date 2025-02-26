@@ -394,6 +394,9 @@ const applicationJson = {
     updated: '2023-01-24T09:53:15.128304Z',
   },
   name: 'Wapp name',
+  application_product: [],
+  oauth_client: [],
+  oauth_external: [],
   version: [
     {
       meta: {
