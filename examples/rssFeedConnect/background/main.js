@@ -6,9 +6,9 @@ let storage;
 /**@type {Wappsto.Network} */
 let theNetwork;
 
-const networkName = "RSS Feed"
+const networkName = 'RSS Feed';
 // const syncTimeOutMs = 1000*60*60*24; // Every Day.
-const syncTimeOutMs = 1000*60*60; // Every hour.
+const syncTimeOutMs = 1000 * 60 * 60; // Every hour.
 
 const CMD_LIST = Object.freeze({
   add: 'add',
@@ -48,21 +48,38 @@ const STATUS_CMD = Object.freeze({
  * @param {Wappsto.Device} feedDevice The Device for which the feed items are added.
  * @param {Wappsto.Value} titleValue The value to add the title to.
  */
-async function addFeedToWappsto(feedItem, feedDevice, titleValue) {
-  const { title, link, author, isoDate, id } = feedItem;
-
-  console.log('Adding feed:', id, '-', title);
+async function addFeedToWappsto(
+  feedItem,
+  feedDevice,
+  titleValue,
+  contentValue
+) {
+  const {
+    title,
+    link,
+    content,
+    contentSnippet,
+    author,
+    creator,
+    isoDate,
+    id,
+    guid,
+  } = feedItem;
+  console.log('Adding feed:', guid ?? id, '-', title);
 
   titleValue.report(title, isoDate);
+  contentValue.report(contentSnippet ?? content, isoDate);
 
   const authorValue = await feedDevice.createValue({
-    name: 'Author', permission: 'r',
+    name: 'Author',
+    permission: 'r',
     template: Wappsto.ValueTemplate.STRING,
   });
-  authorValue.report(author, isoDate);
+  authorValue.report(author ?? creator, isoDate);
 
   const linkValue = await feedDevice.createValue({
-    name: 'Link', permission: 'r',
+    name: 'Link',
+    permission: 'r',
     template: Wappsto.ValueTemplate.STRING,
   });
   linkValue.report(link, isoDate);
@@ -89,15 +106,15 @@ async function addFeed(feedUrl) {
   const feedList = storage.get('feeds');
 
   const feedName = await checkFeed(feedUrl);
-  if(!feedName) return false;
+  if (!feedName) return false;
 
   /**@type {feedObject} */
   const newFeed = {
     name: feedName,
-    url: feedUrl
-  }
+    url: feedUrl,
+  };
   feedList.push(newFeed);
-  console.log(feedList);
+
   await storage.set('feeds', feedList);
   updateFeed(newFeed.url);
   return true;
@@ -126,7 +143,7 @@ async function removeFeed(feedUrl) {
  * Update the given feed, for which the url contain.
  * @param {string} feedUrl The Url for the given feed.
  */
-async function updateFeed(feedUrl){
+async function updateFeed(feedUrl) {
   const parser = new Parser();
   const feed = await parser.parseURL(feedUrl);
 
@@ -136,20 +153,37 @@ async function updateFeed(feedUrl){
   });
 
   const titleValue = await feedDevice.createValue({
-    name: 'Title', permission: 'r',
+    name: 'Title',
+    permission: 'r',
     template: Wappsto.ValueTemplate.STRING,
+    initialState: {
+      data: '',
+      timestamp: '2020-01-01T00:00:00.000Z',
+    },
+  });
+
+  const contentValue = await feedDevice.createValue({
+    name: 'Content',
+    permission: 'r',
+    template: Wappsto.ValueTemplate.STRING,
+    initialState: {
+      data: '',
+      timestamp: '2020-01-01T00:00:00.000Z',
+    },
   });
 
   const lastUpdate = dayjs(titleValue.getReportTimestamp());
-  const newFeed = feed.items.filter(
-    (f) => dayjs(f.isoDate).diff(lastUpdate) > 0
-  ).sort( // Sort so the newest are added last.
-    (a,b) => dayjs(a.isoDate).diff(dayjs(b.isoDate))
-  );
 
-  for (const feedItem of newFeed){
-    await addFeedToWappsto(feedItem, feedDevice, titleValue);
-  };
+  const newFeed = feed.items
+    .filter((f) => dayjs(f.isoDate).diff(lastUpdate) > 0)
+    .sort(
+      // Sort so the newest are added last.
+      (a, b) => dayjs(a.isoDate).diff(dayjs(b.isoDate))
+    );
+
+  for (const feedItem of newFeed) {
+    await addFeedToWappsto(feedItem, feedDevice, titleValue, contentValue);
+  }
 }
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -163,7 +197,7 @@ async function subroutine() {
   /**@type {[feedObject]} */
   const feedList = storage.get('feeds');
 
-  feedList.forEach((el) =>{
+  feedList.forEach((el) => {
     updateFeed(el.url);
   });
 }
@@ -209,12 +243,12 @@ async function handleCommand(eventData) {
     const feedAdded = await addFeed(eventData.data);
     if (!feedAdded) return errorReply('Feed not found!');
     return { status: STATUS_CMD.ok };
-  };
+  }
 
   if (eventData.cmd === CMD_LIST.delete) {
     await removeFeed(eventData.data);
     return { status: STATUS_CMD.ok };
-  };
+  }
 
   return errorReply('Unknown command.');
 }
@@ -224,7 +258,7 @@ async function handleCommand(eventData) {
 // ////////////////////////////////////////////////////////////////////////////
 
 (async () => {
-  console.log("RSS Feed Setup Started!");
+  console.log('RSS Feed Setup Started!');
   storage = await Wappsto.wappStorage();
   if (storage.get('feeds') === undefined) storage.set('feeds', []);
 
@@ -235,5 +269,5 @@ async function handleCommand(eventData) {
 
   setInterval(subroutine, syncTimeOutMs);
   Wappsto.fromForeground(handleCommand);
-  console.log("RSS Feed Setup Done!");
+  console.log('RSS Feed Setup Done!');
 })();
