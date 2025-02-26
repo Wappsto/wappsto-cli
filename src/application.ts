@@ -26,7 +26,14 @@ export default class Application extends Model implements Application21 {
   }
 
   getAttributes() {
-    return ['name', 'name_identifier', 'version', 'oauth_client', 'oauth_external', 'application_product'];
+    return [
+      'name',
+      'name_identifier',
+      'version',
+      'oauth_client',
+      'oauth_external',
+      'application_product',
+    ];
   }
 
   toJSON(full = true): Application21 {
@@ -161,6 +168,9 @@ export default class Application extends Model implements Application21 {
     }
     data.executable = {
       engine: 'node',
+    };
+    data.permission = {
+      create: ['data', 'stream', 'network'],
     };
 
     try {
