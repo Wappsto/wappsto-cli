@@ -98,7 +98,7 @@
     "node-watch": "^0.7.4",
     "prompts": "^2.4.2",
     "simple-update-notifier": "^2.0.0",
-    "ws": "^8.18.0"
+    "ws": "8.18.1"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",
