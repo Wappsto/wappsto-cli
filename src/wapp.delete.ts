@@ -24,7 +24,7 @@ export default class DeleteWapp extends Wapp {
       return;
     }
 
-    section('Deleting wapp', async () => {
+    await section('Deleting wapp', async () => {
       if (answers.local) {
         this.deleteLocal();
       }
@@ -49,8 +49,8 @@ export default class DeleteWapp extends Wapp {
           return;
         }
       }
-    });
 
-    tui.showMessage('Wapp deleted');
+      tui.showMessage('Wapp deleted');
+    });
   }
 }
