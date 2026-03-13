@@ -19,8 +19,14 @@ export default class DeleteWapp extends Wapp {
       return;
     }
 
+    if (!answers.local && !answers.remote) {
+      tui.showWarning('Nothing to delete');
+      return;
+    }
+
     await section('Deleting wapp', async () => {
-      const results = [];
+      if (answers.remote) {
+        const results = [];
 
       this.application.version.forEach((v: Version | string) => {
         if (typeof v !== 'string' && v.id) {
@@ -29,17 +35,18 @@ export default class DeleteWapp extends Wapp {
         }
       });
 
-      if (this.application.id) {
-        results.push(this.application.delete());
+        if (this.application.id) {
+          results.push(this.application.delete());
+        }
+        try {
+          await Promise.all(results);
+        } catch (err) {
+          tui.showError(`Failed to delete wapp: ${err}`);
+          return;
+        }
       }
-      try {
-        await Promise.all(results);
-      } catch (err) {
-        tui.showError(`Failed to delete wapp: ${err}`);
-        return;
-      }
-    });
 
-    tui.showMessage('Wapp deleted');
+      tui.showMessage('Wapp deleted');
+    });
   }
 }
