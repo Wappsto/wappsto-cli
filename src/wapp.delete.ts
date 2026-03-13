@@ -25,8 +25,7 @@ export default class DeleteWapp extends Wapp {
     }
 
     await section('Deleting wapp', async () => {
-      if (answers.remote) {
-        const results = [];
+      const results: Promise<void>[] = [];
 
       this.application.version.forEach((v: Version | string) => {
         if (typeof v !== 'string' && v.id) {
@@ -35,11 +34,11 @@ export default class DeleteWapp extends Wapp {
         }
       });
 
-        if (this.application.id) {
-          results.push(this.application.delete());
-        }
+      await Promise.allSettled(results);
+
+      if (this.application.id) {
         try {
-          await Promise.all(results);
+          await this.application.delete();
         } catch (err) {
           tui.showError(`Failed to delete wapp: ${err}`);
           return;
