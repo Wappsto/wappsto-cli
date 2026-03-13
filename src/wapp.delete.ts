@@ -34,7 +34,12 @@ export default class DeleteWapp extends Wapp {
         }
       });
 
-      await Promise.allSettled(results);
+      try {
+        await Promise.all(results);
+      } catch (err) {
+        tui.showError(`Failed to delete version/installation: ${err}`);
+        return;
+      }
 
       if (this.application.id) {
         try {
