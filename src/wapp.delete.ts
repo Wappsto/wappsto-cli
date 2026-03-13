@@ -19,35 +19,24 @@ export default class DeleteWapp extends Wapp {
       return;
     }
 
-    if (!answers.local && !answers.remote) {
-      tui.showWarning('Nothing to delete');
-      return;
-    }
+    await section('Deleting wapp', async () => {
+      const results = [];
 
-    section('Deleting wapp', async () => {
-      if (answers.local) {
-        this.deleteLocal();
+      this.application.version.forEach((v: Version | string) => {
+        if (typeof v !== 'string' && v.id) {
+          results.push(v.delete());
+          results.push(this.installation.deleteById(v.id));
+        }
+      });
+
+      if (this.application.id) {
+        results.push(this.application.delete());
       }
-
-      if (answers.remote) {
-        const results = [];
-
-        this.application.version.forEach((v: Version | string) => {
-          if (typeof v !== 'string' && v.id) {
-            results.push(v.delete());
-            results.push(this.installation.deleteById(v.id));
-          }
-        });
-
-        if (this.application.id) {
-          results.push(this.application.delete());
-        }
-        try {
-          await Promise.all(results);
-        } catch (err) {
-          tui.showError(`Failed to delete wapp: ${err}`);
-          return;
-        }
+      try {
+        await Promise.all(results);
+      } catch (err) {
+        tui.showError(`Failed to delete wapp: ${err}`);
+        return;
       }
     });
 

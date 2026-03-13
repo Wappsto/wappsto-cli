@@ -180,19 +180,6 @@ export default class UpdateWapp extends Wapp {
           runAsync('delete', file, (file: File) => {
             return file.delete();
           });
-        } else if (!rf && lf && !locallyUpdated) {
-          runAsync('delete', file, async (file: File) => {
-            const answers = await questions.askDeleteLocalFile(file.path);
-            if (answers === false) {
-              /* istanbul ignore next */
-              throw new Error('User aborted');
-            }
-
-            if (answers.delete) {
-              file.status = 'deleted';
-              file.deleteLocal();
-            }
-          });
         }
       }
 
