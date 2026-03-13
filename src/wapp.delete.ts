@@ -19,11 +19,6 @@ export default class DeleteWapp extends Wapp {
       return;
     }
 
-    if (!answers.local && !answers.remote) {
-      tui.showWarning('Nothing to delete');
-      return;
-    }
-
     await section('Deleting wapp', async () => {
       const results: Promise<void>[] = [];
 
