@@ -24,7 +24,7 @@ export default class CreateWapp extends Wapp {
       const wapps = await this.application.getAll();
       if (wapps.length) {
         wapps.forEach((w: Application) => {
-          if (w.version && typeof w.version[0] !== 'string') {
+          if (w.version && w.version[0] && typeof w.version[0] !== 'string' && w.version[0].name) {
             const { name } = w.version[0];
             listWapps.push({
               title: `${name} (${w.id})`,
