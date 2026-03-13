@@ -149,13 +149,13 @@ class Questions {
   ): Promise<JsonObjType | false> {
     let newWapp = true;
     if (present) {
-      tui.showWarning('It seams like you already have a wapp in this folder!');
+      tui.showWarning('It seems like you already have a wapp in this folder!');
       const override = await this.ask([
         {
           name: 'override',
           type: 'confirm' as const,
           initial: () => false,
-          message: 'Do you want to delete your local wapp?',
+          message: 'Do you want to replace your local wapp with a new one?',
         },
       ]);
       if (override === false) {
@@ -655,19 +655,8 @@ class Questions {
       {
         name: 'del',
         type: 'confirm' as const,
-        message: 'Do you want to delete the Wapp?',
-        initial: false,
-      },
-      {
-        name: 'local',
-        type: (prev: JsonObjType) => (prev ? 'confirm' : null),
-        message: 'Do you want to delete the local files?',
-      },
-      {
-        name: 'remote',
-        type: (prev: JsonObjType, values: JsonObjType) =>
-          values.del ? 'confirm' : null,
         message: 'Do you want to delete the Wapp on Wappsto?',
+        initial: false,
       },
     ]);
   }
@@ -782,17 +771,6 @@ class Questions {
             value: 'abort',
           },
         ],
-      },
-    ]);
-  }
-
-  askDeleteLocalFile(file: string): Promise<Answers<string> | false> {
-    return this.ask([
-      {
-        name: 'delete',
-        type: 'confirm' as const,
-        initial: true,
-        message: `${file} was deleted on the server, do you want to delete the local file?`,
       },
     ]);
   }
