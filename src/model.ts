@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/node';
-import { AxiosError } from 'axios';
+import axios, { AxiosError } from 'axios';
 import pick from 'lodash.pick';
 import Config from './config';
 import { Meta21 } from './types/application.d';
@@ -89,16 +89,12 @@ export default class Model {
 
   async exists(): Promise<boolean> {
     try {
-      const result = await HTTP.get(`${this.url}`);
-      if (result.status === 200) {
-        return true;
-      } else if (result.status === 404) {
-        tui.showError(`Unexpected status code while checking existence of ${this.meta.type} with id ${this.id}: ${result.status}`);
-      }
-    } catch {
-      return false;
+      await HTTP.get(`${this.url}`);
+      return true;
+    } catch (e) {
+      if (axios.isAxiosError(e) && e.response?.status === 404) return false;
+      throw e;
     }
-    return false;
   }
 
   async fetch(): Promise<boolean> {
