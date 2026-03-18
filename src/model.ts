@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/node';
-import { AxiosError } from 'axios';
+import axios, { AxiosError } from 'axios';
 import pick from 'lodash.pick';
 import Config from './config';
 import { Meta21 } from './types/application.d';
@@ -85,6 +85,16 @@ export default class Model {
 
   clear(): void {
     deleteFile(`${this.cacheFolder}${this.meta.type}`);
+  }
+
+  async exists(): Promise<boolean> {
+    try {
+      await HTTP.get(`${this.url}`);
+      return true;
+    } catch (e) {
+      if (axios.isAxiosError(e) && e.response?.status === 404) return false;
+      throw e;
+    }
   }
 
   async fetch(): Promise<boolean> {

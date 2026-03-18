@@ -20,6 +20,11 @@ export default class DeleteWapp extends Wapp {
     }
 
     await section('Deleting wapp', async () => {
+      if (this.application.id && !(await this.application.exists())) {
+        tui.showWarning('Nothing to delete');
+        return;
+      }
+
       const results: Promise<void>[] = [];
 
       this.application.version.forEach((v: Version | string) => {

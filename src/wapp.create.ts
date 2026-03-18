@@ -66,7 +66,7 @@ export default class CreateWapp extends Wapp {
           }
           this.application = new_app;
 
-          await this.installation.create(this.versionID);
+          await this.installation.create(this.versionID, this.sessionUser);
           this.saveApplication();
           Spinner.stop();
 

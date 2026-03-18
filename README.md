@@ -231,6 +231,52 @@ export default defineConfig(async () => {
 });
 ```
 
+# Local Development Setup for wappsto-cli
+
+## 1. Clone and Build wappsto-cli
+
+```
+git clone <wappsto-cli-repo>
+cd wappsto-cli
+yarn install
+yarn build
+chmod +x dist/index.js
+npm link
+```
+
+This prepares the CLI and makes it globally available via npm link.
+
+## 2. Clone Your Wapp Project and Link the CLI
+
+```
+git clone <your-wapp-repo>
+cd your-wapp-project
+npm link wappsto-cli
+```
+
+This connects your project to the locally built version of wappsto-cli instead of a published package.
+
+## 3. Rebuild After Changes to wappsto-cli
+
+Whenever you make changes to the CLI:
+
+```
+cd wappsto-cli
+yarn build
+chmod +x dist/index.js
+```
+
+No need to run npm link again, your project will automatically use the updated build.
+
+## 4. Run CLI Commands from Your Wapp Project
+
+```
+cd your-wapp-project
+npx wapp <command>
+```
+
+You can now test and run CLI commands using your local development version.
+
 ## Related
 
 - [wappsto-wapp](https://github.com/wappsto/javascript-wappsto-wapp) - Javascript lib for writing Wapps in [Wappsto](https://wappsto.com)

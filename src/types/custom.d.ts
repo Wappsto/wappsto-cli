@@ -2,6 +2,7 @@ export type Permission = {
   create?: string[];
   permit_to_send_email?: boolean;
   permit_to_send_sms?: boolean;
+  session_user?: boolean;
   [k: string]: unknown;
 };
 
