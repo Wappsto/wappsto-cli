@@ -66,8 +66,7 @@ export default class CreateWapp extends Wapp {
           }
           this.application = new_app;
 
-          const sessionUser = this.manifest?.permission?.session_user;
-          await this.installation.create(this.versionID, typeof sessionUser === 'boolean' ? sessionUser : undefined);
+          await this.installation.create(this.versionID, this.sessionUser);
           this.saveApplication();
           Spinner.stop();
 

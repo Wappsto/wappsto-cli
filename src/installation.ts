@@ -81,7 +81,7 @@ export default class Installation extends Model implements Installation21 {
   async create(id: string, sessionUser?: boolean): Promise<boolean> {
     try {
       const body: Record<string, unknown> = { application: id };
-      if (sessionUser !== undefined) {
+      if (sessionUser != null) {
         body.session_user = sessionUser;
       }
       const response = await HTTP.post(`${this.HOST}`, body);

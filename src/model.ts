@@ -89,11 +89,16 @@ export default class Model {
 
   async exists(): Promise<boolean> {
     try {
-      await HTTP.get(`${this.url}`);
-      return true;
+      const result = await HTTP.get(`${this.url}`);
+      if (result.status === 200) {
+        return true;
+      } else if (result.status === 404) {
+        tui.showError(`Unexpected status code while checking existence of ${this.meta.type} with id ${this.id}: ${result.status}`);
+      }
     } catch {
       return false;
     }
+    return false;
   }
 
   async fetch(): Promise<boolean> {

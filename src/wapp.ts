@@ -62,6 +62,11 @@ export default class Wapp {
     return this.application.getVersion().id;
   }
 
+  get sessionUser(): boolean | undefined {
+    const v = this.manifest?.permission?.session_user;
+    return typeof v === 'boolean' ? v : undefined;
+  }
+
   /* istanbul ignore next */
   get hasForeground(): boolean {
     return this.installation.hasForeground;
@@ -151,13 +156,8 @@ export default class Wapp {
       'permission',
     ]);
 
-    const localSessionUser = this.manifest?.permission?.session_user;
-    if (
-      newVersion.permission &&
-      typeof localSessionUser === 'boolean' &&
-      newVersion.permission.session_user === undefined
-    ) {
-      newVersion.permission = { ...newVersion.permission, session_user: localSessionUser };
+    if (newVersion.permission && this.sessionUser !== undefined && newVersion.permission.session_user === undefined) {
+      newVersion.permission = { ...newVersion.permission, session_user: this.sessionUser };
     }
     saveJsonFile('manifest.json', newVersion);
     this.manifest = newVersion;
