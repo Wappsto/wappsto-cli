@@ -19,12 +19,12 @@ export default class DeleteWapp extends Wapp {
       return;
     }
 
-    if (!answers.local && !answers.remote) {
-      tui.showWarning('Nothing to delete');
-      return;
-    }
-
     await section('Deleting wapp', async () => {
+      if (this.application.id && !(await this.application.exists())) {
+        tui.showWarning('Nothing to delete');
+        return;
+      }
+
       const results: Promise<void>[] = [];
 
       this.application.version.forEach((v: Version | string) => {
@@ -51,6 +51,7 @@ export default class DeleteWapp extends Wapp {
       }
 
       tui.showMessage('Wapp deleted');
+      tui.showMessage('TEST');
     });
   }
 }

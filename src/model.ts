@@ -87,6 +87,15 @@ export default class Model {
     deleteFile(`${this.cacheFolder}${this.meta.type}`);
   }
 
+  async exists(): Promise<boolean> {
+    try {
+      await HTTP.get(`${this.url}`);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   async fetch(): Promise<boolean> {
     try {
       const response = await HTTP.get(`${this.url}?expand=2&verbose=true`);
