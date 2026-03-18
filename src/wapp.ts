@@ -150,6 +150,15 @@ export default class Wapp {
       'description',
       'permission',
     ]);
+
+    const localSessionUser = this.manifest?.permission?.session_user;
+    if (
+      newVersion.permission &&
+      typeof localSessionUser === 'boolean' &&
+      newVersion.permission.session_user === undefined
+    ) {
+      newVersion.permission = { ...newVersion.permission, session_user: localSessionUser };
+    }
     saveJsonFile('manifest.json', newVersion);
     this.manifest = newVersion;
   }

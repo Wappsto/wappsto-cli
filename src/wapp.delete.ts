@@ -51,7 +51,6 @@ export default class DeleteWapp extends Wapp {
       }
 
       tui.showMessage('Wapp deleted');
-      tui.showMessage('TEST');
     });
   }
 }

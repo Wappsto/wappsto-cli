@@ -62,6 +62,7 @@ export default class Installation extends Model implements Installation21 {
       'version_id',
       'session',
       'background_session',
+      'session_user',
     ];
   }
 
@@ -77,17 +78,34 @@ export default class Installation extends Model implements Installation21 {
     return this.supported_features.indexOf('background') !== -1;
   }
 
-  async create(id: string): Promise<boolean> {
+  async create(id: string, sessionUser?: boolean): Promise<boolean> {
     try {
-      const response = await HTTP.post(`${this.HOST}`, {
-        application: id,
-      });
+      const body: Record<string, unknown> = { application: id };
+      if (sessionUser !== undefined) {
+        body.session_user = sessionUser;
+      }
+      const response = await HTTP.post(`${this.HOST}`, body);
       this.parse(response.data);
       this.save();
       return true;
     } catch (err) {
       this.handleException('Failed to create installation', err as AxiosError);
       return false;
+    }
+  }
+
+  async setSessionUser(sessionUser: boolean): Promise<void> {
+    try {
+      await HTTP.patch(`${this.url}`, {
+        session_user: sessionUser,
+      });
+      this.session_user = sessionUser;
+      this.save();
+    } catch (err) {
+      this.handleException(
+        `Failed to change session_user for installation: ${this.id}`,
+        err as AxiosError
+      );
     }
   }
 
