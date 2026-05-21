@@ -49,7 +49,7 @@ export default async function update(argv: string[]) {
   await wapp.init();
 
   try {
-    await checkExecutableVersion(wapp.manifest, undefined, {
+    await checkExecutableVersion(wapp.manifest, {
       yes: Boolean(options.yes),
     });
   } catch (err) {

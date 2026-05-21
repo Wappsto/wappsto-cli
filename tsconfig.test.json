@@ -2,7 +2,8 @@
     "compilerOptions": {
       "types": ["@types/node", "@types/jest"],
       "noEmit": true,
-      "allowJs": true
+      "allowJs": true,
+      "rootDir": "."
     },
     "extends": "./tsconfig",
     "exclude": [],

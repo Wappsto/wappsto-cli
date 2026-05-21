@@ -1,22 +1,8 @@
 import prompts from 'prompts';
-import { Manifest } from './types/custom.d';
+import Config from './config';
+import { Manifest } from './types/custom';
 import HTTP from './util/http';
 import tui from './util/tui';
-
-// Wrapped so tests can stub the local Node version without monkey-patching
-// process.versions globally.
-export const _internals = {
-  getLocalNodeMajor: (): string => process.versions.node.split('.')[0] ?? '',
-  confirm: async (message: string): Promise<boolean> => {
-    const response = await prompts({
-      type: 'confirm',
-      name: 'value',
-      message,
-      initial: false,
-    });
-    return response.value === true;
-  },
-};
 
 type Options = {
   yes?: boolean;
@@ -33,33 +19,36 @@ function titleCase(engine: string): string {
   return engine.charAt(0).toUpperCase() + engine.slice(1);
 }
 
-// Verifies the Node version the developer is running against, and the
-// version (if any) pinned in manifest.json, line up with the platform's
-// default executable version. Warns on divergence and prompts for
-// confirmation. Resolves silently if everything matches.
-//
-// Throws (without making any further HTTP calls) if the user declines
-// the prompt. Resolves with a single info message if the backend
-// endpoint is unreachable — we don't want to block publishing on our
-// own outage.
+async function confirm(message: string): Promise<boolean> {
+  const response = await prompts({
+    type: 'confirm',
+    name: 'value',
+    message,
+    initial: false,
+  });
+  return response.value === true;
+}
+
 export async function checkExecutableVersion(
   manifest: Manifest,
-  http: typeof HTTP = HTTP,
   options: Options = {}
 ): Promise<void> {
-  const supportsBackground = manifest.supported_features?.includes('background');
+  const supportsBackground =
+    manifest.supported_features?.includes('background');
   if (!supportsBackground) return;
 
   const engine = manifest.executable?.engine ?? 'node';
   const overrideVersion = manifest.executable?.version;
 
+  const url = `${Config.host()}/services/2.1/executable/${engine}`;
   let defaultVersion: string | undefined;
   try {
-    const response = await http.get(`/services/2.1/executable/${engine}`);
-    defaultVersion = (response.data as EngineDefault | undefined)?.default_version;
+    const response = await HTTP.get(url);
+    defaultVersion = (response.data as EngineDefault | undefined)
+      ?.default_version;
   } catch (err) {
     tui.showMessage(
-      `Skipping platform ${titleCase(engine)} version check — could not reach /services/2.1/executable/${engine}.`
+      `Skipping platform ${titleCase(engine)} version check — could not reach ${url}.`
     );
     return;
   }
@@ -82,7 +71,7 @@ export async function checkExecutableVersion(
   }
 
   if (engine === 'node') {
-    const localMajor = _internals.getLocalNodeMajor();
+    const localMajor = major(process.versions.node);
     if (defaultMajor && localMajor && localMajor !== defaultMajor) {
       const productionMajor = overrideMajor ?? defaultMajor;
       warnings.push(
@@ -97,10 +86,7 @@ export async function checkExecutableVersion(
 
   if (options.yes) return;
 
-  const confirmed = await _internals.confirm('Continue with update?');
-  if (!confirmed) {
+  if (!(await confirm('Continue with update?'))) {
     throw new Error('Update cancelled by user');
   }
 }
-
-export default checkExecutableVersion;
