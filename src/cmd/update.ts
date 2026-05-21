@@ -1,3 +1,4 @@
+import { checkExecutableVersion } from '../checkExecutableVersion';
 import setup from '../util/setup_cli';
 import tui from '../util/tui';
 import Wapp from '../wapp.update';
@@ -7,6 +8,12 @@ const optionDefinitions = [
     name: 'reinstall',
     description: 'Trigger a reinstall of the background wapp.',
     alias: 'r',
+    type: Boolean,
+  },
+  {
+    name: 'yes',
+    description: 'Skip the executable-version confirmation prompt.',
+    alias: 'y',
     type: Boolean,
   },
 ];
@@ -21,6 +28,7 @@ const sections = [
     content: [
       '$ wapp update',
       '$ wapp update {bold --reinstall}',
+      '$ wapp update {bold --yes}',
       '$ wapp update {bold --help}',
     ],
   },
@@ -41,7 +49,17 @@ export default async function update(argv: string[]) {
   await wapp.init();
 
   try {
-    const files = await wapp.update(options.reinstall);
+    await checkExecutableVersion(wapp.manifest, undefined, {
+      yes: Boolean(options.yes),
+    });
+  } catch (err) {
+    tui.showMessage((err as Error).message || 'Update cancelled');
+    process.exitCode = 1;
+    return;
+  }
+
+  try {
+    const files = await wapp.update(Boolean(options.reinstall));
 
     files.forEach((f) => {
       if (f.status.includes('not ')) {
