@@ -10,9 +10,9 @@ import { VERSION } from './version';
 // On Node versions where no matching binary ships (e.g. Node 24 with v8 of the
 // package), the require throws and crashes the CLI before any Sentry code runs.
 // Load it defensively so profiling becomes best-effort.
-let profilingIntegration: ReturnType<
-  typeof import('@sentry/profiling-node').nodeProfilingIntegration
-> | undefined;
+let profilingIntegration:
+  | ReturnType<typeof import('@sentry/profiling-node').nodeProfilingIntegration>
+  | undefined;
 try {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { nodeProfilingIntegration } = require('@sentry/profiling-node');

@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-      "types": ["@types/node"],
+      "types": ["@types/node", "@types/jest"],
       "noEmit": true,
       "allowJs": true
     },

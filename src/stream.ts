@@ -243,7 +243,8 @@ export default class Stream {
         case 'notification':
           if (
             data &&
-            (data as Notification21).base.from === this.installation_id
+            (!this.installation_id ||
+              (data as Notification21).base?.from === this.installation_id)
           ) {
             await this.handleNotification(data as Notification21, callback);
           }

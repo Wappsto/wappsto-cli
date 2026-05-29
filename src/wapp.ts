@@ -156,8 +156,15 @@ export default class Wapp {
       'permission',
     ]);
 
-    if (newVersion.permission && this.sessionUser !== undefined && newVersion.permission.session_user === undefined) {
-      newVersion.permission = { ...newVersion.permission, session_user: this.sessionUser };
+    if (
+      newVersion.permission &&
+      this.sessionUser !== undefined &&
+      newVersion.permission.session_user === undefined
+    ) {
+      newVersion.permission = {
+        ...newVersion.permission,
+        session_user: this.sessionUser,
+      };
     }
     saveJsonFile('manifest.json', newVersion);
     this.manifest = newVersion;
