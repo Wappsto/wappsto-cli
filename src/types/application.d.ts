@@ -217,7 +217,7 @@ export interface File21 {
       ...{
         concern: string;
         line: number;
-      }[]
+      }[],
     ];
   }[];
   meta: Meta212;

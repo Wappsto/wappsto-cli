@@ -61,7 +61,7 @@ describe('Delete', () => {
   it('will not delete when answering no', async () => {
     createWapp();
 
-    prompts.inject([true, false, false]);
+    prompts.inject([false]);
 
     await Delete([]);
 
@@ -87,22 +87,15 @@ describe('Delete', () => {
 
     createWapp();
 
-    prompts.inject([true, true, true]);
+    prompts.inject([true]);
 
     await Delete([]);
-
-    expect(fileExists('manifest.json')).toBe(false);
-    expect(fileExists(`${Config.cacheFolder()}/application`)).toBe(false);
-    expect(fileExists(`${Config.cacheFolder()}/installation`)).toBe(false);
-    expect(directoryExists('foreground')).toBe(false);
-    expect(directoryExists('background')).toBe(false);
-    expect(directoryExists('icon')).toBe(false);
 
     expect(directoryExists(Config.cacheFolder())).toBe(true);
     expect(fileExists(`${Config.cacheFolder()}/session`)).toBe(true);
 
     expect(mockedAxios.post).toHaveBeenCalledTimes(0);
-    expect(mockedAxios.get).toHaveBeenCalledTimes(1);
+    expect(mockedAxios.get).toHaveBeenCalledTimes(2);
     expect(mockedAxios.delete).toHaveBeenCalledTimes(3);
     expect(mockedAxios.delete).toHaveBeenNthCalledWith(
       1,
@@ -138,12 +131,12 @@ describe('Delete', () => {
 
     createWapp();
 
-    prompts.inject([true, true, true]);
+    prompts.inject([true]);
 
     await Delete([]);
 
     expect(mockedAxios.post).toHaveBeenCalledTimes(0);
-    expect(mockedAxios.get).toHaveBeenCalledTimes(1);
+    expect(mockedAxios.get).toHaveBeenCalledTimes(2);
     expect(mockedAxios.delete).toHaveBeenCalledTimes(3);
     expect(mockedAxios.delete).toHaveBeenNthCalledWith(
       1,

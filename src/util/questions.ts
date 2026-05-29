@@ -297,20 +297,22 @@ class Questions {
     if (type === false) {
       return false;
     }
-    
+
     /* istanbul ignore next */
     function validateEmptyString(input: string) {
       return input.length > 0 ? true : 'You must enter a valid string';
     }
 
     function validateUrl(input: string) {
-      return (
-        input.match(/^https?:\/\/[\w\d./]+$/) ? true :
-        'Please enter a valid url, starting with http(s)://'
-      );
+      return input.match(/^https?:\/\/[\w\d./]+$/)
+        ? true
+        : 'Please enter a valid url, starting with http(s)://';
     }
 
-    function optional(input: string, validator: (input: string) => boolean | string) {
+    function optional(
+      input: string,
+      validator: (input: string) => boolean | string
+    ) {
       return input.length > 0 ? validator(input) : true;
     }
 
@@ -461,25 +463,29 @@ class Questions {
       },
       {
         name: 'api_extra_request_appid',
-        type: (prev: JsonObjType, value: JsonObjType) => (value.api_extra_request ? 'text': null),
+        type: (prev: JsonObjType, value: JsonObjType) =>
+          value.api_extra_request ? 'text' : null,
         initial: external.api_extra_request?.appid as string | undefined,
         message: 'Extra Request App ID:',
       },
       {
         name: 'api_extra_request_grant_type',
-        type: (prev: JsonObjType, value: JsonObjType) => (value.api_extra_request ? 'text': null),
+        type: (prev: JsonObjType, value: JsonObjType) =>
+          value.api_extra_request ? 'text' : null,
         initial: external.api_extra_request?.grant_type as string | undefined,
         message: 'Extra Request Grant Type:',
       },
       {
         name: 'api_extra_request_deviceid',
-        type: (prev: JsonObjType, value: JsonObjType) => (value.api_extra_request ? 'text': null),
+        type: (prev: JsonObjType, value: JsonObjType) =>
+          value.api_extra_request ? 'text' : null,
         initial: external.api_extra_request?.deviceid as string | undefined,
         message: 'Extra Request Device ID:',
       },
       {
         name: 'api_extra_request_devicename',
-        type: (prev: JsonObjType, value: JsonObjType) => (value.api_extra_request ? 'text': null),
+        type: (prev: JsonObjType, value: JsonObjType) =>
+          value.api_extra_request ? 'text' : null,
         initial: external.api_extra_request?.devicename as string | undefined,
         message: 'Extra Request Device Name:',
       },
@@ -491,8 +497,11 @@ class Questions {
       },
       {
         name: 'api_extra_access_token_grant_type',
-        type: (prev: JsonObjType, value: JsonObjType) => (value.api_extra_request ? 'text': null),
-        initial: external.api_extra_access_token?.grant_type as string | undefined,
+        type: (prev: JsonObjType, value: JsonObjType) =>
+          value.api_extra_request ? 'text' : null,
+        initial: external.api_extra_access_token?.grant_type as
+          | string
+          | undefined,
         message: 'Extra Access Token Grant Type:',
       },
     ];
@@ -603,20 +612,20 @@ class Questions {
       case 'external_oauth':
         answers = await this.ask(oauthExtQuestions);
         if (answers !== false) {
-          if(answers.api_extra_request) {
+          if (answers.api_extra_request) {
             answers.api_extra_request = {
               appid: answers.api_extra_request_appid,
               grant_type: answers.api_extra_request_grant_type,
               deviceid: answers.api_extra_request_deviceid,
-              devicename: answers.api_extra_request_devicename
+              devicename: answers.api_extra_request_devicename,
             };
           } else {
             delete answers.api_extra_request;
           }
 
-          if(answers.api_extra_access_token) {
+          if (answers.api_extra_access_token) {
             answers.api_extra_access_token = {
-              grant_type: answers.api_extra_access_token_grant_type
+              grant_type: answers.api_extra_access_token_grant_type,
             };
           } else {
             delete answers.api_extra_access_token;
