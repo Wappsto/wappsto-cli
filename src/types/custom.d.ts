@@ -16,6 +16,11 @@ export type Description = {
 
 export type SupportedFeatures = ('foreground' | 'background' | 'widget')[];
 
+export type Executable = {
+  engine?: 'node' | 'python';
+  version?: string;
+};
+
 export type Manifest = {
   name: string;
   name_identifier: string;
@@ -25,6 +30,7 @@ export type Manifest = {
   supported_features: SupportedFeatures;
   description: Description;
   permission: Permission;
+  executable?: Executable;
 };
 
 type JsonObjType = Record<
