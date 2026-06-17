@@ -1,4 +1,4 @@
 [defaults]
-url = https://sentry.iot.seluxit.com
-org = slx
+url = https://de.sentry.io
+org = wirtek-iot
 project = wappsto-cli
