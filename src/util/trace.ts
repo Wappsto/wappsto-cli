@@ -24,7 +24,7 @@ try {
 /* istanbul ignore file */
 if (process.env.NODE_ENV !== 'test') {
   Sentry.init({
-    dsn: 'https://ef7592dc40c34510b9246633e453ef0e@sentry.iot.seluxit.com/124',
+    dsn: 'https://f9d10873d36c4079e3981f4a678a73ff@o4511579481702400.ingest.de.sentry.io/4511579709964368',
     integrations: profilingIntegration ? [profilingIntegration] : [],
     // We recommend adjusting this value in production, or using tracesSampler
     // for finer control
